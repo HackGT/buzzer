@@ -1,0 +1,44 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
+.grunt
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons (http://nodejs.org/api/addons.html)
+build/Release
+
+# Dependency directories
+node_modules
+jspm_packages
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+*.js.map
+uploads/
+server/config/config.json
+server/config/questions\.schema\.d\.ts
+
+# Editors
+.vscode/
+*.swp
+.#*
+
+# Ruby
+.travis.d/.bundle
+.travis.d/Gemfile.lock
+.travis.d/vendor
+
