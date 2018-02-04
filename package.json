@@ -1,0 +1,30 @@
+{
+  "name": "registration",
+  "version": "1.11.7",
+  "description": "TBD",
+  "main": "server/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "bash ./build.sh",
+    "quickbuild": "./node_modules/typescript/bin/tsc -p server/ && ./node_modules/typescript/bin/tsc -p client/",
+    "start": "node server/app.js",
+    "build-start": "npm run build && npm start"
+  },
+  "author": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HackGT/buzzer.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/HackGT/buzzer/issues"
+  },
+  "homepage": "https://github.com/HackGT/buzzer#readme",
+  "private": true,
+  "dependencies": {
+  },
+  "devDependencies": {
+    "typescript": "^2.5.2"
+  }
+}

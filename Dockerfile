@@ -1,16 +1,7 @@
-FROM python:2.7-alpine
-RUN apk update && \
-    apk add python python-dev libffi-dev gcc make py-pip
+FROM ubuntu
 
-RUN mkdir -p /app
-COPY . /app
-WORKDIR /app
-VOLUME ["/app"]
+RUN apt-get update
 
-RUN pip install -r requirements.txt
+RUN apt-get install -y curl
 
-RUN chmod +x /app/start.sh
-
-EXPOSE 8000
-
-ENTRYPOINT ["/app/start.sh"]
+CMD ["curl", "wttr.in/atlanta"]
