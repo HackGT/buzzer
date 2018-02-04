@@ -1,0 +1,8 @@
+version: '1'
+
+services:
+  buzzer:
+    build: .
+    restart: always
+    ports:
+      - "8000:8000"

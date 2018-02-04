@@ -1,5 +1,0 @@
-git:
-    remote: https://github.com/HackGT/buzzer.git
-    branch: master
-
-target_port: 8080
