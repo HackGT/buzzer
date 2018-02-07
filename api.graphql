@@ -1,3 +1,7 @@
+# Proposed interface
+# API gets 'msg' and 'medium'
+# 
+
 schema {
   query: Query
 }
