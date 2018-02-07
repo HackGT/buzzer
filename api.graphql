@@ -1,13 +1,52 @@
+# Proposed interface
+# API gets 'msg' and 'medium'
+# 
+
 schema {
   query: Query
 }
 
 type Query {
+  sendMessage(message: String!, media: [String!]!): [Status!]!
+  # sendMessage(message: String!): MessageObject
   user(id: ID): User
   users: [User!]!
+  tag(id: ID): Tag
+  tags: [Tag!]!
 }
 
+enum Status {
+  SUCCESS
+  ERROR
+}
+
+enum Medium {
+  SLACK
+  MOBILE
+}
+
+type sendMessage {
+  Slack: Status
+  Mobile: Status
+}
+
+# type MessageObject {
+#   Slack: Medium
+#   Mobile: Medium
+# }
+
+# Below is User, should we switch to 'endpoint?'
+# Endpoint takes 
 type User {
   id: ID!
+  desc: String
   name: String!
+  phone: String!
+  tags: [Tag!]!
+}
+
+type Tag {
+  id: ID!
+  name: String!
+  users: [User!]!
 }
