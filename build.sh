@@ -7,5 +7,5 @@ set -xeuo pipefail
 # ./node_modules/.bin/graphql-typewriter -i ./api.graphql
 # mv ./api.graphql.types.ts ./server/config/
 
-# ./node_modules/tslint/bin/tslint -p server/
+./node_modules/tslint/bin/tslint -p server/
 ./node_modules/typescript/bin/tsc -p server/
