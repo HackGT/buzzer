@@ -6,47 +6,63 @@ schema {
   query: Query
 }
 
+# Message, Mode: (TARGET, ANNOUNCE)
+# - Announce:
+#   - Facebook, Twitter, Slack @announcements, Live Site
+# - Target:
+#   - Email, Twilio, Slacking PMs
+# message, group, and medium
+# for each medium, we have a mapping to a group
+# Email: - select user list via tags
+# Mobile: - same thing as email
+# Slack: - send to general with prepended/preformatted [TAG NAME]
+#        - or direct PMs
+# Tweet: No targetting - ( provide disclaimer )
+# Push notification: - can we target? api tokens
 type Query {
-  sendMessage(message: String!, media: [String!]!): [Status!]!
-  # sendMessage(message: String!): MessageObject
-  user(id: ID): User
-  users: [User!]!
-  tag(id: ID): Tag
-  tags: [Tag!]!
+  sendMessage(message: String!, plugins: PluginMaster!): PluginReturn!
 }
 
 enum Status {
   SUCCESS
   ERROR
+  NULL
 }
 
-enum Medium {
-  SLACK
-  MOBILE
+input PluginMaster {
+  email: EmailConfig,
+  facebook: FacebookConfig,
+  liveSite: LiveSiteConfig,
+  twitter: TwitterConfig,
+  slack: SlackConfig
 }
 
-type sendMessage {
-  Slack: Status
-  Mobile: Status
+type PluginReturn {
+  email: Status,
+  facebook: Status,
+  liveSite: Status,
+  twitter: Status,
+  slack: Status
 }
 
-# type MessageObject {
-#   Slack: Medium
-#   Mobile: Medium
-# }
-
-# Below is User, should we switch to 'endpoint?'
-# Endpoint takes 
-type User {
-  id: ID!
-  desc: String
+# Dummies
+input EmailConfig {
   name: String!
-  phone: String!
-  tags: [Tag!]!
 }
 
-type Tag {
-  id: ID!
+input FacebookConfig {
   name: String!
-  users: [User!]!
+}
+
+input LiveSiteConfig {
+  notificationType: String
+}
+
+input TwitterConfig {
+  name: String!
+}
+
+# Remove when implemented
+input SlackConfig {
+  channels: [String!]!
 }
