@@ -4,8 +4,8 @@ import * as express from "express";
 import * as compression from "compression";
 import * as bodyParser from "body-parser";
 
-import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
-import { makeExecutableSchema } from 'graphql-tools';
+import { graphqlExpress, graphiqlExpress } from 'graphql-server-express'
+import { makeExecutableSchema } from 'graphql-tools'
 
 import { PORT } from './common';
 import * as plugins from './plugins/api';
@@ -13,7 +13,7 @@ import { GenericNotifier } from './plugins/api/GenericNotifier';
 import { APIReturn } from './plugins/api/APIReturn';
 
 const typeDefs = fs.readFileSync(path.resolve(__dirname, "../api.graphql"), "utf8");
-
+// TODO: Scan for plugins and import both api and typeDefs. API should take message and config.
 const app = express();
 
 app.use(compression());
@@ -53,11 +53,11 @@ const schema = makeExecutableSchema({
 	resolvers
 });
 
-app.use('/graphql', bodyParser.json(), graphqlExpress({ schema }));
-app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
+app.use('/graphql', bodyParser.json(), graphqlExpress({ schema }))
+app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
 
 app.listen(PORT, () => {
 	console.log(`Buzzer system started on 0.0.0.0:${PORT}`);
 });
 
-export default app;
+export default app
