@@ -20,7 +20,7 @@ schema {
 # Tweet: No targetting - ( provide disclaimer )
 # Push notification: - can we target? api tokens
 type Query {
-  sendMessage(message: String!, plugins: PluginMaster!): PluginReturn!
+  send_message(message: String!, plugins: PluginMaster!): PluginReturn!
 }
 
 enum Status {
@@ -32,7 +32,7 @@ enum Status {
 input PluginMaster {
   email: EmailConfig,
   facebook: FacebookConfig,
-  liveSite: LiveSiteConfig,
+  live_site: LiveSiteConfig,
   twitter: TwitterConfig,
   slack: SlackConfig
 }
@@ -40,7 +40,7 @@ input PluginMaster {
 type PluginReturn {
   email: Status,
   facebook: Status,
-  liveSite: Status,
+  live_site: Status,
   twitter: Status,
   slack: Status
 }
@@ -55,7 +55,7 @@ input FacebookConfig {
 }
 
 input LiveSiteConfig {
-  notificationType: String
+  notification_type: String
 }
 
 input TwitterConfig {
