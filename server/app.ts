@@ -49,14 +49,14 @@ const liveSiteAPI: APICallback = ( message, config ) => {
 
 
 const mediaAPI: { [medium: string]: APICallback } = {
-  "LIVESITE": liveSiteAPI,
+  "LIVE_SITE": liveSiteAPI,
   "SLACK": slackAPI,
   "EMAIL": ( message: string ) => 'ERROR'// Status.FAILURE
 }
 
 const resolvers = {
   Query: {
-    sendMessage: (prev: any, args: any) => {
+    send_message: (prev: any, args: any) => {
       let statusRet: IStatusReturn = {}
       const src = Object.keys(args.plugins)
       src.forEach( plugin => {
