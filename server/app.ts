@@ -1,4 +1,5 @@
-const fs = require('fs') 
+declare var require: any
+const fs = require('fs')
 const path = require('path')
 const express = require('express')
 const compression = require('compression')
@@ -66,7 +67,7 @@ const resolvers = {
       })
       return statusRet
       /*
-      async runAPI = () => await Promise.all(src.map( plugin => 
+      async runAPI = () => await Promise.all(src.map( plugin =>
 	mediaAPI[plugin.toUpperCase()](args.message,
 					args.plugins[plugin])
       ))
@@ -92,7 +93,7 @@ const schema = makeExecutableSchema({
 app.use('/graphql', bodyParser.json(), graphqlExpress({ schema }))
 app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
 
- 
+
 app.listen(PORT, () => {
   console.log(`Buzzer system started on port ${PORT}`)
 })
