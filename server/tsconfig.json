@@ -19,6 +19,6 @@
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "plugins": [],
-    "moduleResolution": "node"
+    "moduleResolution": "node",
   }
 }
