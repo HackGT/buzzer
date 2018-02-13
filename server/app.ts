@@ -9,6 +9,9 @@ import { graphqlExpress, graphiqlExpress } from 'graphql-server-express'
 import { makeExecutableSchema } from 'graphql-tools'
 
 import { PORT } from './common'
+import * as plugins from './plugins/api'
+import { GenericNotifier } from './plugins/api/GenericNotifier'
+
 
 const typeDefs = fs.readFileSync(path.resolve(__dirname, "../api.graphql"), "utf8");
 // TODO: Scan for plugins and import both api and typeDefs. API should take message and config.
@@ -96,6 +99,16 @@ app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
 
 app.listen(PORT, () => {
   console.log(`Buzzer system started on port ${PORT}`)
+  console.log(plugins);
+  for (let plugin of plugins.plugins) {
+    let curNotifier : GenericNotifier = new plugin()
+    console.log(curNotifier.TAG);
+    if (curNotifier.TAG === "LIVESITE") {
+      curNotifier.sendMessage({message: "yeeee", groups: ["ye1", "ye2"]});
+    } else if (curNotifier.TAG === "SLACK") {
+      curNotifier.sendMessage({message: "yeeee", groups: ["ye1", "ye2"], channel: "h4ck3r5"});
+    }
+  }
 })
 
 export default app
