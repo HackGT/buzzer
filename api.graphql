@@ -23,10 +23,16 @@ type Query {
   send_message(message: String!, plugins: PluginMaster!): PluginReturn!
 }
 
-enum Status {
-  SUCCESS
-  ERROR
-  NULL
+#
+# enum StatusEnum {
+#   SUCCESS
+#   ERROR
+#   NULL
+# }
+
+type Status { # corresponding to APIReturn
+  error: Int!,
+  debugInfo: String
 }
 
 input PluginMaster {
@@ -64,5 +70,6 @@ input TwitterConfig {
 
 # Remove when implemented
 input SlackConfig {
-  channels: [String!]!
+  channel: String,
+  channels: [String!]
 }

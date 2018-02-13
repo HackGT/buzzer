@@ -11,7 +11,7 @@ import { makeExecutableSchema } from 'graphql-tools'
 import { PORT } from './common'
 import * as plugins from './plugins/api'
 import { GenericNotifier } from './plugins/api/GenericNotifier'
-
+import { APIReturn } from './plugins/api/APIReturn'
 
 const typeDefs = fs.readFileSync(path.resolve(__dirname, "../api.graphql"), "utf8");
 // TODO: Scan for plugins and import both api and typeDefs. API should take message and config.
@@ -33,40 +33,18 @@ enum Status {
 */
 
 // Do I need to use a promise below?
-type APICallback = (message: string, config: any) => string;
-type IStatusReturn = { [medium: string]: string }
-
-// Test api
-const slackAPI: APICallback = ( message, config ) => {
-  console.log("Slacking")
-  console.log(`Relaying ${message}`)
-  console.log(config)
-  return 'SUCCESS'; // Status.SUCCESS is just a number...
-}
-
-const liveSiteAPI: APICallback = ( message, config ) => {
-  console.log("Live Site")
-  console.log(`Relaying ${message}`)
-  console.log(config)
-  return `SUCCESS`;
-}
-
-
-const mediaAPI: { [medium: string]: APICallback } = {
-  "LIVE_SITE": liveSiteAPI,
-  "SLACK": slackAPI,
-  "EMAIL": ( message: string ) => 'ERROR'// Status.FAILURE
-}
+type IStatusReturn = { [medium: string]: APIReturn }
 
 const resolvers = {
   Query: {
     send_message: (prev: any, args: any) => {
       let statusRet: IStatusReturn = {}
       const src = Object.keys(args.plugins)
-      src.forEach( plugin => {
-	const pluginFunc = args.plugins[plugin]
-	statusRet[plugin] =
-	  mediaAPI[plugin.toUpperCase()](args.message, pluginFunc)
+      src.forEach( name => {
+	const message = args.message
+	const config = { ...args.plugins[name], message }
+	const plugin: GenericNotifier = plugins.mediaAPI[name.toUpperCase()]
+	statusRet[name] = plugin.sendMessage(config)
       })
       return statusRet
       /*
@@ -98,17 +76,7 @@ app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
 
 
 app.listen(PORT, () => {
-  console.log(`Buzzer system started on port ${PORT}`)
-  console.log(plugins);
-  for (let plugin of plugins.plugins) {
-    let curNotifier : GenericNotifier = new plugin()
-    console.log(curNotifier.TAG);
-    if (curNotifier.TAG === "LIVESITE") {
-      curNotifier.sendMessage({message: "yeeee", groups: ["ye1", "ye2"]});
-    } else if (curNotifier.TAG === "SLACK") {
-      curNotifier.sendMessage({message: "yeeee", groups: ["ye1", "ye2"], channel: "h4ck3r5"});
-    }
-  }
+  console.log(`Buzzer system started on 127.0.0.1:${PORT}`)
 })
 
 export default app
