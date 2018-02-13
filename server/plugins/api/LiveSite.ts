@@ -3,12 +3,12 @@ import { GenericNotifier } from "./GenericNotifier"
 import { GenericConfig } from "./GenericConfig"
 
 interface Config extends GenericConfig {
-    groups?: string[],
-    message: string
+  groups?: string[],
+  message: string
 }
 
-export class LiveSite implements GenericNotifier {
-    sendMessage = (config : Config) : APIReturn => {
+export default class LiveSite implements GenericNotifier {
+  sendMessage = (config : Config) : APIReturn => {
         // plugin code here
         console.log(config.message);
         if (config.groups !== undefined) {
