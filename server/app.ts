@@ -14,7 +14,7 @@ import { GenericNotifier } from './plugins/api/GenericNotifier'
 import { APIReturn } from './plugins/api/APIReturn'
 
 const typeDefs = fs.readFileSync(path.resolve(__dirname, "../api.graphql"), "utf8");
-// TODO: Scan for plugins and import both api and typeDefs. API should take message and config.
+
 const app = express();
 
 app.use(compression());
@@ -22,17 +22,6 @@ process.on("unhandledRejection", err => {
   throw err;
 });
 
-// API suggestions: Use tags and media. Media don't have options (except slack with specified channels). Tags is a PM (through... what platform?) to everyone tagged. - ie Tags is a keyword to send individual messages?
-
-/*
-enum Status {
-  SUCCESS,
-  FAILURE,
-  NULL
-}
-*/
-
-// Do I need to use a promise below?
 type IStatusReturn = { [medium: string]: APIReturn }
 
 const resolvers = {
@@ -47,21 +36,6 @@ const resolvers = {
 	statusRet[name] = plugin.sendMessage(config)
       })
       return statusRet
-      /*
-      async runAPI = () => await Promise.all(src.map( plugin =>
-	mediaAPI[plugin.toUpperCase()](args.message,
-					args.plugins[plugin])
-      ))
-      runAPI().then(
-	res => {
-	  console.log(res)
-	  let statusRet: IStatusReturn = {}
-	  src.forEach( (srcName, index) => {
-	    statusRet[srcName] = res[index]
-	  })
-	  return statusRet
-	})
-      */
     }
   }
 }
