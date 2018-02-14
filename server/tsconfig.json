@@ -10,8 +10,7 @@
     "lib": [
       "esnext.asynciterable",
       "es6",
-      "es2015.promise",
-      "dom"
+      "es2015.promise"
     ],
     "sourceMap": true,
     "alwaysStrict": true,

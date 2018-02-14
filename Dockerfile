@@ -6,7 +6,7 @@ RUN apk add git
 RUN npm install npm@"~5.4.0" && rm -rf /usr/local/lib/node_modules && mv node_modules /usr/local/lib
 
 WORKDIR /usr/src/buzzer
-COPY . /usr/src/registration
+COPY . /usr/src/buzzer
 RUN npm install
 RUN npm run build
 
