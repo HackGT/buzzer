@@ -1,17 +1,16 @@
-declare var require: any
-const fs = require('fs')
-const path = require('path')
-const express = require('express')
-const compression = require('compression')
-const bodyParser = require('body-parser')
+import * as fs from "fs";
+import * as path from "path";
+import * as express from "express";
+import * as compression from "compression";
+import * as bodyParser from "body-parser";
 
-import { graphqlExpress, graphiqlExpress } from 'graphql-server-express'
-import { makeExecutableSchema } from 'graphql-tools'
+import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
+import { makeExecutableSchema } from 'graphql-tools';
 
-import { PORT } from './common'
-import * as plugins from './plugins/api'
-import { GenericNotifier } from './plugins/api/GenericNotifier'
-import { APIReturn } from './plugins/api/APIReturn'
+import { PORT } from './common';
+import * as plugins from './plugins/api';
+import { GenericNotifier } from './plugins/api/GenericNotifier';
+import { APIReturn } from './plugins/api/APIReturn';
 
 const typeDefs = fs.readFileSync(path.resolve(__dirname, "../api.graphql"), "utf8");
 
@@ -22,35 +21,36 @@ process.on("unhandledRejection", err => {
   throw err;
 });
 
-type IStatusReturn = { [medium: string]: APIReturn }
+interface IStatusReturn {
+	[medium: string]: APIReturn;
+}
 
 const resolvers = {
   Query: {
     send_message: (prev: any, args: any) => {
-      let statusRet: IStatusReturn = {}
-      const src = Object.keys(args.plugins)
+      let statusRet: IStatusReturn = {};
+      const src = Object.keys(args.plugins);
       src.forEach( name => {
-	const message = args.message
-	const config = { ...args.plugins[name], message }
-	const plugin: GenericNotifier = plugins.mediaAPI[name.toUpperCase()]
-	statusRet[name] = plugin.sendMessage(config)
-      })
-      return statusRet
+				const message = args.message;
+				const config = { ...args.plugins[name], message };
+				const plugin: GenericNotifier = plugins.mediaAPI[name.toUpperCase()];
+				statusRet[name] = plugin.sendMessage(config);
+      });
+      return statusRet;
     }
   }
-}
+};
 
 const schema = makeExecutableSchema({
   typeDefs,
-  resolvers,
-})
+  resolvers
+});
 
-app.use('/graphql', bodyParser.json(), graphqlExpress({ schema }))
-app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
-
+app.use('/graphql', bodyParser.json(), graphqlExpress({ schema }));
+app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
 
 app.listen(PORT, () => {
-  console.log(`Buzzer system started on 127.0.0.1:${PORT}`)
-})
+  console.log(`Buzzer system started on 127.0.0.1:${PORT}`);
+});
 
-export default app
+export default app;

@@ -2,8 +2,7 @@
     "extends": "tslint:recommended",
     "rules": {
         "indent": [
-            true,
-            "tabs"
+            true
         ],
         "array-type": [
             true,
@@ -88,8 +87,7 @@
         ],
         "encoding": true,
         "interface-name": [
-            true,
-            "always-prefix"
+            true
         ],
         "new-parens": true,
         "no-angle-bracket-type-assertion": true,
