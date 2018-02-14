@@ -2,8 +2,7 @@
     "extends": "tslint:recommended",
     "rules": {
         "indent": [
-          true,
-					"tabs"
+            true
         ],
         "array-type": [
             true,
@@ -61,6 +60,7 @@
             "allow-undefined-check"
         ],
         "use-isnan": true,
+        "typeof-compare": true,
         "deprecation": true,
         "eofline": true,
         "linebreak-style": [
@@ -87,7 +87,7 @@
         ],
         "encoding": true,
         "interface-name": [
-            false
+            true
         ],
         "new-parens": true,
         "no-angle-bracket-type-assertion": true,

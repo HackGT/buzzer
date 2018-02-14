@@ -4,8 +4,8 @@ import * as express from "express";
 import * as compression from "compression";
 import * as bodyParser from "body-parser";
 
-import { graphqlExpress, graphiqlExpress } from 'graphql-server-express'
-import { makeExecutableSchema } from 'graphql-tools'
+import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
+import { makeExecutableSchema } from 'graphql-tools';
 
 import { PORT } from './common';
 import * as plugins from './plugins/api';
@@ -60,4 +60,4 @@ app.listen(PORT, () => {
 	console.log(`Buzzer system started on 0.0.0.0:${PORT}`);
 });
 
-export default app
+export default app;
