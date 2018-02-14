@@ -13,7 +13,7 @@ import { GenericNotifier } from './plugins/api/GenericNotifier';
 import { APIReturn } from './plugins/api/APIReturn';
 
 const typeDefs = fs.readFileSync(path.resolve(__dirname, "../api.graphql"), "utf8");
-// TODO: Scan for plugins and import both api and typeDefs. API should take message and config.
+
 const app = express();
 
 app.use(compression());
