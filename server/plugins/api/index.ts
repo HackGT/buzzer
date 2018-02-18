@@ -1,8 +1,12 @@
 import { GenericNotifier } from './GenericNotifier';
+import Facebook from "./Facebook";
 import LiveSite from "./LiveSite";
 import Slack from "./Slack";
+import Twitter from "./Twitter";
 
 export const mediaAPI: { [medium: string]: GenericNotifier } = {
+	"FACEBOOK": new Facebook(),
 	"LIVE_SITE": new LiveSite(),
-	"SLACK": new Slack()
+	"SLACK": new Slack(),
+	"TWITTER": new Twitter()
 };
