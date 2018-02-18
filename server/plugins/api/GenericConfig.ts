@@ -1,3 +1,3 @@
 export interface GenericConfig {
-    message: string;
+	message: string;
 }
