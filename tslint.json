@@ -60,7 +60,6 @@
             "allow-undefined-check"
         ],
         "use-isnan": true,
-        "typeof-compare": true,
         "deprecation": true,
         "eofline": true,
         "linebreak-style": [
@@ -87,7 +86,7 @@
         ],
         "encoding": true,
         "interface-name": [
-            true
+            false
         ],
         "new-parens": true,
         "no-angle-bracket-type-assertion": true,
