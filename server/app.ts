@@ -18,7 +18,7 @@ const app = express();
 
 app.use(compression());
 process.on("unhandledRejection", err => {
-  throw err;
+	throw err;
 });
 
 interface IStatusReturn {
@@ -26,31 +26,31 @@ interface IStatusReturn {
 }
 
 const resolvers = {
-  Query: {
-    send_message: (prev: any, args: any) => {
-      let statusRet: IStatusReturn = {};
-      const src = Object.keys(args.plugins);
-      src.forEach( name => {
+	Query: {
+		send_message: (prev: any, args: any) => {
+			let statusRet: IStatusReturn = {};
+			const src = Object.keys(args.plugins);
+			src.forEach( name => {
 				const message = args.message;
 				const config = { ...args.plugins[name], message };
 				const plugin: GenericNotifier = plugins.mediaAPI[name.toUpperCase()];
 				statusRet[name] = plugin.sendMessage(config);
-      });
-      return statusRet;
-    }
-  }
+			});
+			return statusRet;
+		}
+	}
 };
 
 const schema = makeExecutableSchema({
-  typeDefs,
-  resolvers
+	typeDefs,
+	resolvers
 });
 
 app.use('/graphql', bodyParser.json(), graphqlExpress({ schema }));
 app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
 
 app.listen(PORT, () => {
-  console.log(`Buzzer system started on 127.0.0.1:${PORT}`);
+	console.log(`Buzzer system started on 0.0.0.0:${PORT}`);
 });
 
 export default app;

@@ -53,7 +53,7 @@ type PluginReturn {
 
 # Dummies
 input EmailConfig {
-  name: String!
+#  name: String!
 }
 
 input FacebookConfig {
