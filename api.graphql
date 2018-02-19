@@ -36,7 +36,6 @@ type Status { # corresponding to APIReturn
 }
 
 input PluginMaster {
-  email: EmailConfig,
   facebook: FacebookConfig,
   live_site: LiveSiteConfig,
   twitter: TwitterConfig,
@@ -51,10 +50,7 @@ type PluginReturn {
   slack: Status
 }
 
-# Dummies
-input EmailConfig {
-#  name: String!
-}
+# Below should be extracted to separate directory
 
 input FacebookConfig {
   name: String!
