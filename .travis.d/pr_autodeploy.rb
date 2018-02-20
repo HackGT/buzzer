@@ -58,19 +58,20 @@ def pr_id(branch)
 end
 
 def create_biodome_file(branch)
-  remote = git_remote
+  remote = git_remote.downcase
+  org = ORG_NAME.downcase
   data = <<~EOF
     git:
-        remote: "https://github.com/#{ORG_NAME}/#{remote}.git"
+        remote: "https://github.com/#{org}/#{remote}.git"
         branch: "#{branch}"
 
-    secrets-source: git-#{ORG_NAME}-#{remote}-secrets
+    secrets-source: git-#{org}-#{remote}-secrets
     deployment:
         replicas: 1
         strategy:
             type: Recreate
   EOF
-  ["pr/#{pr_id branch}.yaml", data.downcase]
+  ["pr/#{pr_id branch}.yaml", data]
 end
 
 def create_message(branch)
