@@ -10,8 +10,7 @@
     "start": "node server/app.js",
     "build-start": "npm run build && npm start"
   },
-  "author": {
-  },
+  "author": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/HackGT/buzzer.git"
@@ -23,6 +22,9 @@
   "homepage": "https://github.com/HackGT/buzzer#readme",
   "private": true,
   "dependencies": {
+    "http": "0.0.0",
+    "querystring": "^0.2.0",
+    "slack": "^11.0.0"
   },
   "devDependencies": {
     "typescript": "^2.5.2"
