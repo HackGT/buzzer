@@ -23,10 +23,13 @@
   "private": true,
   "dependencies": {
     "http": "0.0.0",
+    "node-fetch": "^2.0.0",
     "querystring": "^0.2.0",
     "slack": "^11.0.0"
   },
   "devDependencies": {
+    "@types/node": "^9.4.6",
+    "@types/node-fetch": "^1.6.7",
     "typescript": "^2.5.2"
   }
 }
