@@ -31,8 +31,9 @@ type Query {
 # }
 
 type Status { # corresponding to APIReturn
-  error: Int!,
-  debugInfo: String
+  error: Boolean!,
+	key: String!,
+	message: String
 }
 
 input PluginMaster {
@@ -43,29 +44,24 @@ input PluginMaster {
 }
 
 type PluginReturn {
-  email: Status,
-  facebook: Status,
-  live_site: Status,
-  twitter: Status,
-  slack: Status
+  facebook: [Status!]!,
+  live_site: [Status!]!,
+  twitter: [Status!]!,
+  slack: [Status!]!
 }
 
-# Below should be extracted to separate directory
+# Below should be extracted to separate directory (See new issue)
 
 input FacebookConfig {
-  name: String!
 }
 
 input LiveSiteConfig {
-  notification_type: String
 }
 
 input TwitterConfig {
-  name: String!
 }
 
 # Remove when implemented
 input SlackConfig {
-  channel: String,
   channels: [String!]
 }

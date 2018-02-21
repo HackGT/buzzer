@@ -3,8 +3,7 @@ import { GenericNotifier } from "./GenericNotifier";
 import { GenericConfig } from "./GenericConfig";
 
 interface Config extends GenericConfig {
-	channel?: string;
-	channels?: string[];
+	channels: string[];
 	message: string;
 }
 
@@ -17,8 +16,7 @@ export default class Slack implements GenericNotifier {
 		return {
 			error: 0,
 			debugInfo: {
-				"Channels" : config.channels,
-				"Channel" : config.channel
+				"Channels" : config.channels
 			}
 		};
 	}
