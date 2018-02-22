@@ -44,10 +44,10 @@ input PluginMaster {
 }
 
 type PluginReturn {
-  facebook: [Status!]!,
-  live_site: [Status!]!,
-  twitter: [Status!]!,
-  slack: [Status!]!
+  facebook: [Status!]! | String!,
+  live_site: [Status!]! | String!,
+  twitter: [Status!]! | String!,
+  slack: [Status!]! | String!
 }
 
 # Below should be extracted to separate directory (See new issue)
