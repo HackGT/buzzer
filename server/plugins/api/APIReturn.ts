@@ -1,4 +1,5 @@
 export interface APIReturn {
-	error: number;
-	debugInfo?: any;
+	error: boolean;
+	key: string;
+	message: string;
 }

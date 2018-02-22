@@ -7,17 +7,16 @@ interface Config {
 
 export default class Slack implements GenericNotifier<Config> {
 	public sendMessage =
-		(message: string, config: Config): Promise<APIReturn> => {
+		(message: string, config: Config): [Promise<APIReturn>] => {
 			if (config.channels !== undefined) {
 				console.log(config.channels);
 			}
-			return new Promise(resolve => {
+			return [new Promise(resolve => {
 				resolve({
-					error: 0,
-					debugInfo: {
-						"Channels" : config.channels
-					}
+					error: false,
+					key: "Slack Master",
+					message: "Success"
 				});
-			});
+			})];
 		}
 }
