@@ -4,7 +4,7 @@ import LiveSite from "./LiveSite";
 import Slack from "./Slack";
 import Twitter from "./Twitter";
 
-export const mediaAPI: { [medium: string]: GenericNotifier } = {
+export const mediaAPI: { [medium: string]: GenericNotifier<any> } = {
 	"FACEBOOK": new Facebook(),
 	"LIVE_SITE": new LiveSite(),
 	"SLACK": new Slack(),

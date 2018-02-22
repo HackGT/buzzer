@@ -22,7 +22,7 @@ process.on("unhandledRejection", err => {
 });
 
 interface IStatusReturn {
-	[medium: string]: APIReturn;
+	[medium: string]: Promise<APIReturn>;
 }
 
 const resolvers = {
@@ -32,9 +32,9 @@ const resolvers = {
 			const src = Object.keys(args.plugins);
 			src.forEach( name => {
 				const message = args.message;
-				const config = { ...args.plugins[name], message };
-				const plugin: GenericNotifier = plugins.mediaAPI[name.toUpperCase()];
-				statusRet[name] = plugin.sendMessage(config);
+				const config = args.plugin[name];
+				const plugin: GenericNotifier<any> = plugins.mediaAPI[name.toUpperCase()];
+				statusRet[name] = plugin.sendMessage(message, config);
 			});
 			return statusRet;
 		}
