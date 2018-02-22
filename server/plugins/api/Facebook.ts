@@ -1,19 +1,19 @@
 import { APIReturn } from "./APIReturn";
 import { GenericNotifier } from "./GenericNotifier";
-import { GenericConfig } from "./GenericConfig";
 
-interface Config extends GenericConfig {
-	message: string;
-}
+/* Typescript no like
+ * interface Config {
+ * }
+**/
 
-export default class Facebook implements GenericNotifier {
-	public sendMessage = (config: Config): APIReturn => {
-		return {
-			error: 0,
-			debugInfo: {
-			}
-		};
-	}
-
-	public TAG = "FACEBOOK";
+export default class Facebook implements GenericNotifier<{}> {
+	public sendMessage =
+		(message: string, config: {}): Promise<APIReturn> => {
+			return new Promise(resolve => {
+				resolve({
+					error: 0,
+					debugInfo: {}
+				});
+			});
+		}
 }
