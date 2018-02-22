@@ -1,25 +1,23 @@
 import { APIReturn } from "./APIReturn";
 import { GenericNotifier } from "./GenericNotifier";
-import { GenericConfig } from "./GenericConfig";
 
-interface Config extends GenericConfig {
+interface Config {
 	channels: string[];
-	message: string;
 }
 
-export default class Slack implements GenericNotifier {
-	public sendMessage = (config: Config): APIReturn => {
-		console.log(config.message);
-		if (config.channels !== undefined) {
-			console.log(config.channels);
-		}
-		return {
-			error: 0,
-			debugInfo: {
-				"Channels" : config.channels
+export default class Slack implements GenericNotifier<Config> {
+	public sendMessage =
+		(message: string, config: Config): Promise<APIReturn> => {
+			if (config.channels !== undefined) {
+				console.log(config.channels);
 			}
-		};
-	}
-
-	public TAG = "SLACK";
+			return new Promise(resolve => {
+				resolve({
+					error: 0,
+					debugInfo: {
+						"Channels" : config.channels
+					}
+				});
+			});
+		}
 }
