@@ -2,6 +2,6 @@ FROM ubuntu
 
 RUN apt-get update
 
-RUN apt-get install -y curl
+RUN apt-get install -y curl python3
 
-CMD ["curl", "wttr.in/atlanta"]
+CMD bash -c 'python3 -m http.server & while :; do curl -A "Mozilla/5.0" wttr.in/atlanta?T > index.html; sleep 30; done'
