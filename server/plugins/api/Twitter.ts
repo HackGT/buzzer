@@ -6,11 +6,38 @@ import * as TwitterAPI from "twit";
 export default class Twitter implements GenericNotifier<{}> {
 	public sendMessage =
 		(message: string, config: {}): [Promise<APIReturn>] => {
+
+			const consumerKey = process.env.TWITTER_CONSUMER_KEY;
+			const consumerSecret = process.env.TWITTER_CONSUMER_SECRET;
+			const accessToken = process.env.TWITTER_HACKGT_ACCESS_TOKEN;
+			const accessTokenSecret = process.env.TWITTER_HACKGT_ACCESS_TOKEN_SECRET;
+			let envFlag: boolean = false;
+			if (!consumerKey) {
+				console.log("Missing Twitter consumer_key env var");
+				envFlag = true;
+			}
+			if (!consumerSecret) {
+				console.log("Missing Twitter consumer_secret env var");
+				envFlag = true;
+			}
+			if (!accessToken) {
+				console.log("Missing Twitter access_token env var");
+				envFlag = true;
+			}
+			if (!accessTokenSecret) {
+				console.log("Missing Twitter access_token_secret env var");
+				envFlag = true;
+			}
+
+			if ( envFlag ) {
+				throw new Error("Twitter env vars missing, aborting...");
+			}
+
 			const client = new TwitterAPI({
-				consumer_key: (process.env.TWITTER_CONSUMER_KEY as string),
-				consumer_secret: (process.env.TWITTER_CONSUMER_SECRET as string),
-				access_token: (process.env.TWITTER_HACKGT_ACCESS_TOKEN as string),
-				access_token_secret: (process.env.TWITTER_HACKGT_ACCESS_TOKEN_SECRET as string)
+				consumer_key: (consumerKey as string),
+				consumer_secret: (consumerSecret as string),
+				access_token: (accessToken as string),
+				access_token_secret: (accessTokenSecret as string)
 			});
 			const params = { status: message };
 			return [new Promise((resolve, reject) => {

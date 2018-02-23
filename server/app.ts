@@ -36,11 +36,12 @@ const resolvers = {
 					const config = args.plugins[name];
 					const plugin: GenericNotifier<any> = plugins.mediaAPI[name.toUpperCase()];
 					statusRet[name] = plugin.sendMessage(message, config);
-				} catch {
+				} catch(error) {
+					console.error(error.prototype.message);
 					statusRet[name] = [{
 						error: true,
 						key: "Server",
-						message: "Malformed arguments, plugin not called. (Generic server error)"}];
+						message: "Malformed arguments or plugin internal failure, plugin not called. (Generic server error)"}];
 				}
 			});
 			return statusRet;
