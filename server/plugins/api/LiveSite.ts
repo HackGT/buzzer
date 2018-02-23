@@ -9,6 +9,7 @@ import { GenericNotifier } from "./GenericNotifier";
 export default class LiveSite implements GenericNotifier<{}> {
 	public sendMessage =
 		(message: string, config: {}): [Promise<APIReturn>] => {
+			console.log("live site");
 			return [new Promise(resolve => {
 				resolve({
 					error: false,
