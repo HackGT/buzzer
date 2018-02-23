@@ -31,34 +31,37 @@ type Query {
 # }
 
 type Status { # corresponding to APIReturn
-  error: Boolean!,
-	key: String!,
+  error: Boolean!
+	key: String!
 	message: String
 }
 
 input PluginMaster {
-  facebook: FacebookConfig,
-  live_site: LiveSiteConfig,
-  twitter: TwitterConfig,
+  facebook: FacebookConfig
+  live_site: LiveSiteConfig
+  twitter: TwitterConfig
   slack: SlackConfig
 }
 
 type PluginReturn {
-  facebook: [Status!]! | String!,
-  live_site: [Status!]! | String!,
-  twitter: [Status!]! | String!,
-  slack: [Status!]! | String!
+  facebook: [Status!]!
+  live_site: [Status!]!
+  twitter: [Status!]!
+  slack: [Status!]!
 }
 
 # Below should be extracted to separate directory (See new issue)
 
 input FacebookConfig {
+	_: Boolean
 }
 
 input LiveSiteConfig {
+	_: Boolean
 }
 
 input TwitterConfig {
+	_: Boolean
 }
 
 # Remove when implemented
