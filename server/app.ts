@@ -22,7 +22,7 @@ process.on("unhandledRejection", err => {
 });
 
 interface IStatusReturn {
-	[medium: string]: Promise<[APIReturn]> | APIReturn; // String for generic unpacking error
+	[medium: string]: [APIReturn];
 }
 
 const resolvers = {
@@ -30,34 +30,31 @@ const resolvers = {
 		send_message: async (prev: any, args: any): Promise<IStatusReturn> => {
 			let statusRet: IStatusReturn = {};
 			const message = args.message;
-			let sendingQueue = []; // Queue for message sending
-			const src = Object.keys(args.plugins);
 
-			const checkQueue = src.map( name => {
+			const checkQueue = Object.keys(args.plugins).map( name => {
 
 				return (async () => { // Loading checkQueue IIFE
 
 					const plugin: GenericNotifier<any> = plugins.mediaAPI[name.toUpperCase()];
 					const verifiedConfig = await plugin.check(args.plugin[name]); // Verify
 
-					sendingQueue.push((async () => { // Sending function
+					return async () => { // Sending function
 						try {
-								statusRet[name] = await plugin.send(message, verifiedConfig);
+							statusRet[name] = await plugin.sendMessage(message, verifiedConfig);
 						}
-						catch (Error e) {
+						catch (e) {
 							statusRet[name] = {
 								error: true,
 								key: "Server",
 								message: e.toString()
 							};
 						}
-					}));
+					};
 				})();
-
 			});
-			await Promise.all(checkQueue);
-			await Promise.all(sendingQueue.map(f => f())); // Send all!
 
+			const sendingQueue = await Promise.all(checkQueue);
+			await Promise.all(sendingQueue.map(f => f())); // Send all!
 			return statusRet;
 		}
 	}
