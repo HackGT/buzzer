@@ -43,11 +43,11 @@ const resolvers = {
 							statusRet[name] = await plugin.sendMessage(message, verifiedConfig);
 						}
 						catch (e) {
-							statusRet[name] = {
+							statusRet[name] = [{
 								error: true,
-								key: "Server",
+								key: name,
 								message: e.toString()
-							};
+							}];
 						}
 					};
 				})();
