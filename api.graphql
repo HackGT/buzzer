@@ -1,6 +1,6 @@
 # Proposed interface
 # API gets 'msg' and 'medium'
-# 
+#
 
 schema {
   query: Query
@@ -41,13 +41,15 @@ input PluginMaster {
   live_site: LiveSiteConfig
   twitter: TwitterConfig
   slack: SlackConfig
+  console: ConsoleConfig
 }
 
 type PluginReturn {
-  facebook: [Status!]!
-  live_site: [Status!]!
-  twitter: [Status!]!
-  slack: [Status!]!
+  facebook: Status!
+  live_site: Status!
+  twitter: Status!
+  slack: Status!
+  console: Status!
 }
 
 # Below should be extracted to separate directory (See new issue)
@@ -67,4 +69,8 @@ input TwitterConfig {
 # Remove when implemented
 input SlackConfig {
   channels: [String!]
+}
+
+input ConsoleConfig {
+  groups: [String!]
 }
