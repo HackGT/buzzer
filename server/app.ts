@@ -22,7 +22,7 @@ process.on("unhandledRejection", err => {
 });
 
 interface IStatusReturn {
-	[medium: string]: [Promise<APIReturn>] | APIReturn; // String for generic unpacking error
+	[medium: string]: Promise<[APIReturn]> | APIReturn; // String for generic unpacking error
 }
 
 const resolvers = {
