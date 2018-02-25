@@ -68,8 +68,19 @@ const schema = makeExecutableSchema({
 app.use('/graphql', bodyParser.json(), graphqlExpress({ schema }))
 app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }))
 
-app.listen(PORT, () => {
-	console.log(`Buzzer system started on 0.0.0.0:${PORT}`);
+// Run plugin setup
+async function runSetup() {
+	await Promise.all(Object.keys(plugins.mediaAPI).map(pluginKey => {
+		return plugins.mediaAPI[pluginKey].setup();
+	}));
+}
+
+runSetup().then(() => {
+	app.listen(PORT, () => {
+		console.log(`Buzzer system started on 0.0.0.0:${PORT}`);
+	});
+}).catch(() => {
+	console.log("App setup failed");
 });
 
 export default app;
