@@ -27,22 +27,37 @@ interface IStatusReturn {
 
 const resolvers = {
 	Query: {
-		send_message: (prev: any, args: any) => {
+		send_message: async (prev: any, args: any): Promise<IStatusReturn> => {
 			let statusRet: IStatusReturn = {};
+			const message = args.message;
+			let sendingQueue = []; // Queue for message sending
 			const src = Object.keys(args.plugins);
-			src.forEach( name => {
-				try {
-					const message = args.message;
-					const config = args.plugin[name];
+
+			const checkQueue = src.map( name => {
+
+				return (async () => { // Loading checkQueue IIFE
+
 					const plugin: GenericNotifier<any> = plugins.mediaAPI[name.toUpperCase()];
-					statusRet[name] = plugin.sendMessage(message, config);
-				} catch {
-					statusRet[name] = {
-						error: true,
-						key: "Server",
-						message: "Malformed arguments, plugin not called. (Generic server error)"};
-				}
+					const verifiedConfig = await plugin.check(args.plugin[name]); // Verify
+
+					sendingQueue.push((async () => { // Sending function
+						try {
+								statusRet[name] = await plugin.send(message, verifiedConfig);
+						}
+						catch (Error e) {
+							statusRet[name] = {
+								error: true,
+								key: "Server",
+								message: e.toString()
+							};
+						}
+					}));
+				})();
+
 			});
+			await Promise.all(checkQueue);
+			await Promise.all(sendingQueue.map(f => f())); // Send all!
+
 			return statusRet;
 		}
 	}
