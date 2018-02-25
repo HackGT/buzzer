@@ -3,10 +3,12 @@ import Facebook from "./Facebook";
 import LiveSite from "./LiveSite";
 import Slack from "./Slack";
 import Twitter from "./Twitter";
+import Console from "./Console";
 
 export const mediaAPI: { [medium: string]: GenericNotifier<any> } = {
 	"FACEBOOK": new Facebook(),
 	"LIVE_SITE": new LiveSite(),
 	"SLACK": new Slack(),
-	"TWITTER": new Twitter()
+	"TWITTER": new Twitter(),
+	"CONSOLE": new Console()
 };

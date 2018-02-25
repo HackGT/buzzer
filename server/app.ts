@@ -22,7 +22,7 @@ process.on("unhandledRejection", err => {
 });
 
 interface IStatusReturn {
-	[medium: string]: [Promise<APIReturn>] | APIReturn; // String for generic unpacking error
+	[medium: string]: Promise<APIReturn> | APIReturn; // String for generic unpacking error
 }
 
 const resolvers = {
@@ -33,14 +33,16 @@ const resolvers = {
 			src.forEach( name => {
 				try {
 					const message = args.message;
-					const config = args.plugin[name];
+					const config = args.plugins[name];
 					const plugin: GenericNotifier<any> = plugins.mediaAPI[name.toUpperCase()];
 					statusRet[name] = plugin.sendMessage(message, config);
-				} catch {
+				} catch (Exception) {
+					console.log(Exception.message);
 					statusRet[name] = {
 						error: true,
 						key: "Server",
-						message: "Malformed arguments, plugin not called. (Generic server error)"};
+						message: "Malformed arguments, plugin not called. (Generic server error)"
+					};
 				}
 			});
 			return statusRet;
