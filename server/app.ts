@@ -36,7 +36,7 @@ const resolvers = {
 				return (async () => { // Loading checkQueue IIFE
 
 					const plugin: GenericNotifier<any> = plugins.mediaAPI[name.toUpperCase()];
-					const verifiedConfig = await plugin.check(args.plugin[name]); // Verify
+					const verifiedConfig = await plugin.check(args.plugins[name]); // Verify
 
 					return async () => { // Sending function
 						try {
