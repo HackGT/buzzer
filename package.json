@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "bash ./build.sh",
-    "start": "node dist/app.js",
+		"start": "node -r dotenv/config dist/app.js",
     "build-start": "npm run build && npm start",
     "bs": "npm run build-start"
   },

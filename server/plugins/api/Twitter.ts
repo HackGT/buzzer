@@ -6,14 +6,6 @@ import * as TwitterAPI from "twit";
 export default class Twitter implements GenericNotifier<{}> {
 
 	public async setup(): Promise<void> {
-		return; // No setup currently
-	}
-
-	public async check(config: any): Promise<{}> {
-		return {}; // No config currently
-	}
-
-	public async sendMessage(message: string, config: {}): Promise<[APIReturn]> {
 		const consumerKey = process.env.TWITTER_CONSUMER_KEY;
 		const consumerSecret = process.env.TWITTER_CONSUMER_SECRET;
 		const accessToken = process.env.TWITTER_HACKGT_ACCESS_TOKEN;
@@ -40,11 +32,19 @@ export default class Twitter implements GenericNotifier<{}> {
 			throw new Error("Twitter env vars missing, aborting...");
 		}
 
+		return; // No setup currently
+	}
+
+	public async check(config: any): Promise<{}> {
+		return {}; // No config currently
+	}
+
+	public async sendMessage(message: string, config: {}): Promise<[APIReturn]> {
 		const client = new TwitterAPI({
-			consumer_key: (consumerKey as string),
-			consumer_secret: (consumerSecret as string),
-			access_token: (accessToken as string),
-			access_token_secret: (accessTokenSecret as string)
+			consumer_key: (process.env.TWITTER_CONSUMER_KEY as string),
+			consumer_secret: (process.env.TWITTER_CONSUMER_SECRET as string),
+			access_token: (process.env.TWITTER_HACKGT_ACCESS_TOKEN as string),
+			access_token_secret: (process.env.TWITTER_HACKGT_ACCESS_TOKEN_SECRET as string)
 		});
 		const params = { status: message };
 		const res = await new Promise((resolve, reject) => {
