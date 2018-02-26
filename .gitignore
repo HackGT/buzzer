@@ -31,6 +31,7 @@ jspm_packages
 uploads/
 server/config/config.json
 server/config/questions\.schema\.d\.ts
+dist/
 
 # Editors
 .vscode/
@@ -42,3 +43,4 @@ server/config/questions\.schema\.d\.ts
 .travis.d/Gemfile.lock
 .travis.d/vendor
 
+.env

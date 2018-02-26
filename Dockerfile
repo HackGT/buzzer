@@ -1,7 +1,13 @@
-FROM ubuntu
+FROM node:8-alpine
 
-RUN apt-get update
+# Templating from registration repo
+RUN apk update && apk add bash git && \
+    npm install npm@"~5.4.0" && rm -rf /usr/local/lib/node_modules && mv node_modules /usr/local/lib
 
-RUN apt-get install -y curl python3
+WORKDIR /usr/src/buzzer
+COPY . /usr/src/buzzer
+RUN npm install
+RUN npm run build
 
-CMD bash -c 'python3 -m http.server & while :; do curl -A "Mozilla/5.0" wttr.in/atlanta?T > index.html; sleep 30; done'
+EXPOSE 3000
+CMD ["npm", "start"]

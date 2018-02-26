@@ -1,0 +1,70 @@
+# Proposed interface
+# API gets 'msg' and 'medium'
+# 
+
+schema {
+	query: Query
+}
+
+# Message, Mode: (TARGET, ANNOUNCE)
+# - Announce:
+#		- Facebook, Twitter, Slack @announcements, Live Site
+# - Target:
+#		- Email, Twilio, Slacking PMs
+# message, group, and medium
+# for each medium, we have a mapping to a group
+# Email: - select user list via tags
+# Mobile: - same thing as email
+# Slack: - send to general with prepended/preformatted [TAG NAME]
+#				 - or direct PMs
+# Tweet: No targetting - ( provide disclaimer )
+# Push notification: - can we target? api tokens
+type Query {
+	send_message(message: String!, plugins: PluginMaster!): PluginReturn!
+}
+
+#
+# enum StatusEnum {
+#		SUCCESS
+#		ERROR
+#		NULL
+# }
+
+type Status { # corresponding to APIReturn
+	error: Boolean!
+	key: String!
+	message: String
+}
+
+input PluginMaster {
+	facebook: FacebookConfig
+	live_site: LiveSiteConfig
+	twitter: TwitterConfig
+	slack: SlackConfig
+}
+
+type PluginReturn {
+	facebook: [Status!]!
+	live_site: [Status!]!
+	twitter: [Status!]!
+	slack: [Status!]!
+}
+
+# Below should be extracted to separate directory (See new issue)
+
+input FacebookConfig {
+	_: Boolean
+}
+
+input LiveSiteConfig {
+	_: Boolean
+}
+
+input TwitterConfig {
+	_: Boolean
+}
+
+# Remove when implemented
+input SlackConfig {
+	channels: [String!]
+}
