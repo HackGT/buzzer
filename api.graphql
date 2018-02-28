@@ -3,7 +3,7 @@ schema {
 }
 
 type Query {
-	send_message(message: String!, plugins: PluginMaster!): PluginReturn!
+	send_message(message: String!, plugins: PluginMaster!): [PluginReturn!]!
 }
 
 type Status { # corresponding to APIReturn
@@ -12,8 +12,13 @@ type Status { # corresponding to APIReturn
 	message: String
 }
 
-input PluginMaster {
-}
+# Note: input PluginMaster {} will be generated during the build process
+# Sample:
+# input PluginMaster {
+#   facebook: FacebookConfig
+# }
 
 type PluginReturn {
+	plugin: String!
+	errors: [Status!]!
 }

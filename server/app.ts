@@ -11,17 +11,6 @@ import { GenericNotifier } from './plugins/api/GenericNotifier';
 import { APIReturn } from './plugins/api/APIReturn';
 import typeDefs from './typeDefs';
 
-/*
-	 Some merge-graphql-schema nonsense
-	 // @ts-ignore
-	 import { fileLoader, mergeTypes } from 'merge-graphql-schemas';
-	 const mainTypeDefs = fs.readFileSync(path.resolve(__dirname, "../api.graphql"), "utf8");
-	 const pluginTypeDefs = fileLoader(path.resolve(__dirname, "../server/plugins/graphql"));
-	 console.log(mainTypeDefs);
-	 console.log(pluginTypeDefs);
-	 const typeDefs = mergeTypes([ mainTypeDefs, ...pluginTypeDefs ], { all: true });
- */
-
 const app = express();
 
 app.use(compression());
@@ -29,14 +18,15 @@ process.on("unhandledRejection", err => {
 	throw err;
 });
 
-interface IStatusReturn {
-	[medium: string]: [APIReturn];
+interface IPluginReturn {
+	plugin: string;
+	errors: [APIReturn];
 }
 
 const resolvers = {
 	Query: {
-		send_message: async (prev: any, args: any): Promise<IStatusReturn> => {
-			let statusRet: IStatusReturn = {};
+		send_message: async (prev: any, args: any): Promise<IPluginReturn[]> => {
+			let statusRet: IPluginReturn[] = [];
 			const message = args.message;
 
 			const checkQueue = Object.keys(args.plugins).map( name => {
@@ -48,14 +38,20 @@ const resolvers = {
 
 					return async () => { // Sending function
 						try {
-							statusRet[name] = await plugin.sendMessage(message, verifiedConfig);
+							statusRet.push({
+								plugin: name,
+								errors: await plugin.sendMessage(message, verifiedConfig)
+							});
 						}
 						catch (e) {
-							statusRet[name] = [{
-								error: true,
-								key: name,
-								message: e.toString()
-							}];
+							statusRet.push({
+								plugin: name,
+								errors: [{
+									error: true,
+									key: name,
+									message: e.toString()
+								}]
+							});
 						}
 					};
 				})();

@@ -5,23 +5,16 @@ const mainTypeDefs = fs.readFileSync(path.resolve(__dirname, "../api.graphql"), 
 const typeDefFileArr = fs.readdirSync(path.resolve(__dirname, "../server/plugins/graphql"), "utf8");
 const rawPluginTypeDefs = typeDefFileArr.map(fn => fs.readFileSync(path.resolve(__dirname, "../server/plugins/graphql", fn), "utf8"));
 
-// Generate custom fields for PluginMaster and PluginReturn
+// E.g. Slack
 const baseNames = typeDefFileArr.map(fn => fn.substring(0, fn.indexOf("Plugin.graphql")));
 
-// Store base GraphQL before pluginMaster
-const base = mainTypeDefs.substring(0, mainTypeDefs.indexOf("input PluginMaster {"));
-let pluginMasterStr = "input PluginMaster {\n\t";
+// Generate PluginMaster body (See base api.graphql)
+let pluginMasterStr = "\ninput PluginMaster {";
 const configStrArr = baseNames.map(name => `${name.toLowerCase()}: ${name}Config`);
 configStrArr.forEach(s => {
-	pluginMasterStr += s + "\n\t";
+	pluginMasterStr += "\n\t" + s;
 });
-pluginMasterStr = pluginMasterStr.substring(0, pluginMasterStr.length - 1) + "}\n\n"; // Formatting
-let pluginReturnStr = "type PluginReturn {\n\t";
-const returnStrArr = baseNames.map(name => `${name.toLowerCase()}: [Status!]!`);
-returnStrArr.forEach(s => {
-	pluginReturnStr += s + "\n\t";
-});
-pluginReturnStr = pluginReturnStr.substring(0, pluginReturnStr.length - 1) + "}\n\n"; // Formatting
+pluginMasterStr = pluginMasterStr + "\n}\n\n"; // Formatting
 
 // Append pluginTypeDefs (rename each Config)
 // IE input Config => input SlackConfig
@@ -32,6 +25,8 @@ processedPluginTypeDefs.forEach(s => {
 });
 processedStr = processedStr.substring(0, processedStr.length - 1); // Formatting
 
-const mergedTypeDefs = base + pluginMasterStr + pluginReturnStr + processedStr;
+const mergedTypeDefs = mainTypeDefs + pluginMasterStr + processedStr;
+
+// TODO: Conflict checking
 
 export default mergedTypeDefs;
