@@ -1,5 +1,3 @@
-import * as fs from "fs";
-import * as path from "path";
 import * as express from "express";
 import * as compression from "compression";
 import * as bodyParser from "body-parser";
@@ -11,8 +9,18 @@ import { PORT } from './common';
 import * as plugins from './plugins/api';
 import { GenericNotifier } from './plugins/api/GenericNotifier';
 import { APIReturn } from './plugins/api/APIReturn';
+import typeDefs from './typeDefs';
 
-const typeDefs = fs.readFileSync(path.resolve(__dirname, "../api.graphql"), "utf8");
+/*
+	 Some merge-graphql-schema nonsense
+	 // @ts-ignore
+	 import { fileLoader, mergeTypes } from 'merge-graphql-schemas';
+	 const mainTypeDefs = fs.readFileSync(path.resolve(__dirname, "../api.graphql"), "utf8");
+	 const pluginTypeDefs = fileLoader(path.resolve(__dirname, "../server/plugins/graphql"));
+	 console.log(mainTypeDefs);
+	 console.log(pluginTypeDefs);
+	 const typeDefs = mergeTypes([ mainTypeDefs, ...pluginTypeDefs ], { all: true });
+ */
 
 const app = express();
 
@@ -60,8 +68,7 @@ const resolvers = {
 	}
 };
 
-const schema = makeExecutableSchema({
-	typeDefs,
+const schema = makeExecutableSchema({ typeDefs,
 	resolvers
 });
 
