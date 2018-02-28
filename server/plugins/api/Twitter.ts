@@ -56,14 +56,22 @@ export default class Twitter implements GenericNotifier<{}> {
 		});
 		const params = { status: message };
 		const res: Promise<APIReturn> = new Promise((resolve, reject) => {
-			client.post('statuses/update', params, (error, data: any, response) => {
+			client.post('statuses/update', params, (error, data: { user?: { screen_name?: string }; id_str?: string }, response) => {
 				if (!error) {
-					const url = `https://twitter.com/${data.user.screen_name}/status/${data.id_str}`;
-					resolve({
-						error: false,
-						key: "twitter",
-						message: `Successful tweet, view at ${url}`
-					});
+					if (data.user && data.user.screen_name && data.id_str) {
+						const url = `https://twitter.com/${data.user.screen_name}/status/${data.id_str}`;
+						resolve({
+							error: false,
+							key: "twitter",
+							message: `Successful tweet, view at ${url}`
+						});
+					} else {
+						resolve({
+							error: false,
+							key: "twitter",
+							message: "Successful tweet, but error loading url"
+						});
+					}
 				} else {
 					resolve({
 						error: true,

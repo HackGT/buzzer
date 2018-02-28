@@ -2,4 +2,10 @@ git:
     remote: https://github.com/HackGT/buzzer.git
     branch: master
 
+secrets:
+	- TWITTER_CONSUMER_KEY
+	- TWITTER_CONSUMER_SECRET
+	- TWITTER_HACKGT_ACCESS_TOKEN
+	- TWITTER_HACKGT_ACCESS_TOKEN_SECRET
+
 target_port: 8000
