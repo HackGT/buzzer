@@ -1,4 +1,4 @@
-import { upperCamel, lowerSnake } from '../server/common';
+import { upperCamel, lowerSnake } from '../common';
 // Import * as mocha from "mocha";
 // Import { expect } from "chai";
 

@@ -5,6 +5,3 @@ set -xeuo pipefail
 
 ./node_modules/tslint/bin/tslint -p server/
 ./node_modules/typescript/bin/tsc -p server/
-
-./node_modules/tslint/bin/tslint -p test/
-./node_modules/typescript/bin/tsc -p test/
