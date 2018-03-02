@@ -9,24 +9,21 @@ const rawPluginTypeDefs = typeDefFileArr.map(fn => fs.readFileSync(path.resolve(
 const baseNames = typeDefFileArr.map(fn => fn.substring(0, fn.indexOf("Plugin.graphql")));
 
 // Generate PluginMaster body (See base api.graphql)
-let pluginMasterStr = "\ninput PluginMaster {";
 const configStrArr = baseNames.map(name => `${name.toLowerCase()}: ${name}Config`);
-configStrArr.forEach(s => {
-	pluginMasterStr += "\n\t" + s;
-});
-pluginMasterStr = pluginMasterStr + "\n}\n\n"; // Formatting
+const pluginMasterBody = configStrArr.join("\n\t");
+const pluginMasterStr = `input PluginMaster {\n\t${pluginMasterBody}\n}`;
 
 // Append pluginTypeDefs (rename each Config)
 // IE input Config => input SlackConfig
 const processedPluginTypeDefs = rawPluginTypeDefs.map((s, i) => s.slice(0, 6) + baseNames[i] + s.slice(6));
-let processedStr = "";
-processedPluginTypeDefs.forEach(s => {
-	processedStr += s + "\n";
-});
-processedStr = processedStr.substring(0, processedStr.length - 1); // Formatting
+const processedStr = processedPluginTypeDefs.join("\n");
 
-const mergedTypeDefs = mainTypeDefs + pluginMasterStr + processedStr;
-
+const mergedTypeDefs = `
+${mainTypeDefs}
+${pluginMasterStr}\n
+${processedStr}
+`;
+console.log(mergedTypeDefs);
 // TODO: Conflict checking
 
 export default mergedTypeDefs;
