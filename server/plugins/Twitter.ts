@@ -5,6 +5,10 @@ import * as TwitterAPI from "twit";
 
 export default class Twitter implements GenericNotifier<{}> {
 
+	public schema: string = `{
+\t_: Boolean
+}`;
+
 	private consumerKey: string;
 	private consumerSecret: string;
 	private accessToken: string;
@@ -57,28 +61,28 @@ export default class Twitter implements GenericNotifier<{}> {
 		const params = { status: message };
 		const res: Promise<APIReturn> = new Promise((resolve, reject) => {
 			client.post('statuses/update', params, (error, data: { user?: { screen_name?: string }; id_str?: string }, response) => {
-				if (!error) {
-					if (data.user && data.user.screen_name && data.id_str) {
-						const url = `https://twitter.com/${data.user.screen_name}/status/${data.id_str}`;
-						resolve({
-							error: false,
-							key: "twitter",
-							message: `Successful tweet, view at ${url}`
-						});
-					} else {
-						resolve({
-							error: false,
-							key: "twitter",
-							message: "Successful tweet, but error loading url"
-						});
-					}
-				} else {
-					resolve({
-						error: true,
-						key: "twitter",
-						message: `${error.message}`
-					});
-				}
+	if (!error) {
+		if (data.user && data.user.screen_name && data.id_str) {
+			const url = `https://twitter.com/${data.user.screen_name}/status/${data.id_str}`;
+			resolve({
+				error: false,
+				key: "twitter",
+				message: `Successful tweet, view at ${url}`
+			});
+		} else {
+			resolve({
+				error: false,
+				key: "twitter",
+				message: "Successful tweet, but error loading url"
+			});
+		}
+	} else {
+		resolve({
+			error: true,
+			key: "twitter",
+			message: `${error.message}`
+		});
+	}
 			});
 		});
 		return [await res];

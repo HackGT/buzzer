@@ -4,9 +4,13 @@ import { GenericNotifier } from "./GenericNotifier";
 /* Typescript no like
  * interface Config {
  * }
- **/
+ */
 
-export default class Facebook implements GenericNotifier<{}> {
+export default class LiveSite implements GenericNotifier<{}> {
+
+	public schema: string = `{
+\t_: Boolean
+}`;
 
 	public async setup(): Promise<void> {
 		return;
@@ -19,8 +23,8 @@ export default class Facebook implements GenericNotifier<{}> {
 	public async sendMessage(message: string, config: {}): Promise<[APIReturn]> {
 		return [{
 			error: false,
-			key: "Facebook",
-			message: "Facebook success"
+			key: "LiveSite",
+			message: "Live site success"
 		}];
 	}
 

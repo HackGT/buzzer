@@ -7,8 +7,8 @@ import Twitter from "./Twitter";
 export const mediaAPI: {
 	[key: string]: GenericNotifier<any>;
 } = {
-	"FACEBOOK": new Facebook(),
-	"LIVE_SITE": new LiveSite(),
-	"SLACK": new Slack(),
-	"TWITTER": new Twitter()
+	"Facebook": new Facebook(),
+	"LiveSite": new LiveSite(),
+	"Slack": new Slack(),
+	"Twitter": new Twitter()
 };

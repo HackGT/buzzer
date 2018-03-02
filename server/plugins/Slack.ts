@@ -7,6 +7,10 @@ interface Config {
 
 export default class Slack implements GenericNotifier<Config> {
 
+	public schema: string = `{
+\tchannels: [String!]
+}`;
+
 	public async setup(): Promise<void> {
 		return;
 	}

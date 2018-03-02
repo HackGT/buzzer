@@ -6,9 +6,9 @@ import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
 import { makeExecutableSchema } from 'graphql-tools';
 
 import { PORT } from './common';
-import * as plugins from './plugins/api';
-import { GenericNotifier } from './plugins/api/GenericNotifier';
-import { APIReturn } from './plugins/api/APIReturn';
+import * as plugins from './plugins';
+import { GenericNotifier } from './plugins/GenericNotifier';
+import { APIReturn } from './plugins/APIReturn';
 import typeDefs from './typeDefs';
 
 const app = express();
@@ -20,46 +20,45 @@ process.on("unhandledRejection", err => {
 
 interface IPluginReturn {
 	plugin: string;
-	errors: [APIReturn];
+	errors: APIReturn[];
 }
 
 const resolvers = {
 	Query: {
 		send_message: async (prev: any, args: any): Promise<IPluginReturn[]> => {
-			let statusRet: IPluginReturn[] = [];
 			const message = args.message;
 
-			const checkQueue = Object.keys(args.plugins).map( name => {
+			const checkQueue = Object.keys(args.plugins).map( rawName => {
 
 				return (async () => { // Loading checkQueue IIFE
-
-					const plugin: GenericNotifier<any> = plugins.mediaAPI[name.toUpperCase()];
-					const verifiedConfig = await plugin.check(args.plugins[name]); // Verify
+					// Upper Cameled
+					const name = rawName.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join('');
+					const plugin: GenericNotifier<any> = plugins.mediaAPI[name];
+					const verifiedConfig = await plugin.check(args.plugins[rawName]); // Verify
 
 					return async () => { // Sending function
 						try {
-							statusRet.push({
+							return {
 								plugin: name,
 								errors: await plugin.sendMessage(message, verifiedConfig)
-							});
+							};
 						}
 						catch (e) {
-							statusRet.push({
+							return {
 								plugin: name,
 								errors: [{
 									error: true,
 									key: name,
 									message: e.toString()
 								}]
-							});
+							};
 						}
 					};
 				})();
 			});
 
 			const sendingQueue = await Promise.all(checkQueue);
-			await Promise.all(sendingQueue.map(f => f())); // Send all!
-			return statusRet;
+			return await Promise.all(sendingQueue.map(f => f())); // Send all!
 		}
 	}
 };

@@ -1,22 +1,21 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as plugins from './plugins';
 
 const mainTypeDefs = fs.readFileSync(path.resolve(__dirname, "../api.graphql"), "utf8");
-const typeDefFileArr = fs.readdirSync(path.resolve(__dirname, "../server/plugins/graphql"), "utf8");
-const rawPluginTypeDefs = typeDefFileArr.map(fn => fs.readFileSync(path.resolve(__dirname, "../server/plugins/graphql", fn), "utf8"));
 
-// E.g. Slack
-const baseNames = typeDefFileArr.map(fn => fn.substring(0, fn.indexOf("Plugin.graphql")));
+const baseNames = Object.keys(plugins.mediaAPI);
 
 // Generate PluginMaster body (See base api.graphql)
-const configStrArr = baseNames.map(name => `${name.toLowerCase()}: ${name}Config`);
+const configStrArr = baseNames.map(name => {
+	const lowerSnaked = name.split(/(?=[A-Z])/).join('_').toLowerCase();
+	return `${lowerSnaked}: ${name}Config`;
+});
 const pluginMasterBody = configStrArr.join("\n\t");
 const pluginMasterStr = `input PluginMaster {\n\t${pluginMasterBody}\n}`;
 
-// Append pluginTypeDefs (rename each Config)
-// IE input Config => input SlackConfig
-const processedPluginTypeDefs = rawPluginTypeDefs.map((s, i) => s.slice(0, 6) + baseNames[i] + s.slice(6));
-const processedStr = processedPluginTypeDefs.join("\n");
+const processedPluginTypeDefs = Object.keys(plugins.mediaAPI).map(plugin => `input ${plugin}Config ${plugins.mediaAPI[plugin].schema}`);
+const processedStr = processedPluginTypeDefs.join("\n\n");
 
 const mergedTypeDefs = `
 ${mainTypeDefs}
