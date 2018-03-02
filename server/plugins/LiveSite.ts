@@ -9,8 +9,8 @@ import { GenericNotifier } from "./GenericNotifier";
 export default class LiveSite implements GenericNotifier<{}> {
 
 	public schema: string = `{
-\t_: Boolean
-}`;
+		_: Boolean
+	}`;
 
 	public async setup(): Promise<void> {
 		return;

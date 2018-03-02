@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as plugins from './plugins';
+import { lowerSnake } from './common';
 
 const mainTypeDefs = fs.readFileSync(path.resolve(__dirname, "../api.graphql"), "utf8");
 
@@ -8,7 +9,7 @@ const baseNames = Object.keys(plugins.mediaAPI);
 
 // Generate PluginMaster body (See base api.graphql)
 const configStrArr = baseNames.map(name => {
-	const lowerSnaked = name.split(/(?=[A-Z])/).join('_').toLowerCase();
+	const lowerSnaked = lowerSnake(name);
 	return `${lowerSnaked}: ${name}Config`;
 });
 const pluginMasterBody = configStrArr.join("\n\t");

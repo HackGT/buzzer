@@ -5,7 +5,7 @@ import * as bodyParser from "body-parser";
 import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
 import { makeExecutableSchema } from 'graphql-tools';
 
-import { PORT } from './common';
+import { PORT, upperCamel } from './common';
 import * as plugins from './plugins';
 import { GenericNotifier } from './plugins/GenericNotifier';
 import { APIReturn } from './plugins/APIReturn';
@@ -32,7 +32,7 @@ const resolvers = {
 
 				return (async () => { // Loading checkQueue IIFE
 					// Upper Cameled
-					const name = rawName.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join('');
+					const name = upperCamel(rawName);
 					const plugin: GenericNotifier<any> = plugins.mediaAPI[name];
 					const verifiedConfig = await plugin.check(args.plugins[rawName]); // Verify
 
