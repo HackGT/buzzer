@@ -10,8 +10,8 @@ export function isAdmin(
 	response.setHeader("Cache-Control", "private");
 	const auth = request.headers.authorization;
 
-	if (auth && typeof auth === "string" && auth.indexOf(" ") > -1) {
-		const key = new Buffer(auth.split(" ")[1], "base64").toString();
+	if (auth && typeof auth === "string" && auth.includes(" ")) {
+		const key = Buffer.from(auth.split(" ")[1], "base64").toString();
 		if (key === config.secrets.admin) {
 			next();
 		}
