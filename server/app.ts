@@ -6,7 +6,7 @@ import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
 import { makeExecutableSchema } from 'graphql-tools';
 
 import { PORT, upperCamel } from './common';
-import * as plugins from './plugins';
+import { mediaAPI } from './plugins';
 import { GenericNotifier } from './plugins/GenericNotifier';
 import { APIReturn } from './plugins/APIReturn';
 import typeDefs from './typeDefs';
@@ -23,6 +23,10 @@ interface IPluginReturn {
 	errors: APIReturn[];
 }
 
+let plugins: {
+	[name: string]: GenericNotifier<any>;
+} = {};
+
 const resolvers = {
 	Query: {
 		send_message: async (prev: any, args: any): Promise<IPluginReturn[]> => {
@@ -33,7 +37,7 @@ const resolvers = {
 				return (async () => { // Loading checkQueue IIFE
 					// Upper Cameled
 					const name = upperCamel(rawName);
-					const plugin: GenericNotifier<any> = plugins.mediaAPI[name];
+					const plugin: GenericNotifier<any> = plugins[name];
 					const verifiedConfig = await plugin.check(args.plugins[rawName]); // Verify
 
 					return async () => { // Sending function
@@ -72,8 +76,8 @@ app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
 
 // Run plugin setup
 async function runSetup() {
-	await Promise.all(Object.keys(plugins.mediaAPI).map(pluginKey => {
-		return plugins.mediaAPI[pluginKey].setup();
+	await Promise.all(Object.keys(mediaAPI).map(async pluginKey => {
+		plugins[pluginKey] = await mediaAPI[pluginKey].init();
 	}));
 }
 

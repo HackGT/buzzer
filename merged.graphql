@@ -1,0 +1,48 @@
+
+schema {
+	query: Query
+}
+
+type Query {
+	send_message(message: String!, plugins: PluginMaster!): [PluginReturn!]!
+}
+
+type Status { # corresponding to APIReturn
+	error: Boolean!
+	key: String!
+	message: String
+}
+
+# Note: input PluginMaster {} will be generated during the build process
+# Sample:
+# input PluginMaster {
+#   facebook: FacebookConfig
+# }
+
+type PluginReturn {
+	plugin: String!
+	errors: [Status!]!
+}
+
+input PluginMaster {
+	facebook: FacebookConfig
+	live_site: LiveSiteConfig
+	slack: SlackConfig
+	twitter: TwitterConfig
+}
+
+input FacebookConfig {
+		_: Boolean
+	}
+
+input LiveSiteConfig {
+		_: Boolean
+	}
+
+input SlackConfig {
+		channels: [String!]
+	}
+
+input TwitterConfig {
+		_: Boolean
+	}

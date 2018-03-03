@@ -1,20 +1,11 @@
 import { APIReturn } from "./APIReturn";
-import { GenericNotifier } from "./GenericNotifier";
+import { Plugin, GenericNotifier } from "./GenericNotifier";
 
 /* Typescript no like
  * interface Config {
  * }
  */
-
-export default class LiveSite implements GenericNotifier<{}> {
-
-	public schema: string = `{
-		_: Boolean
-	}`;
-
-	public async setup(): Promise<void> {
-		return;
-	}
+class LiveSite implements GenericNotifier<{}> {
 
 	public async check(config: any): Promise<{}> {
 		return {};
@@ -29,3 +20,12 @@ export default class LiveSite implements GenericNotifier<{}> {
 	}
 
 }
+
+const LiveSitePlugin: Plugin<{}> = {
+	schema: () => `{
+		_: Boolean
+	}`,
+	init: async () => new LiveSite()
+};
+
+export default LiveSitePlugin;
