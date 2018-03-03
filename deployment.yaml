@@ -3,6 +3,7 @@ git:
     branch: master
 
 secrets:
+    - ADMIN_KEY_SECRET
     - TWITTER_CONSUMER_KEY
     - TWITTER_CONSUMER_SECRET
     - TWITTER_HACKGT_ACCESS_TOKEN
