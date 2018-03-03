@@ -10,6 +10,7 @@ import { mediaAPI } from './plugins';
 import { GenericNotifier } from './plugins/GenericNotifier';
 import { APIReturn } from './plugins/APIReturn';
 import typeDefs from './typeDefs';
+import { isAdmin } from "./middleware";
 
 const app = express();
 
@@ -71,7 +72,14 @@ const schema = makeExecutableSchema({ typeDefs,
 	resolvers
 });
 
-app.use('/graphql', bodyParser.json(), graphqlExpress({ schema }));
+app.use(
+	'/graphql',
+	bodyParser.json(),
+	isAdmin,
+	graphqlExpress({
+		schema
+	})
+);
 app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
 
 // Run plugin setup
