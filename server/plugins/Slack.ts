@@ -1,15 +1,11 @@
 import { APIReturn } from "./APIReturn";
-import { GenericNotifier } from "./GenericNotifier";
+import { Plugin, GenericNotifier } from "./GenericNotifier";
 
 interface Config {
 	channels: string[];
 }
 
-export default class Slack implements GenericNotifier<Config> {
-
-	public async setup(): Promise<void> {
-		return;
-	}
+class Slack implements GenericNotifier<Config> {
 
 	public async check(config: any): Promise<Config> {
 		const channelsCheck: boolean =
@@ -36,3 +32,12 @@ export default class Slack implements GenericNotifier<Config> {
 	}
 
 }
+
+const SlackPlugin: Plugin<{}> = {
+	schema: () => `{
+		channels: [String!]
+	}`,
+	init: async () => new Slack()
+};
+
+export default SlackPlugin;

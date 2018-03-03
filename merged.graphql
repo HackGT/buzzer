@@ -1,3 +1,4 @@
+
 schema {
 	query: Query
 }
@@ -22,3 +23,26 @@ type PluginReturn {
 	plugin: String!
 	errors: [Status!]!
 }
+
+input PluginMaster {
+	facebook: FacebookConfig
+	live_site: LiveSiteConfig
+	slack: SlackConfig
+	twitter: TwitterConfig
+}
+
+input FacebookConfig {
+		_: Boolean
+	}
+
+input LiveSiteConfig {
+		_: Boolean
+	}
+
+input SlackConfig {
+		channels: [String!]
+	}
+
+input TwitterConfig {
+		_: Boolean
+	}

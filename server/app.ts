@@ -1,5 +1,3 @@
-import * as fs from "fs";
-import * as path from "path";
 import * as express from "express";
 import * as compression from "compression";
 import * as bodyParser from "body-parser";
@@ -7,12 +5,11 @@ import * as bodyParser from "body-parser";
 import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
 import { makeExecutableSchema } from 'graphql-tools';
 
-import { PORT } from './common';
-import * as plugins from './plugins/api';
-import { GenericNotifier } from './plugins/api/GenericNotifier';
-import { APIReturn } from './plugins/api/APIReturn';
-
-const typeDefs = fs.readFileSync(path.resolve(__dirname, "../api.graphql"), "utf8");
+import { PORT, upperCamel } from './common';
+import { mediaAPI } from './plugins';
+import { GenericNotifier } from './plugins/GenericNotifier';
+import { APIReturn } from './plugins/APIReturn';
+import typeDefs from './typeDefs';
 
 const app = express();
 
@@ -21,47 +18,56 @@ process.on("unhandledRejection", err => {
 	throw err;
 });
 
-interface IStatusReturn {
-	[medium: string]: [APIReturn];
+interface IPluginReturn {
+	plugin: string;
+	errors: APIReturn[];
 }
+
+let plugins: {
+	[name: string]: GenericNotifier<any>;
+} = {};
 
 const resolvers = {
 	Query: {
-		send_message: async (prev: any, args: any): Promise<IStatusReturn> => {
-			let statusRet: IStatusReturn = {};
+		send_message: async (prev: any, args: any): Promise<IPluginReturn[]> => {
 			const message = args.message;
 
-			const checkQueue = Object.keys(args.plugins).map( name => {
+			const checkQueue = Object.keys(args.plugins).map( rawName => {
 
 				return (async () => { // Loading checkQueue IIFE
-
-					const plugin: GenericNotifier<any> = plugins.mediaAPI[name.toUpperCase()];
-					const verifiedConfig = await plugin.check(args.plugins[name]); // Verify
+					// Upper Cameled
+					const name = upperCamel(rawName);
+					const plugin: GenericNotifier<any> = plugins[name];
+					const verifiedConfig = await plugin.check(args.plugins[rawName]); // Verify
 
 					return async () => { // Sending function
 						try {
-							statusRet[name] = await plugin.sendMessage(message, verifiedConfig);
+							return {
+								plugin: name,
+								errors: await plugin.sendMessage(message, verifiedConfig)
+							};
 						}
 						catch (e) {
-							statusRet[name] = [{
-								error: true,
-								key: name,
-								message: e.toString()
-							}];
+							return {
+								plugin: name,
+								errors: [{
+									error: true,
+									key: name,
+									message: e.toString()
+								}]
+							};
 						}
 					};
 				})();
 			});
 
 			const sendingQueue = await Promise.all(checkQueue);
-			await Promise.all(sendingQueue.map(f => f())); // Send all!
-			return statusRet;
+			return await Promise.all(sendingQueue.map(f => f())); // Send all!
 		}
 	}
 };
 
-const schema = makeExecutableSchema({
-	typeDefs,
+const schema = makeExecutableSchema({ typeDefs,
 	resolvers
 });
 
@@ -70,8 +76,8 @@ app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
 
 // Run plugin setup
 async function runSetup() {
-	await Promise.all(Object.keys(plugins.mediaAPI).map(pluginKey => {
-		return plugins.mediaAPI[pluginKey].setup();
+	await Promise.all(Object.keys(mediaAPI).map(async pluginKey => {
+		plugins[pluginKey] = await mediaAPI[pluginKey].init();
 	}));
 }
 

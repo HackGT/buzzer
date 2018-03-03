@@ -1,10 +1,9 @@
 import { APIReturn } from "./APIReturn";
-import { GenericNotifier } from "./GenericNotifier";
+import { Plugin, GenericNotifier } from "./GenericNotifier";
 
 import * as TwitterAPI from "twit";
 
-export default class Twitter implements GenericNotifier<{}> {
-
+class Twitter implements GenericNotifier<{}> {
 	private consumerKey: string;
 	private consumerSecret: string;
 	private accessToken: string;
@@ -37,10 +36,6 @@ export default class Twitter implements GenericNotifier<{}> {
 		this.consumerSecret = consumerSecret;
 		this.accessToken = accessToken;
 		this.accessTokenSecret = accessTokenSecret;
-	}
-
-	public async setup(): Promise<void> {
-		return; // No setup currently
 	}
 
 	public async check(config: any): Promise<{}> {
@@ -83,5 +78,13 @@ export default class Twitter implements GenericNotifier<{}> {
 		});
 		return [await res];
 	}
-
 }
+
+const TwitterPlugin: Plugin<{}> = {
+	schema: () => `{
+		_: Boolean
+	}`,
+	init: async () => new Twitter()
+};
+
+export default TwitterPlugin;
