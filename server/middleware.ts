@@ -1,6 +1,6 @@
 import * as express from "express";
 
-import { ADMIN_KEY_SECRET } from "./common";
+import config from "./config";
 
 export function isAdmin(
 	request: express.Request,
@@ -12,7 +12,7 @@ export function isAdmin(
 
 	if (auth && typeof auth === "string" && auth.indexOf(" ") > -1) {
 		const key = new Buffer(auth.split(" ")[1], "base64").toString();
-		if (key === ADMIN_KEY_SECRET) {
+		if (key === config.secrets.admin) {
 			next();
 		}
 		else {

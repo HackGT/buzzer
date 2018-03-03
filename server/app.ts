@@ -5,12 +5,13 @@ import * as bodyParser from "body-parser";
 import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
 import { makeExecutableSchema } from 'graphql-tools';
 
-import { PORT, upperCamel } from './common';
+import config from './config';
+import { upperCamel } from './common';
 import { mediaAPI } from './plugins';
 import { GenericNotifier } from './plugins/GenericNotifier';
 import { APIReturn } from './plugins/APIReturn';
 import typeDefs from './typeDefs';
-import { isAdmin } from "./middleware";
+import { isAdmin } from './middleware';
 
 const app = express();
 
@@ -90,8 +91,8 @@ async function runSetup() {
 }
 
 runSetup().then(() => {
-	app.listen(PORT, () => {
-		console.log(`Buzzer system started on 0.0.0.0:${PORT}`);
+	app.listen(config.port, () => {
+		console.log(`Buzzer system started on 0.0.0.0:${config.port}`);
 	});
 }).catch(error => {
 	console.log("App setup failed");
