@@ -4,7 +4,7 @@
   "description": "TBD",
   "main": "server/app.js",
   "scripts": {
-    "test": "node dist/test/stringTests.js",
+    "test": "./node_modules/mocha/bin/mocha",
     "build": "bash ./build.sh",
     "start": "node -r dotenv/config dist/app.js",
     "build-start": "npm run build && npm start",

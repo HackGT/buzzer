@@ -1,44 +1,63 @@
 import { upperCamel, lowerSnake } from '../common';
-// Import * as mocha from "mocha";
-// Import { expect } from "chai";
+import "mocha";
+import { expect } from "chai";
 
-// All graphql requests are formatted lower_snake (readability)
-// All internal configs are upper camel (matching filename convention)
-// Test the functions that do these conversions
-const testUpperCamel = (before: string, after: string) => {
-	const actual = upperCamel(before);
-	console.log(`Given "${before}", upperCameled to "${actual}".` );
-	if (actual !== after) console.log(`ERROR: expected "${after}".`);
-	return actual === after;
-};
+/* All graphql requests are formatted lower_snake (readability)
+ * All internal configs are upper camel (matching filename convention)
+ * Test the functions that do these conversions
+ */
 
-// Converts camel and snake to lower_snake (for plugin)
-const testLowerSnake = (before: string, after: string) => {
-	const actual = lowerSnake(before);
-	console.log(`Given "${before}", upperCameled to "${actual}".` );
-	if (actual !== after) console.log(`ERROR: expected "${after}".`);
-	return actual === after;
-};
+// Upper camel has less worry about edge cases since graphql is machine generated
+describe("Upper Camel", () => {
+	describe("Snake/Config (Expected) inputs", () => {
+		it("Empty string", () => {
+			expect(upperCamel("")).to.equal("");
+		});
+		it("Basic single case", () => {
+			expect(upperCamel("live")).to.equal("Live");
+		});
+		it("Basic double", () => {
+			expect(upperCamel("live_site")).to.equal("LiveSite");
+		});
+		it("Basic complex", () => {
+			expect(upperCamel("a_b_c_d")).to.equal("ABCD");
+		});
+	});
+	describe("Edge cases (Unexpected)", () => {
+		it("Already Camel", () => {
+			expect(upperCamel("LiveSite")).to.equal("LiveSite");
+		});
+		it("Bizarre snake _live_", () => {
+			expect(upperCamel("_live_")).to.equal("Live"); // This kind of request would be rejected by graphql anyway, as typeDefs generated all accepted fields in proper snake_case formatting
+		});
+	});
+});
 
-function main() {
-	console.log("Running tests...");
-	// Upper camel has less worry about edge cases since graphql is machine generated
-	testUpperCamel("", "");
-	testUpperCamel("live", "Live");
-	testUpperCamel("LiveSite", "LiveSite");
-	testUpperCamel("_live_", "Live"); // This kind of request would be rejected by graphql anyway, as typeDefs generated all accepted fields in proper snake_case formatting
-	testUpperCamel("live_site", "LiveSite");
-	testUpperCamel("a_b_c_d", "ABCD");
-	// Lower snake requires good input in index.ts. More rigorous edge-casing
-	testLowerSnake("", "");
-	testLowerSnake("LiveSite", "live_site"); // UpperCamel
-	testLowerSnake("liveSite", "live_site"); // Camel
-	testLowerSnake("live_site", "live_site"); // Already snaked
-	testLowerSnake("Live_Site", "live_site"); // Already (upper) snaked
-	testLowerSnake("Live", "live");
-	testLowerSnake("live", "live");
-
-	console.log("Tests completed.");
-}
-
-main();
+// Lower snake requires good input in index.ts. More rigorous edge-casing
+describe("Lower Snake", () => {
+	describe("UpperCamel (Expected) inputs", () => {
+		it("Empty string", () => {
+			expect(lowerSnake("")).to.equal("");
+		});
+		it("Basic UpperCamel case", () => {
+			expect(lowerSnake("LiveSite")).to.equal("live_site"); // UpperCamel
+		});
+		it("Camel", () => {
+			expect(lowerSnake("liveSite")).to.equal("live_site"); // Camel
+		});
+		it("Lower", () => {
+			expect(lowerSnake("live")).to.equal("live");
+		});
+	});
+	describe("Edge cases (Unexpected)", () => {
+		it("Already lower snaked", () => {
+			expect(lowerSnake("live_site")).to.equal("live_site"); // Already snaked
+		});
+		it("Already Upper snaked", () => {
+			expect(lowerSnake("Live_Site")).to.equal("live_site"); // Already (upper) snaked
+		});
+		it("Upper single", () => {
+			expect(lowerSnake("Live")).to.equal("live");
+		});
+	});
+});
