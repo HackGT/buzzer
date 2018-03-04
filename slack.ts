@@ -1,54 +1,69 @@
-/** Error20:
-    - line 21: don't know how to declare call signature in tsc*/
-
 import * as querystring from "querystring";
 import fetch from "node-fetch";
 
 const tkn = process.env.SLACK_TOKEN;
-const domain = process.env.DOMAIN;
+const domain = process.env.SLACK_DOMAIN;
 
-async function sendMessage(message : string, config : string) : Promise<void> {
-    const msg = {
-        token: tkn,
-        channel: config,
-        as_user: false,
-        username: "HackGT",
-        text: message
-    };
+interface Config {
+    channels: string[];
+}
 
-    const qs = querystring.stringify(msg);
+async function sendMessage(message : string, config : any) : Promise<void> {
+    for (var i = 0; i < config.channels.length; i++) {
+        const msg = {
+            token: tkn,
+            channel: config.channels[i],
+            as_user: false,
+            username: "HackGT",
+            text: message
+        };
 
-    const res = await
-        fetch(`https://${domain}.slack.com/api/chat.postMessage?${qs}`);
-    const json = await res.json();
-    console.log(json);
+        const qs = querystring.stringify(msg);
+
+        const res = await fetch(`https://${domain}.slack.com/api/chat.postMessage?${qs}`);
+        const json = await res.json();
+        console.log(json);
+    }
+
+}
+
+async function setup(): Promise<void> {
+    return;
 }
 
 async function check(config : any): Promise<string> {
-    const res = await
-        fetch(`https://${domain}.slack.com/api/channels.list`);
-    const channels = await res.json();
+    var params = {
+        token: tkn,
+        exclude_archived: true,
+        exclude_members: true
+    };
 
-    const res2 = await
-        fetch(`https://${domain}.slack.com/api/groups.list`);
-    const groups = await res2.json();
+    const qs = querystring.stringify(params);
 
-    var resultsChannels : string[] = [];
-    var resultsGroups : string[] = [];
-    var searchField = 'name';
-    var searchValue = config;
+    if (instanceOfConfig(config)) {
+        const res = await fetch(`https://${domain}.slack.com/api/channels.list?${qs}`);
+        const channels = await res.json();
 
-    for (var i = 0; i < channels.length; i++) {
-        if (channels[i][searchField] == searchValue) {
-            resultsChannels.push(channels[i]);
-            return config;
+        const res2 = await fetch(`https://${domain}.slack.com/api/groups.list?${qs}`);
+        const groups = await res2.json();
+
+        for (var i = 0; i < config.channels.length; i++) {
+            var searchValue = config.channels[i];
+            if (channels.map(c => c.name).includes(searchValue)) {
+                return searchValue;
+            }
+            else if (groups.map(c => c.name).includes(searchValue)) {
+                return searchValue;
+            }
+
         }
+        return "Channel does not exist!";
+    } else {
+        return "Error with configuration"
     }
-    for (var i = 0; i < groups.length; i++) {
-        if (channels[i][searchField] == searchValue) {
-            resultsGroups.push(groups[i]);
-            return config;
-        }
-    }
-    return "Channel does not exist!";
+
+}
+
+function instanceOfConfig(object : any) {
+    return 'channels' in object;
 }
