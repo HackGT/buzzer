@@ -43,3 +43,4 @@ dist/
 .travis.d/Gemfile.lock
 .travis.d/vendor
 
+.env

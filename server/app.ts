@@ -1,5 +1,3 @@
-import * as fs from "fs";
-import * as path from "path";
 import * as express from "express";
 import * as compression from "compression";
 import * as bodyParser from "body-parser";
@@ -7,12 +5,13 @@ import * as bodyParser from "body-parser";
 import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
 import { makeExecutableSchema } from 'graphql-tools';
 
-import { PORT } from './common';
-import * as plugins from './plugins/api';
-import { GenericNotifier } from './plugins/api/GenericNotifier';
-import { APIReturn } from './plugins/api/APIReturn';
-
-const typeDefs = fs.readFileSync(path.resolve(__dirname, "../api.graphql"), "utf8");
+import config from './config';
+import { upperCamel } from './common';
+import { mediaAPI } from './plugins';
+import { GenericNotifier } from './plugins/GenericNotifier';
+import { APIReturn } from './plugins/APIReturn';
+import typeDefs from './typeDefs';
+import { isAdmin } from './middleware';
 
 const app = express();
 
@@ -21,45 +20,82 @@ process.on("unhandledRejection", err => {
 	throw err;
 });
 
-interface IStatusReturn {
-	[medium: string]: Promise<APIReturn> | APIReturn; // String for generic unpacking error
+interface IPluginReturn {
+	plugin: string;
+	errors: APIReturn[];
 }
+
+let plugins: {
+	[name: string]: GenericNotifier<any>;
+} = {};
 
 const resolvers = {
 	Query: {
-		send_message: (prev: any, args: any) => {
-			let statusRet: IStatusReturn = {};
-			const src = Object.keys(args.plugins);
-			src.forEach( name => {
-				try {
-					const message = args.message;
-					const config = args.plugins[name];
-					const plugin: GenericNotifier<any> = plugins.mediaAPI[name.toUpperCase()];
-					statusRet[name] = plugin.sendMessage(message, config);
-				} catch (Exception) {
-					console.log(Exception.message);
-					statusRet[name] = {
-						error: true,
-						key: "Server",
-						message: "Malformed arguments, plugin not called. (Generic server error)"
+		send_message: async (prev: any, args: any): Promise<IPluginReturn[]> => {
+			const message = args.message;
+
+			const checkQueue = Object.keys(args.plugins).map( rawName => {
+
+				return (async () => { // Loading checkQueue IIFE
+					// Upper Cameled
+					const name = upperCamel(rawName);
+					const plugin: GenericNotifier<any> = plugins[name];
+					const verifiedConfig = await plugin.check(args.plugins[rawName]); // Verify
+
+					return async () => { // Sending function
+						try {
+							return {
+								plugin: name,
+								errors: await plugin.sendMessage(message, verifiedConfig)
+							};
+						}
+						catch (e) {
+							return {
+								plugin: name,
+								errors: [{
+									error: true,
+									key: name,
+									message: e.toString()
+								}]
+							};
+						}
 					};
-				}
+				})();
 			});
-			return statusRet;
-		}
+
+			const sendingQueue = await Promise.all(checkQueue);
+			return await Promise.all(sendingQueue.map(f => f())); // Send all!		}
 	}
 };
 
-const schema = makeExecutableSchema({
-	typeDefs,
+const schema = makeExecutableSchema({ typeDefs,
 	resolvers
 });
 
-app.use('/graphql', bodyParser.json(), graphqlExpress({ schema }));
+app.use(
+	'/graphql',
+	bodyParser.json(),
+	isAdmin,
+	graphqlExpress({
+		schema
+	})
+);
 app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
 
-app.listen(PORT, () => {
-	console.log(`Buzzer system started on 0.0.0.0:${PORT}`);
+// Run plugin setup
+async function runSetup() {
+	await Promise.all(Object.keys(mediaAPI).map(async pluginKey => {
+		plugins[pluginKey] = await mediaAPI[pluginKey].init();
+	}));
+}
+
+runSetup().then(() => {
+	app.listen(config.port, () => {
+		console.log(`Buzzer system started on 0.0.0.0:${config.port}`);
+	});
+}).catch(error => {
+	console.log("App setup failed");
+	throw error;
 });
 
 export default app;
