@@ -3,10 +3,15 @@ git:
     branch: master
 
 secrets:
+    - SLACK_TOKEN
     - ADMIN_KEY_SECRET
     - TWITTER_CONSUMER_KEY
     - TWITTER_CONSUMER_SECRET
     - TWITTER_HACKGT_ACCESS_TOKEN
     - TWITTER_HACKGT_ACCESS_TOKEN_SECRET
+
+env:
+    SLACK_DOMAIN: hellohackgt
+    SLACK_USERNAME: HackGT
 
 target_port: 8000

@@ -42,7 +42,7 @@ class Twitter implements GenericNotifier<{}> {
 		return {}; // No config currently
 	}
 
-	public async sendMessage(message: string, config: {}): Promise<[APIReturn]> {
+	public async sendMessage(message: string, config: {}): Promise<APIReturn[]> {
 		const client = new TwitterAPI({
 			consumer_key: this.consumerKey,
 			consumer_secret: this.consumerSecret,

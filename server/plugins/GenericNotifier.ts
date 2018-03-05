@@ -6,6 +6,6 @@ export interface Plugin<T> { // Separate schema and notifier
 }
 
 export interface GenericNotifier<T> {
-	sendMessage(message: string, config: T): Promise<[APIReturn]>;
+	sendMessage(message: string, config: T): Promise<APIReturn[]>;
 	check(config: any): Promise<T>;
 }
