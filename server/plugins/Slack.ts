@@ -8,7 +8,7 @@ interface Config {
 	at_here: boolean;
 }
 
-class Slack implements Notifier<Config> {
+export class Slack implements Notifier<Config> {
 	private token: string;
 	private domain: string;
 	private username: string;
@@ -96,7 +96,7 @@ class Slack implements Notifier<Config> {
 		return config;
 	}
 
-	private static instanceOfConfig(object: any): Config {
+	public static instanceOfConfig(object: any): Config {
 		// Check channels
 		if (!Array.isArray(object.channels)) {
 			throw new Error("'channels' must be an array");
@@ -112,7 +112,7 @@ class Slack implements Notifier<Config> {
 		};
 	}
 
-	private static processMessage(config: Config, msg: string): string {
+	public static processMessage(config: Config, msg: string): string {
 		if (config.at_here) {
 			msg = `@here ${msg}`;
 		}
