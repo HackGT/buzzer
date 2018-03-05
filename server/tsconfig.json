@@ -9,6 +9,7 @@
     "target": "es6",
     "lib": [
       "esnext.asynciterable",
+      "es2016.array.include",
       "es6",
       "es2015.promise"
     ],
