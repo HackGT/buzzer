@@ -73,12 +73,18 @@ class Slack implements GenericNotifier<Config> {
 		}
 
 		const res = await fetch(`https://${this.domain}.slack.com/api/channels.list?${qs}`);
-		const channels: { name: string }[] = await res.json();
+		const channels: { channels?: { name: string }[] } = await res.json();
 
 		const res2 = await fetch(`https://${this.domain}.slack.com/api/groups.list?${qs}`);
-		const groups: { name: string }[] = await res2.json();
+		const groups: { groups?: { name: string }[] } = await res2.json();
 
-		const everything = channels.map(c => c.name).concat(groups.map(c => c.name));
+		if (!groups.groups || !channels.channels) {
+			throw new Error("Could not verify slack channels.");
+		}
+
+		const everything = channels.channels
+			.map(c => c.name)
+			.concat(groups.groups.map(c => c.name));
 
 		const invalid = config.channels.filter(c => !everything.includes(c));
 
