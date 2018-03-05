@@ -40,7 +40,9 @@ input LiveSiteConfig {
 	}
 
 input SlackConfig {
-		channels: [String!]
+		channels: [String!]!
+		at_channel: Boolean!
+		at_here: Boolean!
 	}
 
 input TwitterConfig {

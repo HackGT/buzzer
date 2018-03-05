@@ -5,6 +5,8 @@ import {APIReturn} from "./APIReturn";
 
 interface Config {
 	channels: string[];
+	at_channel: boolean;
+	at_here: boolean;
 }
 
 class Slack implements GenericNotifier<Config> {
@@ -42,7 +44,8 @@ class Slack implements GenericNotifier<Config> {
 				channel: chan,
 				as_user: false,
 				username: this.username,
-				text: message
+				link_names: true,
+				text: Slack.processMessage(config, message)
 			};
 
 			const qs = querystring.stringify(msg);
@@ -66,7 +69,7 @@ class Slack implements GenericNotifier<Config> {
 			exclude_members: true
 		});
 
-		const config = this.instanceOfConfig(configTest);
+		const config = Slack.instanceOfConfig(configTest);
 
 		if (config.channels.length === 0) {
 			throw new Error('Must specify at least one slack channel');
@@ -94,22 +97,38 @@ class Slack implements GenericNotifier<Config> {
 		return config;
 	}
 
-	private instanceOfConfig(object: any): Config {
-		const channelsCheck: boolean =
-			Array.isArray(object.channels) &&
-			(object.channels as any[]).every(channel =>
-				typeof channel === "string"
-			);
-		if (!channelsCheck) {
+	private static instanceOfConfig(object: any): Config {
+		// Check channels
+		if (!Array.isArray(object.channels)) {
+			throw new Error("'channels' must be an array");
+		}
+		if (!object.channels.every((channel: any) => typeof channel === "string")) {
 			throw new Error("Slack config should have a channels variable which is an array of strings.");
 		}
-		return object as Config;
+
+		return {
+			channels: object.channels,
+			at_channel: !!object.at_channel,
+			at_here: !!object.at_here
+		};
+	}
+
+	private static processMessage(config: Config, msg: string): string {
+		if (config.at_here) {
+			msg = `@here ${msg}`;
+		}
+		if (config.at_channel) {
+			msg = `@channel ${msg}`;
+		}
+		return msg;
 	}
 }
 
 const SlackPlugin: Plugin<Config> = {
 	schema: () => `{
 		channels: [String!]!
+		at_channel: Boolean!
+		at_here: Boolean!
 	}`,
 	init: async () => new Slack()
 };
