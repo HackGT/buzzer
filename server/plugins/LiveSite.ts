@@ -1,17 +1,16 @@
-import { APIReturn } from "./APIReturn";
-import { Plugin, GenericNotifier } from "./GenericNotifier";
+import { PluginReturn, Plugin, Notifier } from "./Plugin";
 
 /* Typescript no like
  * interface Config {
  * }
  */
-class LiveSite implements GenericNotifier<{}> {
+class LiveSite implements Notifier<{}> {
 
 	public async check(config: any): Promise<{}> {
 		return {};
 	}
 
-	public async sendMessage(message: string, config: {}): Promise<[APIReturn]> {
+	public async sendMessage(message: string, config: {}): Promise<PluginReturn[]> {
 		return [{
 			error: false,
 			key: "LiveSite",

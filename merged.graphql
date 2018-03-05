@@ -25,15 +25,10 @@ type PluginReturn {
 }
 
 input PluginMaster {
-	facebook: FacebookConfig
 	live_site: LiveSiteConfig
 	slack: SlackConfig
 	twitter: TwitterConfig
 }
-
-input FacebookConfig {
-		_: Boolean
-	}
 
 input LiveSiteConfig {
 		_: Boolean

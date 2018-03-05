@@ -8,8 +8,7 @@ import { makeExecutableSchema } from 'graphql-tools';
 import config from './config';
 import { upperCamel } from './common';
 import { mediaAPI } from './plugins';
-import { GenericNotifier } from './plugins/GenericNotifier';
-import { APIReturn } from './plugins/APIReturn';
+import { PluginReturn, Notifier } from './plugins/Plugin';
 import typeDefs from './typeDefs';
 import { isAdmin } from './middleware';
 
@@ -22,11 +21,11 @@ process.on("unhandledRejection", err => {
 
 interface IPluginReturn {
 	plugin: string;
-	errors: APIReturn[];
+	errors: PluginReturn[];
 }
 
 let plugins: {
-	[name: string]: GenericNotifier<any>;
+	[name: string]: Notifier<any>;
 } = {};
 
 const resolvers = {
@@ -39,7 +38,7 @@ const resolvers = {
 				return (async () => { // Loading checkQueue IIFE
 					// Upper Cameled
 					const name = upperCamel(rawName);
-					const plugin: GenericNotifier<any> = plugins[name];
+					const plugin = plugins[name];
 					const verifiedConfig = await plugin.check(args.plugins[rawName]); // Verify
 
 					return async () => { // Sending function

@@ -1,9 +1,8 @@
-import { APIReturn } from "./APIReturn";
-import { Plugin, GenericNotifier } from "./GenericNotifier";
+import { PluginReturn, Plugin, Notifier } from "./Plugin";
 
 import * as TwitterAPI from "twit";
 
-class Twitter implements GenericNotifier<{}> {
+class Twitter implements Notifier<{}> {
 	private consumerKey: string;
 	private consumerSecret: string;
 	private accessToken: string;
@@ -42,7 +41,7 @@ class Twitter implements GenericNotifier<{}> {
 		return {}; // No config currently
 	}
 
-	public async sendMessage(message: string, config: {}): Promise<APIReturn[]> {
+	public async sendMessage(message: string, config: {}): Promise<PluginReturn[]> {
 		const client = new TwitterAPI({
 			consumer_key: this.consumerKey,
 			consumer_secret: this.consumerSecret,
@@ -50,7 +49,7 @@ class Twitter implements GenericNotifier<{}> {
 			access_token_secret: this.accessTokenSecret
 		});
 		const params = { status: message };
-		const res: Promise<APIReturn> = new Promise((resolve, reject) => {
+		const res: Promise<PluginReturn> = new Promise((resolve, reject) => {
 			client.post('statuses/update', params, (error, data: { user?: { screen_name?: string }; id_str?: string }, response) => {
 				if (!error) {
 					if (data.user && data.user.screen_name && data.id_str) {

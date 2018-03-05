@@ -1,7 +1,6 @@
 import * as querystring from "querystring";
 import fetch from "node-fetch";
-import {Plugin, GenericNotifier} from "./GenericNotifier";
-import {APIReturn} from "./APIReturn";
+import { PluginReturn, Plugin, Notifier } from "./Plugin";
 
 interface Config {
 	channels: string[];
@@ -9,7 +8,7 @@ interface Config {
 	at_here: boolean;
 }
 
-class Slack implements GenericNotifier<Config> {
+class Slack implements Notifier<Config> {
 	private token: string;
 	private domain: string;
 	private username: string;
@@ -37,7 +36,7 @@ class Slack implements GenericNotifier<Config> {
 		this.domain = domain;
 	}
 
-	public async sendMessage(message: string, config: Config): Promise<APIReturn[]> {
+	public async sendMessage(message: string, config: Config): Promise<PluginReturn[]> {
 		return await Promise.all(config.channels.map(chan => (async () => {
 			const msg = {
 				token: this.token,
