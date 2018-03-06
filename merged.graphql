@@ -31,7 +31,8 @@ input PluginMaster {
 }
 
 input LiveSiteConfig {
-		_: Boolean
+		title: String!
+		icon: String
 	}
 
 input SlackConfig {
