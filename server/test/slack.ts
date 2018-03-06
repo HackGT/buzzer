@@ -13,8 +13,8 @@ describe("Slack Plugin", () => {
 				at_here: true,
 				at_channel: false
 			}, "hello");
-			expect(msg).to.include("@here");
-			expect(msg).and.to.not.include("@channel");
+			expect(msg).to.include("<!here>");
+			expect(msg).and.to.not.include("<!channel>");
 		});
 
 		it("Only includes @channel when asked", () => {
@@ -23,8 +23,8 @@ describe("Slack Plugin", () => {
 				at_here: false,
 				at_channel: true
 			}, "hello");
-			expect(msg).to.not.include("@here");
-			expect(msg).and.to.include("@channel");
+			expect(msg).to.not.include("<!here>");
+			expect(msg).and.to.include("<!channel>");
 		});
 
 		it("Includes both when asked", () => {
@@ -33,8 +33,8 @@ describe("Slack Plugin", () => {
 				at_here: true,
 				at_channel: true
 			}, "hello");
-			expect(msg).to.include("@here");
-			expect(msg).and.to.include("@channel");
+			expect(msg).to.include("<!here>");
+			expect(msg).and.to.include("<!channel>");
 		});
 
 		it("Includes neither when asked", () => {
@@ -43,8 +43,8 @@ describe("Slack Plugin", () => {
 				at_here: false,
 				at_channel: false
 			}, "hello");
-			expect(msg).to.not.include("@here");
-			expect(msg).and.to.not.include("@channel");
+			expect(msg).to.not.include("<!here>");
+			expect(msg).and.to.not.include("<!channel>");
 		});
 	});
 

@@ -9,55 +9,58 @@ interface Config {
 }
 
 export class Slack implements Notifier<Config> {
+	private url: string;
 	private token: string;
-	private domain: string;
-	private username: string;
 
 	constructor() {
+		const url = process.env.SLACK_WEBHOOK_URL;
 		const token = process.env.SLACK_TOKEN;
-		const domain = process.env.SLACK_DOMAIN;
-		const username = process.env.SLACK_USERNAME;
 
+		if (!url) {
+			console.error("Missing SLACK_WEBHOOK_URL!");
+		}
 		if (!token) {
-			console.error("Missing Slack token env var");
-		}
-		if (!domain) {
-			console.error("Missing Slack domain env var");
-		}
-		if (!username) {
-			console.error("Missing Slack username env var");
+			console.error("Missing SLACK_TOKEN!");
 		}
 
-		if (!token || !domain || !username) {
-			throw new Error("Slack env vars missing, aborting...");
+		if (!url || !token) {
+			throw new Error("Missing slack env vars. exiting.");
 		}
 
+		this.url = url;
 		this.token = token;
-		this.domain = domain;
+	}
+
+	private async sendOneMessage(message: string, channel?: string): Promise<PluginReturn> {
+		const body = await fetch(this.url, {
+			method: "POST",
+			body: JSON.stringify({
+				text: message,
+				channel: channel? `#${channel}` : undefined
+			}),
+			headers: {
+				"Content-Type": "application/json"
+			}
+		}).then(res => res.text());
+
+		return {
+			error: body !== "ok",
+			key: channel || "default",
+			message: body
+		};
 	}
 
 	public async sendMessage(message: string, config: Config): Promise<PluginReturn[]> {
-		return await Promise.all(config.channels.map(chan => (async () => {
-			const msg = {
-				token: this.token,
-				channel: chan,
-				as_user: false,
-				username: this.username,
-				link_names: true,
-				text: Slack.processMessage(config, message)
-			};
+		// Slack webhooks have a default channel, add a sentinel
+		if (config.channels.length === 0) {
+			return [
+				await this.sendOneMessage(Slack.processMessage(config, message))
+			];
+		}
 
-			const qs = querystring.stringify(msg);
-
-			const res = await fetch(`https://${this.domain}.slack.com/api/chat.postMessage?${qs}`);
-			const json = await res.json();
-
-			return {
-				error: !json.ok,
-				key: chan,
-				message: json.ok? "Message posted at channel: " + chan : json.error
-			};
-		})()));
+		return await Promise.all(config.channels.map(chan => {
+			return this.sendOneMessage(Slack.processMessage(config, message), chan);
+		}));
 	}
 
 	public async check(configTest: any): Promise<Config> {
@@ -70,14 +73,10 @@ export class Slack implements Notifier<Config> {
 
 		const config = Slack.instanceOfConfig(configTest);
 
-		if (config.channels.length === 0) {
-			throw new Error('Must specify at least one slack channel');
-		}
-
-		const res = await fetch(`https://${this.domain}.slack.com/api/channels.list?${qs}`);
+		const res = await fetch(`https://slack.com/api/channels.list?${qs}`);
 		const channels: { channels?: { name: string }[] } = await res.json();
 
-		const res2 = await fetch(`https://${this.domain}.slack.com/api/groups.list?${qs}`);
+		const res2 = await fetch(`https://slack.com/api/groups.list?${qs}`);
 		const groups: { groups?: { name: string }[] } = await res2.json();
 
 		if (!groups.groups || !channels.channels) {
@@ -114,10 +113,10 @@ export class Slack implements Notifier<Config> {
 
 	public static processMessage(config: Config, msg: string): string {
 		if (config.at_here) {
-			msg = `@here ${msg}`;
+			msg = `<!here> ${msg}`;
 		}
 		if (config.at_channel) {
-			msg = `@channel ${msg}`;
+			msg = `<!channel> ${msg}`;
 		}
 		return msg;
 	}
