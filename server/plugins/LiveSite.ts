@@ -1,30 +1,31 @@
-import { PluginReturn, Plugin, Notifier } from "./Plugin";
-
 import fetch from "node-fetch";
 
+import { PluginReturn, Plugin, Notifier } from "./Plugin";
+
 interface Config {
-	title: string;
+	title?: string;
 	icon?: string;
 }
 
 class LiveSite implements Notifier<Config> {
 	private appId: string;
 	private apiKey: string;
+	private title: string | undefined;
 
 	constructor() {
 		const appId = process.env.ONESIGNAL_APP_ID;
 		const apiKey = process.env.ONESIGNAL_API_KEY;
+		this.title = process.env.ONESIGNAL_DEFAULT_TITLE;
 
 		if (!appId) {
-			console.error("One signal app id not specified");
+			console.error("ONESIGNAL_APP_ID not specified");
 		}
-
 		if (!apiKey) {
-			console.error("One signal api key not specified");
+			console.error("ONESIGNAL_API_KEY key not specified");
 		}
 
 		if (!appId || !apiKey) {
-			throw new Error("Some liveSite env vars not specified");
+			throw new Error("Some live site env vars not specified");
 		}
 
 		this.appId = appId;
@@ -32,7 +33,7 @@ class LiveSite implements Notifier<Config> {
 	}
 
 	public async check(config: any): Promise<Config> {
-		if (typeof config.title !== "string") {
+		if (config.title && typeof config.title !== "string") {
 			throw new Error("title must be a string!");
 		}
 		if (config.icon && typeof config.icon !== "string") {
@@ -42,11 +43,9 @@ class LiveSite implements Notifier<Config> {
 			title: config.title,
 			icon: config.icon
 		};
-
 	}
 
 	public async sendMessage(message: string, config: Config): Promise<PluginReturn[]> {
-
 		const response = await fetch("https://onesignal.com/api/v1/notifications", {
 			method: "POST",
 			body: JSON.stringify({
@@ -55,7 +54,7 @@ class LiveSite implements Notifier<Config> {
 					en: message
 				},
 				headings: {
-					en: config.title
+					en: config.title || this.title
 				},
 				chrom_web_icon: config.icon,
 				included_segments: ["All"]
@@ -67,20 +66,19 @@ class LiveSite implements Notifier<Config> {
 		});
 
 		const json = await response.json();
-		const error = response.status !==200;
+		const error = response.status !== 200;
 
 		return [{
 			error,
-			key: "LiveSite",
+			key: "live_site",
 			message: error? json.errors.toString() : null
 		}];
 	}
-
 }
 
 const LiveSitePlugin: Plugin<Config> = {
 	schema: () => `{
-		title: String!
+		title: String
 		icon: String
 	}`,
 	init: async () => new LiveSite()

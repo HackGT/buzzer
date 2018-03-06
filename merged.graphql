@@ -31,7 +31,7 @@ input PluginMaster {
 }
 
 input LiveSiteConfig {
-		title: String!
+		title: String
 		icon: String
 	}
 
