@@ -64,6 +64,12 @@ export class Slack implements Notifier<Config> {
 	}
 
 	public async check(configTest: any): Promise<Config> {
+		const config = Slack.instanceOfConfig(configTest);
+
+		// If there no channels we don't have to make a request to check them
+		if (config.channels.length === 0) {
+			return config;
+		}
 
 		const qs = querystring.stringify({
 			token: this.token,
@@ -71,22 +77,26 @@ export class Slack implements Notifier<Config> {
 			exclude_members: true
 		});
 
-		const config = Slack.instanceOfConfig(configTest);
+		const destinations = await Promise.all([
+			fetch(`https://slack.com/api/channels.list?${qs}`)
+				.then(r => r.json())
+				.then((json: { channels?: { name: string }[] }) => {
+					return json.channels? json.channels.map(c => c.name) : json;
+				}),
+			fetch(`https://slack.com/api/groups.list?${qs}`)
+				.then(r => r.json())
+				.then((json: { groups?: { name: string }[] }) => {
+					return json.groups? json.groups.map(c => c.name) : json;
+				})
+		]);
 
-		const res = await fetch(`https://slack.com/api/channels.list?${qs}`);
-		const channels: { channels?: { name: string }[] } = await res.json();
-
-		const res2 = await fetch(`https://slack.com/api/groups.list?${qs}`);
-		const groups: { groups?: { name: string }[] } = await res2.json();
-
-		if (!groups.groups || !channels.channels) {
-			throw new Error("Could not verify slack channels.");
+		for (const dest of destinations) {
+			if (!Array.isArray(dest)) {
+				throw new Error(`Could not retrieve channels / groups: ${JSON.stringify(dest)}`);
+			}
 		}
 
-		const everything = channels.channels
-			.map(c => c.name)
-			.concat(groups.groups.map(c => c.name));
-
+		const everything = [].concat.apply([], destinations);
 		const invalid = config.channels.filter(c => !everything.includes(c));
 
 		if (invalid.length !== 0) {
