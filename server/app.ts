@@ -10,6 +10,7 @@ import { upperCamel } from './common';
 import { mediaAPI } from './plugins';
 import { PluginReturn, Notifier } from './plugins/Plugin';
 import typeDefs from './typeDefs';
+import { schema as types } from "./graphql.types";
 import { isAdmin } from './middleware';
 
 const app = express();
@@ -28,18 +29,26 @@ let plugins: {
 	[name: string]: Notifier<any>;
 } = {};
 
-const resolvers = {
-	Query: {
-		send_message: async (prev: any, args: any): Promise<IPluginReturn[]> => {
-			const message = args.message;
+type Ctx = express.Request;
 
-			const checkQueue = Object.keys(args.plugins).map( rawName => {
+interface IResolver {
+	Query: types.Query<Ctx>;
+}
+
+const resolvers: IResolver = {
+	Query: {
+		send_message: async (prev, args): Promise<IPluginReturn[]> => {
+			const message = args.message;
+			const graphQLPlugins = args.plugins as {[name: string]: any}; // Help! typewriter doesn't know these are strings!
+			const checkQueue = Object.keys(graphQLPlugins).map( rawName => {
+				// Temp: const checkQueue = Object.keys(args.plugins).map( rawName => {
 
 				return (async () => { // Loading checkQueue IIFE
 					// Upper Cameled
 					const name = upperCamel(rawName);
 					const plugin = plugins[name];
-					const verifiedConfig = await plugin.check(args.plugins[rawName]); // Verify
+					const verifiedConfig = await plugin.check(graphQLPlugins[rawName]); // Verify
+					// Temp: const verifiedConfig = await plugin.check(args.plugins[rawName]); // Verify
 
 					return async () => { // Sending function
 						try {
@@ -69,7 +78,7 @@ const resolvers = {
 };
 
 const schema = makeExecutableSchema({ typeDefs,
-	resolvers
+																			resolvers: resolvers as any // What a joke
 });
 
 app.use(

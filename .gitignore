@@ -28,6 +28,7 @@ jspm_packages
 .node_repl_history
 
 *.js.map
+*.js
 uploads/
 server/config/config.json
 server/config/questions\.schema\.d\.ts
@@ -44,3 +45,5 @@ dist/
 .travis.d/vendor
 
 .env
+
+*.types.ts

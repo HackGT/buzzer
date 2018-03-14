@@ -1,3 +1,4 @@
+// Duplicate for compiling app.ts at a later time
 {
   "compilerOptions": {
     "module": "commonjs",
@@ -22,8 +23,4 @@
     "plugins": [],
     "moduleResolution": "node",
   },
-	"exclude": [
-		"app.ts"
-  ]
-
 }
