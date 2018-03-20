@@ -11,6 +11,7 @@ interface Config {
 export class Slack implements Notifier<Config> {
 	private url: string;
 	private token: string;
+	public needs = "slackHandle";
 
 	constructor() {
 		const url = process.env.SLACK_WEBHOOK_URL;
@@ -129,6 +130,11 @@ export class Slack implements Notifier<Config> {
 			msg = `<!channel> ${msg}`;
 		}
 		return msg;
+	}
+
+	public target(payload: any[]) {
+		// Dummy method, no targetting done yet		
+		return;
 	}
 }
 

@@ -7,6 +7,7 @@ class Twitter implements Notifier<{}> {
 	private consumerSecret: string;
 	private accessToken: string;
 	private accessTokenSecret: string;
+	public needs = "";
 
 	constructor() {
 		const consumerKey = process.env.TWITTER_CONSUMER_KEY;
@@ -77,6 +78,12 @@ class Twitter implements Notifier<{}> {
 		});
 		return [await res];
 	}
+
+	public target(payload: any[]) {
+		// Dummy method, no targetting done yet
+		return;
+	}
+
 }
 
 const TwitterPlugin: Plugin<{}> = {

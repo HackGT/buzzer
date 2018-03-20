@@ -11,6 +11,7 @@ class LiveSite implements Notifier<Config> {
 	private appId: string;
 	private apiKey: string;
 	private title: string | undefined;
+	public needs = "";
 
 	constructor() {
 		const appId = process.env.ONESIGNAL_APP_ID;
@@ -74,6 +75,12 @@ class LiveSite implements Notifier<Config> {
 			message: error? json.errors.toString() : null
 		}];
 	}
+
+	public target(payload: any[]) {
+		// Dummy method, no targetting done yet
+		return;
+	}
+
 }
 
 const LiveSitePlugin: Plugin<Config> = {
