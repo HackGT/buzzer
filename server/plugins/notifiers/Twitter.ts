@@ -1,4 +1,4 @@
-import { PluginReturn, Plugin, Notifier } from "./Plugin";
+import { NotifierPluginReturn as PluginReturn, NotifierPlugin as Plugin, Notifier } from "./Plugin";
 
 import * as TwitterAPI from "twit";
 

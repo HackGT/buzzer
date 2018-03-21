@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import { mediaAPI } from './plugins';
+import { mediaAPI } from './plugins/notifiers';
 import { lowerSnake } from './common';
 
 const mainTypeDefs = fs.readFileSync(path.resolve(__dirname, "../api.graphql"), "utf8");

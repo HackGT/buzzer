@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 
-import { PluginReturn, Plugin, Notifier } from "./Plugin";
+import { NotifierPluginReturn as PluginReturn, NotifierPlugin as Plugin, Notifier } from "./Plugin";
 
 interface Config {
 	title?: string;

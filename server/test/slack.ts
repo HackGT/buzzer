@@ -1,7 +1,7 @@
 import "mocha";
 import { expect } from "chai";
 
-import { Slack } from "../plugins/Slack";
+import { Slack } from "../plugins/notifiers/Slack";
 
 describe("Slack Plugin", () => {
 

@@ -7,8 +7,8 @@ import { makeExecutableSchema } from 'graphql-tools';
 
 import config from './config';
 import { upperCamel } from './common';
-import { mediaAPI } from './plugins';
-import { PluginReturn, Notifier } from './plugins/Plugin';
+import { mediaAPI } from './plugins/notifiers';
+import { NotifierPluginReturn, Notifier } from './plugins/notifiers/Plugin';
 import typeDefs from './typeDefs';
 import { isAdmin } from './middleware';
 
@@ -19,18 +19,18 @@ process.on("unhandledRejection", err => {
 	throw err;
 });
 
-interface IPluginReturn {
+interface INotifierPluginReturn {
 	plugin: string;
-	errors: PluginReturn[];
+	errors: NotifierPluginReturn[];
 }
 
-let plugins: {
+let notifierPlugins: {
 	[name: string]: Notifier<any>;
 } = {};
 
 const resolvers = {
 	Query: {
-		send_message: async (prev: any, args: any): Promise<IPluginReturn[]> => {
+		send_message: async (prev: any, args: any): Promise<INotifierPluginReturn[]> => {
 			const message = args.message;
 
 			const checkQueue = Object.keys(args.plugins).map( rawName => {
@@ -38,7 +38,7 @@ const resolvers = {
 				return (async () => { // Loading checkQueue IIFE
 					// Upper Cameled
 					const name = upperCamel(rawName);
-					const plugin = plugins[name];
+					const plugin = notifierPlugins[name];
 					const verifiedConfig = await plugin.check(args.plugins[rawName]); // Verify
 
 					return async () => { // Sending function
@@ -85,7 +85,7 @@ app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
 // Run plugin setup
 async function runSetup() {
 	await Promise.all(Object.keys(mediaAPI).map(async pluginKey => {
-		plugins[pluginKey] = await mediaAPI[pluginKey].init();
+		notifierPlugins[pluginKey] = await mediaAPI[pluginKey].init();
 	}));
 }
 
