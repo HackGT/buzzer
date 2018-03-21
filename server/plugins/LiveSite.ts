@@ -46,7 +46,7 @@ class LiveSite implements Notifier<Config> {
 		};
 	}
 
-	public async sendMessage(message: string, config: Config): Promise<PluginReturn[]> {
+	public async sendMessage(message: string, config: Config, target: any[] = []): Promise<PluginReturn[]> {
 		const response = await fetch("https://onesignal.com/api/v1/notifications", {
 			method: "POST",
 			body: JSON.stringify({
@@ -74,11 +74,6 @@ class LiveSite implements Notifier<Config> {
 			key: "live_site",
 			message: error? json.errors.toString() : null
 		}];
-	}
-
-	public target(payload: any[]) {
-		// Dummy method, no targetting done yet
-		return;
 	}
 
 }

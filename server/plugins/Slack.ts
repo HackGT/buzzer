@@ -51,7 +51,7 @@ export class Slack implements Notifier<Config> {
 		};
 	}
 
-	public async sendMessage(message: string, config: Config): Promise<PluginReturn[]> {
+	public async sendMessage(message: string, config: Config, target: any[] = []): Promise<PluginReturn[]> {
 		// Slack webhooks have a default channel, add a sentinel
 		if (config.channels.length === 0) {
 			return [
@@ -130,11 +130,6 @@ export class Slack implements Notifier<Config> {
 			msg = `<!channel> ${msg}`;
 		}
 		return msg;
-	}
-
-	public target(payload: any[]) {
-		// Dummy method, no targetting done yet		
-		return;
 	}
 }
 

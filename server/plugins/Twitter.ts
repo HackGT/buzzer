@@ -42,7 +42,7 @@ class Twitter implements Notifier<{}> {
 		return {}; // No config currently
 	}
 
-	public async sendMessage(message: string, config: {}): Promise<PluginReturn[]> {
+	public async sendMessage(message: string, config: {}, target: any[] = []): Promise<PluginReturn[]> {
 		const client = new TwitterAPI({
 			consumer_key: this.consumerKey,
 			consumer_secret: this.consumerSecret,
@@ -77,11 +77,6 @@ class Twitter implements Notifier<{}> {
 			});
 		});
 		return [await res];
-	}
-
-	public target(payload: any[]) {
-		// Dummy method, no targetting done yet
-		return;
 	}
 
 }
