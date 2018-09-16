@@ -88,20 +88,21 @@ export class TwilioNotifier implements Notifier<Config> {
 		let processedUsers: any[] = []; // Todo: typing
 		let page = "";
 		const batchSize = 50;
-		let response: any;
 		while (true) {
-			response = await fetch("https://registration.hack.gt/graphql", {
+			const response = await fetch("https://registration.hack.gt/graphql", {
 				method: "POST",
-				body: JSON.stringify({`query {
-  			  users(n:${batchSize}, pagination_token: "${page}", filter: {
-				    applied:true, ${filterString}
-			    }) {
-				    question(name: "phone-number") {
-					    value
-				    }
-            pagination_token
-			    }
-		    }`}),
+				body: JSON.stringify({
+					query: `query {
+  			    users(n:${batchSize}, pagination_token: "${page}", filter: {
+				      applied:true, ${filterString}
+			      }) {
+				      question(name: "phone-number") {
+					      value
+				      }
+              pagination_token
+			      }
+		      }`
+				}),
 				headers: {
 					"Content-Type": "application/json",
 					"Authorization": `Basic ${this.registrationKey}`
@@ -111,20 +112,19 @@ export class TwilioNotifier implements Notifier<Config> {
 			let json = await response.json(); // TODO: read error code
 			if (!json.data || !json.data.users || json.data.users.length === 0) {
 				break;
-			} // TODO: how does this pagination token even work?
-			let users = json.data.users;
+			}
+			let users: any[] = json.data.users;
 			page = users[users.length - 1].pagination_token;
-			await wait(1000);
 			users.forEach((u: any) => {
 				delete u.pagination_token;
 			});
-			processedUsers.append(users);
+			processedUsers = processedUsers.concat(users);
 		}
 		return processedUsers;
 	}
 
 	public async sendMessage(message: string, config: Config): Promise<PluginReturn[]> {
-		// Policy: fail completely if any part of config malformed - should that be how it goes?
+		// Best effort policy, send as many messages as possible, don't care about success/fail of individual
 		console.log(`Sending message ${message} with config ${config}`);
 		if (!config.groups) {
 			if (config.numbers) {
@@ -141,11 +141,10 @@ export class TwilioNotifier implements Notifier<Config> {
 		}
 
 		config.groups = config.groups.map(name => name.toLowerCase());
-		// Map out queries
-		const numQuery = 20; // TODO: pagination
+
 		let queries;
 		if (config.groups.includes("all")) {
-			queries = [""]; // no filter query
+			queries = [""]; // No filter query
 		} else {
 			const branchNames: string[] = [];
 			config.groups.forEach((g: string) => {
@@ -222,7 +221,6 @@ export class TwilioNotifier implements Notifier<Config> {
 
 	private static cleanNumber(numRaw: string) {
 		// Naive cleanup - trim all non digit numbers, add a plus 1 if it doesn't exist
-		console.log(`Cleaning ${numRaw}`);
 		if (numRaw.length < 10) return null;
 		const hasCountryCode = numRaw.charAt(0) === '+';
 		if (hasCountryCode) numRaw = numRaw.substring(1);
