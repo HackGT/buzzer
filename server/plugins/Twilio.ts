@@ -16,17 +16,14 @@ interface UserQuestionData {
 
 /*
 	 Todo: fuzzy search
-	 Currently hardcoded group tags:
-	 Participant - fowards to participant with and without travel reimbursement
-	 Mentor
-	 Volunteer
-	 All
-*/
+ */
 export class TwilioNotifier implements Notifier<Config> {
 	private sid: string;
 	private token: string;
 	private serviceSid: string;
 	private registrationKey: string;
+	private static legalTags = ["participant", "mentor", "volunteer", "all",
+															"participant - travel reimbursement", "participant - no travel reimbursement"];
 
 	// Refactor note: would like to have local client instead of sid, token, ts difficulties
 	constructor() {
@@ -127,7 +124,7 @@ export class TwilioNotifier implements Notifier<Config> {
 			}
 			let users: any[] = json.data.users;
 			page = users[users.length - 1].pagination_token;
-			let cleanUsers: UserQuestionData[];
+			const cleanUsers: UserQuestionData[] = [];
 			users.forEach((u: any) => {
 				delete u.pagination_token;
 				if (u.question && u.question.value) {
@@ -207,7 +204,7 @@ export class TwilioNotifier implements Notifier<Config> {
 			if (object.numbers.length === 0) {
 				throw new Error("Empty 'numbers' arg");
 			}
-			if (!object.numbers.every((phoneNumber: any) => true)) {
+			if (!object.numbers.every((phoneNumber: any) => typeof phoneNumber === string)) {
 				// TODO: replace 'true' with phone number regex check
 				throw new Error("Malformed phone number in config");
 			}
@@ -221,8 +218,8 @@ export class TwilioNotifier implements Notifier<Config> {
 			if (object.groups.length === 0) {
 				throw new Error("Empty 'groups' arg");
 			}
-			if (!object.groups.every((phoneNumber: any) => true)) {
-				// TODO: replace 'true' with a validity check query call to registration API
+			if (!object.groups.every((tag: any) => (typeof tag === string && tag.toLowerCase() in TwilioNotifier.legalTags))) {
+				// TODO: replace legalTags with a query call to registration API
 				throw new Error("Invalid group tag"); // TODO provide info about which tag is invalid
 			}
 			config.groups = object.groups;
