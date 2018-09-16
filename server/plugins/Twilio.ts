@@ -4,13 +4,19 @@ import fetch from "node-fetch";
 import { PluginReturn, Plugin, Notifier } from "./Plugin";
 
 interface Config {
-	numbers?: string[]; // Well-formed phone numbers
-	groups?: string[]; // Groups to message - queried from registration - this will be based on participant type, until registration api clarifies
+	numbers: string[]; // Well-formed phone numbers
+	groups: string[]; // Groups to message - queried from registration - this will be based on participant type, until registration api clarifies
+}
+
+interface UserQuestionData {
+	question: {
+		value: string;
+	};
 }
 
 /*
 	 Todo: fuzzy search
-	 Currently hardcoded group tags: (all lowercased)
+	 Currently hardcoded group tags:
 	 Participant - fowards to participant with and without travel reimbursement
 	 Mentor
 	 Volunteer
@@ -84,8 +90,8 @@ export class TwilioNotifier implements Notifier<Config> {
 	}
 
 	/* Wrapper to query with pagination */
-	private async queryRegistration(filterString: string): Promise<any[]> {
-		let processedUsers: any[] = []; // Todo: typing
+	private async queryRegistration(filterString: string): Promise<UserQuestionData[]> {
+		let processedUsers: UserQuestionData[] = [];
 		let page = "";
 		const batchSize = 50;
 		while (true) {
@@ -109,45 +115,43 @@ export class TwilioNotifier implements Notifier<Config> {
 				}
 			});
 
-			let json = await response.json(); // TODO: read error code
-			if (!json.data || !json.data.users || json.data.users.length === 0) {
-				break;
+			let json;
+			try {
+				json = await response.json();
+				if (!json.data || !json.data.users || json.data.users.length === 0) {
+					break;
+				}
+			} catch (err) {
+				console.log(err);
+				break; // Failed
 			}
 			let users: any[] = json.data.users;
 			page = users[users.length - 1].pagination_token;
+			let cleanUsers: UserQuestionData[];
 			users.forEach((u: any) => {
 				delete u.pagination_token;
+				if (u.question && u.question.value) {
+					cleanUsers.push(u as UserQuestionData);
+				}
 			});
-			processedUsers = processedUsers.concat(users);
+			processedUsers = processedUsers.concat(cleanUsers);
 		}
 		return processedUsers;
 	}
 
 	public async sendMessage(message: string, config: Config): Promise<PluginReturn[]> {
-		// Best effort policy, send as many messages as possible, don't care about success/fail of individual
+		// Best effort policy, send as many messages as possible, don't care about success/fail of individual (Don't wait for returns)
 		console.log(`Sending message ${message} with config ${config}`);
-		if (!config.groups) {
-			if (config.numbers) {
-				return await Promise.all(config.numbers.map((phoneNumber) => {
-					return this.sendOneMessage(message, phoneNumber);
-				}));
-			} else {
-				return [{
-					error: true,
-					key: "twilio",
-					message: "No config provided" // TODO: this should be in check, make a better interface
-				}];
-			}
-		}
+		config.numbers.map((phoneNumber) => this.sendOneMessage(message, phoneNumber)); // Explicit number sending
 
-		config.groups = config.groups.map(name => name.toLowerCase());
+		const groupNames = config.groups.map(name => name.toLowerCase());
 
 		let queries;
 		if (config.groups.includes("all")) {
 			queries = [""]; // No filter query
 		} else {
 			const branchNames: string[] = [];
-			config.groups.forEach((g: string) => {
+			groupNames.forEach((g: string, index: number) => {
 				switch (g) {
 					case "participant":
 						branchNames.push("Participant - Travel Reimbursement");
@@ -157,6 +161,10 @@ export class TwilioNotifier implements Notifier<Config> {
 					case "volunteer":
 						branchNames.push(g[0].toUpperCase() + g.slice(1)); // Capitalize
 						break;
+					default:
+						if (index < config.groups.length) {
+							branchNames.push(config.groups[index]);
+						}
 				}
 			});
 			queries = branchNames.map((qs: string) => `application_branch: "${qs}"`);
@@ -187,7 +195,11 @@ export class TwilioNotifier implements Notifier<Config> {
 	}
 
 	public static instanceOfConfig(object: any): Config {
-		const config: Config = {};
+		const config: Config = {
+			numbers: [],
+			groups: []
+		};
+
 		if (object.numbers) {
 			if (!Array.isArray(object.numbers)) {
 				throw new Error("'numbers' must be an array");
