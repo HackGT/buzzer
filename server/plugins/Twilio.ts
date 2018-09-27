@@ -30,7 +30,7 @@ export class TwilioNotifier implements Notifier<Config> {
 		const sid = process.env.TWILIO_SID;
 		const token = process.env.TWILIO_TOKEN;
 		const serviceSid = process.env.TWILIO_SERVICE_SID;
-		const registrationKey = process.env.REGISTRATION_KEY;
+		const registrationKey = process.env.REGISTRATION_TEST_KEY; // TODO: swap back
 
 		if (!sid) {
 			console.error("Missing TWILIO_SID!");
@@ -92,7 +92,7 @@ export class TwilioNotifier implements Notifier<Config> {
 		let page = "";
 		const batchSize = 50;
 		while (true) {
-			const response = await fetch("https://registration.hack.gt/graphql", {
+			const response = await fetch("https://registration.dev.hack.gt/graphql", { // TODO: replace this with real site
 				method: "POST",
 				body: JSON.stringify({
 					query: `query {
@@ -175,7 +175,9 @@ export class TwilioNotifier implements Notifier<Config> {
 			const num = TwilioNotifier.cleanNumber(u.question.value);
 			if (!num) return; // Invalid format
 			else console.log(num);
-			// Temp: this.sendOneMessage(message, num);
+			this.sendOneMessage(message, num).catch((err) => {
+				console.log(err);
+			}); // Do nothing with error - satisfy lint
 		});
 
 		return [{
@@ -204,7 +206,7 @@ export class TwilioNotifier implements Notifier<Config> {
 			if (object.numbers.length === 0) {
 				throw new Error("Empty 'numbers' arg");
 			}
-			if (!object.numbers.every((phoneNumber: any) => typeof phoneNumber === string)) {
+			if (!object.numbers.every((phoneNumber: any) => typeof phoneNumber === "string")) {
 				// TODO: replace 'true' with phone number regex check
 				throw new Error("Malformed phone number in config");
 			}
@@ -218,7 +220,7 @@ export class TwilioNotifier implements Notifier<Config> {
 			if (object.groups.length === 0) {
 				throw new Error("Empty 'groups' arg");
 			}
-			if (!object.groups.every((tag: any) => (typeof tag === string && tag.toLowerCase() in TwilioNotifier.legalTags))) {
+			if (!object.groups.every((tag: any) => (typeof tag === "string" && TwilioNotifier.legalTags.includes(tag.toLowerCase())))) {
 				// TODO: replace legalTags with a query call to registration API
 				throw new Error("Invalid group tag"); // TODO provide info about which tag is invalid
 			}
