@@ -22,16 +22,16 @@ export class TwilioNotifier implements Notifier<Config> {
 	private token: string;
 	private serviceSid: string;
 	private registrationKey: string;
-	private static legalTags = ["participant", "mentor", "volunteer", "all",
-															"participant - travel reimbursement", "participant - no travel reimbursement"];
-
+	private registrationUrl: string;
 	// Refactor note: would like to have local client instead of sid, token, ts difficulties
 	constructor() {
 		const sid = process.env.TWILIO_SID;
 		const token = process.env.TWILIO_TOKEN;
 		const serviceSid = process.env.TWILIO_SERVICE_SID;
-		const registrationKey = process.env.REGISTRATION_TEST_KEY; // TODO: swap back
+		const registrationKey = process.env.REGISTRATION_KEY;
+		const registrationUrl = process.env.REGISTRATION_GRAPHQL;
 
+		// TODO: replace legalTags with a query call to registration API
 		if (!sid) {
 			console.error("Missing TWILIO_SID!");
 		}
@@ -44,8 +44,11 @@ export class TwilioNotifier implements Notifier<Config> {
 		if (!registrationKey) {
 			console.error("Missing REGISTRATION_KEY");
 		}
+		if (!registrationUrl) {
+			console.error("Missing REGISTRATION_GRAPHQL");
+		}
 
-		if (!sid || !token || !serviceSid || !registrationKey) {
+		if (!sid || !token || !serviceSid || !registrationKey || !registrationUrl) {
 			throw new Error("Missing twilio env vars. exiting.");
 		}
 
@@ -53,6 +56,7 @@ export class TwilioNotifier implements Notifier<Config> {
 		this.token = token;
 		this.serviceSid = serviceSid;
 		this.registrationKey = Buffer.from(registrationKey).toString('base64');
+		this.registrationUrl = registrationUrl;
 	}
 
 	// Should provide a programmatic way of setting up service and numbers that runs once
@@ -92,7 +96,7 @@ export class TwilioNotifier implements Notifier<Config> {
 		let page = "";
 		const batchSize = 50;
 		while (true) {
-			const response = await fetch("https://registration.dev.hack.gt/graphql", { // TODO: replace this with real site
+			const response = await fetch(this.registrationUrl, {
 				method: "POST",
 				body: JSON.stringify({
 					query: `query {
@@ -190,7 +194,7 @@ export class TwilioNotifier implements Notifier<Config> {
 
 	public async check(configTest: any): Promise<Config> {
 		// Check should verify target numbers are registered in HackGT registration/checkin - skipping this step for now.
-		return TwilioNotifier.instanceOfConfig(configTest);
+			return TwilioNotifier.instanceOfConfig(configTest);
 	}
 
 	public static instanceOfConfig(object: any): Config {
@@ -220,8 +224,12 @@ export class TwilioNotifier implements Notifier<Config> {
 			if (object.groups.length === 0) {
 				throw new Error("Empty 'groups' arg");
 			}
-			if (!object.groups.every((tag: any) => (typeof tag === "string" && TwilioNotifier.legalTags.includes(tag.toLowerCase())))) {
-				// TODO: replace legalTags with a query call to registration API
+			const legalTagString = process.env.REGISTRATION_LEGAL_TAGS; // Static method, this can't be a class attr.
+			if (!legalTagString) {
+				throw new Error("No registration tags provided");
+			}
+			const legalTags = legalTagString.split(",");
+			if (!object.groups.every((tag: any) => (typeof tag === "string" && legalTags.includes(tag.toLowerCase())))) {
 				throw new Error("Invalid group tag"); // TODO provide info about which tag is invalid
 			}
 			config.groups = object.groups;
