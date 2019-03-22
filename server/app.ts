@@ -1,6 +1,7 @@
 import * as express from "express";
 import * as compression from "compression";
 import * as bodyParser from "body-parser";
+import * as Datastore from "nedb";
 
 import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
 import { makeExecutableSchema } from 'graphql-tools';
@@ -13,6 +14,7 @@ import typeDefs from './typeDefs';
 import { isAdmin } from './middleware';
 
 const app = express();
+const db = new Datastore({ filename: './server/datastore/message_log.db', autoload: true, timestampData: true });
 
 app.use(compression());
 process.on("unhandledRejection", err => {
@@ -43,10 +45,14 @@ const resolvers = {
 
 					return async () => { // Sending function
 						try {
-							return {
+							const pluginReturn = {
 								plugin: name,
 								errors: await plugin.sendMessage(message, verifiedConfig)
 							};
+
+							db.insert(args); // Inserts the args object from GraphQL query into database
+
+							return pluginReturn;
 						}
 						catch (e) {
 							return {
@@ -81,6 +87,8 @@ app.use(
 	})
 );
 app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
+// Endpoint for getting messages sent, sorted by most recent
+app.get('/message_log', (req, res) => db.find({}).sort({ createdAt: -1 }).exec((err: any, docs: any) => res.send(docs)));
 
 // Run plugin setup
 async function runSetup() {
