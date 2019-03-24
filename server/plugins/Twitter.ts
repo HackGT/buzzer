@@ -9,10 +9,10 @@ class Twitter implements Notifier<{}> {
 	private accessTokenSecret: string;
 
 	constructor() {
-		const consumerKey = process.env.TWITTER_CONSUMER_KEY;
-		const consumerSecret = process.env.TWITTER_CONSUMER_SECRET;
-		const accessToken = process.env.TWITTER_HACKGT_ACCESS_TOKEN;
-		const accessTokenSecret = process.env.TWITTER_HACKGT_ACCESS_TOKEN_SECRET;
+		const consumerKey = process.env.TWITTER_CONSUMER_KEY || "sample";
+		const consumerSecret = process.env.TWITTER_CONSUMER_SECRET || "sample";
+		const accessToken = process.env.TWITTER_HACKGT_ACCESS_TOKEN || "sample";
+		const accessTokenSecret = process.env.TWITTER_HACKGT_ACCESS_TOKEN_SECRET || "sample";
 
 		if (!consumerKey) {
 			console.error("Missing Twitter consumer_key env var");
