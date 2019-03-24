@@ -64,8 +64,6 @@ const resolvers = {
             const plugin = "plugins." + args.plugin
             let return_docs = await new Promise<IMessageReturn[]>(resolve => {
                 db.find({[plugin]: {$exists: true}}, function(err: any, docs: any){
-                    console.log(err)
-                    console.log(docs)
                     resolve(docs)
                 });
             });
