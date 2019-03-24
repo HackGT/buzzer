@@ -61,9 +61,9 @@ const resolvers = {
 	Query: {
         get_messages: async (prev: any, args: any): Promise<IMessageReturn[]> =>
         {
-            const plugin = args.plugin + ""
+            const plugin = "plugins." + args.plugin
             let return_docs = await new Promise<IMessageReturn[]>(resolve => {
-                db.find({"plugins.live_site": {$exists: true}}, function(err: any, docs: any){
+                db.find({[plugin]: {$exists: true}}, function(err: any, docs: any){
                     console.log(err)
                     console.log(docs)
                     resolve(docs)
