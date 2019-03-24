@@ -2,7 +2,6 @@ import * as express from "express";
 import * as compression from "compression";
 import * as bodyParser from "body-parser";
 import * as Datastore from "nedb";
-import * as dotenv from "dotenv";
 
 import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
 import { makeExecutableSchema } from 'graphql-tools';
@@ -10,17 +9,12 @@ import { makeExecutableSchema } from 'graphql-tools';
 import config from './config';
 import { upperCamel } from './common';
 import { mediaAPI } from './plugins';
-import { PluginReturn, Notifier, MetaDataType } from './plugins/Plugin';
+import { PluginReturn, Notifier, PluginMasterReturn } from './plugins/Plugin';
 import typeDefs from './typeDefs';
 import { isAdmin } from './middleware';
 
 const app = express();
-dotenv.config();
-const db: any = {};
-Object.keys(mediaAPI).forEach(key => {
-	const file = `./server/datastore/${key.toLowerCase()}_log.db`;
-	db[key] = new Datastore({ filename: file, autoload: true, timestampData: true });
-});
+const db = new Datastore({ filename: './server/datastore/message_log.db', autoload: true, timestampData: true });
 
 app.use(compression());
 process.on("unhandledRejection", err => {
@@ -33,12 +27,31 @@ interface IPluginReturn {
 }
 
 interface IMessageReturn {
-	message: string;
-	config: MetaDataType;
-	_id: string;
-	createdAt: string;
-	updatedAt: string;
+    message: string;
+    plugins: PluginMasterReturn;
+    _id: string;
+    createdAt: string;
+    updatedAt: string;
 }
+// interface LiveSiteConfig {
+//     title: string;
+//     icon: string;
+// }
+// interface SlackConfig {
+//     channels: [string];
+//     at_channel: boolean;
+//     at_here: boolean;
+// }
+// interface TwitterConfig {
+//     _: boolean;
+// }
+// interface IPluginMaster {
+//     live_site: LiveSiteConfig
+// 	slack: SlackConfig
+// 	twitter: TwitterConfig
+// }
+
+
 
 let plugins: {
 	[name: string]: Notifier<any>;
@@ -46,32 +59,39 @@ let plugins: {
 
 const resolvers = {
 	Query: {
-		get_messages: async (prev: any, args: any): Promise<IMessageReturn[]> => {
-			let plugin = args.plugin;
-			let returnDocs = await new Promise<IMessageReturn[]>(resolve => {
-				db[upperCamel(plugin)].find({}, (err: any, docs: any) => {
-					resolve(docs);
-				});
-			});
+        get_messages: async (prev: any, args: any): Promise<IMessageReturn[]> =>
+        {
+            const plugin = args.plugin + ""
+            let return_docs = await new Promise<IMessageReturn[]>(resolve => {
+                db.find({"plugins.live_site": {$exists: true}}, function(err: any, docs: any){
+                    console.log(err)
+                    console.log(docs)
+                    resolve(docs)
+                });
+            });
+            return return_docs
 
-			return returnDocs;
-		},
+        },
 		send_message: async (prev: any, args: any): Promise<IPluginReturn[]> => {
 			const message = args.message;
 
-			const checkQueue = Object.keys(args.plugins).map(rawName => {
+			const checkQueue = Object.keys(args.plugins).map( rawName => {
 
 				return (async () => { // Loading checkQueue IIFE
 					// Upper Cameled
 					const name = upperCamel(rawName);
 					const plugin = plugins[name];
 					const verifiedConfig = await plugin.check(args.plugins[rawName]); // Verify
+
 					return async () => { // Sending function
 						try {
 							const pluginReturn = {
 								plugin: name,
 								errors: await plugin.sendMessage(message, verifiedConfig)
 							};
+
+							db.insert(args); // Inserts the args object from GraphQL query into database
+
 							return pluginReturn;
 						}
 						catch (e) {
@@ -89,28 +109,12 @@ const resolvers = {
 			});
 
 			const sendingQueue = await Promise.all(checkQueue);
-			return await Promise.all(sendingQueue.map(f => {
-
-				f().then(result => {
-					const p = result.plugin.split(/(?=[A-Z])/).join('_').toLowerCase();
-					const insertArg = {
-						message: args.message,
-						config: args.plugins[p],
-						_id: args._id,
-						createdAt: args.createdAt,
-						updatedAt: args.updatedAt,
-						errors: result.errors
-					};
-					db[upperCamel(result.plugin)].insert(insertArg);
-				}).catch(err => console.log(err));
-				return f();
-			})); // Send all!
+			return await Promise.all(sendingQueue.map(f => f())); // Send all!
 		}
 	}
 };
 
-const schema = makeExecutableSchema({
-	typeDefs,
+const schema = makeExecutableSchema({ typeDefs,
 	resolvers
 });
 
@@ -122,6 +126,8 @@ app.use(
 	})
 );
 app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
+// Endpoint for getting messages sent, sorted by most recent
+app.get('/message_log', (req, res) => db.find({}).sort({ createdAt: -1 }).exec((err: any, docs: any) => res.send(docs)));
 
 // Run plugin setup
 async function runSetup() {

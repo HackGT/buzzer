@@ -33,12 +33,15 @@ type PluginReturn {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Update this with every plugin type!
 =======
 >>>>>>> graphql get_messages endpoint complete
 =======
 # Update this with every plugin type!
 >>>>>>> init commit
+=======
+>>>>>>> graphql get_messages endpoint complete
 type PluginMasterReturn  {
 	live_site: LiveSiteConfigType
 	slack: SlackConfigType
@@ -48,6 +51,7 @@ type PluginMasterReturn  {
 
 type MessageReturn {
     message: String
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -102,26 +106,33 @@ type MetaDataType {
     updatedAt: String!
 =======
 >>>>>>> Added error messages to db. Minor modifications addressing previous PR
+=======
+    plugins: PluginMasterReturn!
+    _id: ID!
+    createdAt: String!
+    updatedAt: String!
+>>>>>>> graphql get_messages endpoint complete
 }
 
 type LiveSiteConfigType {
-	title: String
-	icon: String
-}
+		title: String
+		icon: String
+	}
 
 
 type SlackConfigType {
-	channels: [String!]!
-	at_channel: Boolean!
-	at_here: Boolean!
-}
+		channels: [String!]!
+		at_channel: Boolean!
+		at_here: Boolean!
+	}
 
 type TwilioConfigType {
-	numbers: [String!]
+		numbers: [String!]
     groups: [String!]
-}
+	}
 
 type TwitterConfigType {
+<<<<<<< HEAD
 <<<<<<< HEAD
 		_: Boolean
 	}
@@ -155,6 +166,15 @@ input PluginMaster {
 >>>>>>> graphql get_messages endpoint complete
 =======
 >>>>>>> init commit
+=======
+		_: Boolean
+	}
+
+input PluginMaster {
+	slack: SlackConfig
+	twilio: TwilioConfig
+	twitter: TwitterConfig
+>>>>>>> graphql get_messages endpoint complete
 }
 
 input SlackConfig {
@@ -164,11 +184,14 @@ input SlackConfig {
 	}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 input TwilioConfig {
 		numbers: [String!]
     groups: [String!]
 	}
+=======
+>>>>>>> graphql get_messages endpoint complete
 
 input TwilioConfig {
 		numbers: [String!]
@@ -178,6 +201,7 @@ input TwilioConfig {
 input TwitterConfig {
 		_: Boolean
 	}
+<<<<<<< HEAD
 >>>>>>> graphql get_messages endpoint complete
 =======
 >>>>>>> init commit
@@ -187,3 +211,5 @@ input TwitterConfig {
 >>>>>>> Uncommented other notification plugins
 =======
 >>>>>>> init commit
+=======
+>>>>>>> graphql get_messages endpoint complete

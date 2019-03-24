@@ -25,40 +25,38 @@ export class TwilioNotifier implements Notifier<Config> {
 	private registrationUrl: string;
 	// Refactor note: would like to have local client instead of sid, token, ts difficulties
 	constructor() {
-		const sid = process.env.TWILIO_SID;
-		const token = process.env.TWILIO_TOKEN;
-		const serviceSid = process.env.TWILIO_SERVICE_SID;
-		const registrationKey = process.env.REGISTRATION_KEY;
-		const registrationUrl = process.env.REGISTRATION_GRAPHQL;
-		const devMode = process.env.DEV_MODE;
-		if (devMode !== "True") {
-			// TODO: replace legalTags with a query call to registration API
-			if (!sid) {
-				console.error("Missing TWILIO_SID!");
-			}
-			if (!token) {
-				console.error("Missing TWILIO_TOKEN!");
-			}
-			if (!serviceSid) {
-				console.error("Missing TWILIO_SERVICE_SID");
-			}
-			if (!registrationKey) {
-				console.error("Missing REGISTRATION_KEY");
-			}
-			if (!registrationUrl) {
-				console.error("Missing REGISTRATION_GRAPHQL");
-			}
+		const sid = process.env.TWILIO_SID || "sample";
+		const token = process.env.TWILIO_TOKEN|| "sample";
+		const serviceSid = process.env.TWILIO_SERVICE_SID|| "sample";
+		const registrationKey = process.env.REGISTRATION_KEY|| "sample";
+		const registrationUrl = process.env.REGISTRATION_GRAPHQL|| "sample";
 
-			if (!sid || !token || !serviceSid || !registrationKey || !registrationUrl) {
-				throw new Error("Missing twilio env vars. exiting.");
-			}
-			this.sid = sid;
-			this.token = token;
-			this.serviceSid = serviceSid;
-			this.registrationKey = Buffer.from(registrationKey).toString('base64');
-			this.registrationUrl = registrationUrl;
+		// TODO: replace legalTags with a query call to registration API
+		if (!sid) {
+			console.error("Missing TWILIO_SID!");
+		}
+		if (!token) {
+			console.error("Missing TWILIO_TOKEN!");
+		}
+		if (!serviceSid) {
+			console.error("Missing TWILIO_SERVICE_SID");
+		}
+		if (!registrationKey) {
+			console.error("Missing REGISTRATION_KEY");
+		}
+		if (!registrationUrl) {
+			console.error("Missing REGISTRATION_GRAPHQL");
 		}
 
+		if (!sid || !token || !serviceSid || !registrationKey || !registrationUrl) {
+			throw new Error("Missing twilio env vars. exiting.");
+		}
+
+		this.sid = sid;
+		this.token = token;
+		this.serviceSid = serviceSid;
+		this.registrationKey = Buffer.from(registrationKey).toString('base64');
+		this.registrationUrl = registrationUrl;
 	}
 
 	// Should provide a programmatic way of setting up service and numbers that runs once
@@ -196,7 +194,7 @@ export class TwilioNotifier implements Notifier<Config> {
 
 	public async check(configTest: any): Promise<Config> {
 		// Check should verify target numbers are registered in HackGT registration/checkin - skipping this step for now.
-		return TwilioNotifier.instanceOfConfig(configTest);
+			return TwilioNotifier.instanceOfConfig(configTest);
 	}
 
 	public static instanceOfConfig(object: any): Config {
@@ -245,7 +243,7 @@ export class TwilioNotifier implements Notifier<Config> {
 		if (numRaw.length < 10) return null;
 		const hasCountryCode = numRaw.charAt(0) === '+';
 		if (hasCountryCode) numRaw = numRaw.substring(1);
-		const num = numRaw.replace(/\D/g, '');
+		const num = numRaw.replace(/\D/g,'');
 		if (!hasCountryCode) return `+1${num}`; // Assume US number
 		return `+${num}`;
 	}
