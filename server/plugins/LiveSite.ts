@@ -13,8 +13,8 @@ class LiveSite implements Notifier<Config> {
 	private title: string | undefined;
 
 	constructor() {
-		const appId = process.env.ONESIGNAL_APP_ID;
-		const apiKey = process.env.ONESIGNAL_API_KEY;
+		const appId = process.env.ONESIGNAL_APP_ID || "sample";
+		const apiKey = process.env.ONESIGNAL_API_KEY || "sample";
 		this.title = process.env.ONESIGNAL_DEFAULT_TITLE;
 
 		if (!appId) {

@@ -11,7 +11,8 @@ export class Slack implements Notifier<Config> {
 	private url: string;
 
 	constructor() {
-		const url = process.env.SLACK_WEBHOOK_URL;
+		const url = process.env.SLACK_WEBHOOK_URL || "sample";
+		const token = process.env.SLACK_TOKEN || "sample";
 
 		if (!url) {
 			console.error("Missing SLACK_WEBHOOK_URL!");
