@@ -15,28 +15,28 @@ export interface Notifier<T> {
 }
 
 export interface PluginMasterReturn {
-    live_site: LiveSiteConfigType;
-    slack: SlackConfigType;
-    twilio: TwilioConfigType;
-    twitter: TwitterConfigType;
+	live_site: LiveSiteConfigType;
+	slack: SlackConfigType;
+	twilio: TwilioConfigType;
+	twitter: TwitterConfigType;
 }
 
 export interface LiveSiteConfigType {
-    title: string;
-    icon: string;
+	title: string;
+	icon: string;
 }
 
 export interface SlackConfigType {
-    channels: [string];
-    at_channel: boolean;
-    at_here: boolean;
+	channels: [string];
+	at_channel: boolean;
+	at_here: boolean;
 }
 
 export interface TwilioConfigType {
-    numbers: [string];
-    groups: [string];
+	numbers: [string];
+	groups: [string];
 }
 
 export interface TwitterConfigType {
-    _: boolean;
+	_: boolean;
 }
