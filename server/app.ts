@@ -40,17 +40,17 @@ let plugins: {
 
 const resolvers = {
 	Query: {
-        get_messages: async (prev: any, args: any): Promise<IMessageReturn[]> =>
-        {
-            const plugin = "plugins." + args.plugin
-            let return_docs = await new Promise<IMessageReturn[]>(resolve => {
-                db.find({[plugin]: {$exists: true}}, function(err: any, docs: any){
-                    resolve(docs)
-                });
-            });
-            return return_docs
+		get_messages: async (prev: any, args: any): Promise<IMessageReturn[]> => {
+			const plugin = `plugins.${args.plugin}`;
 
-        },
+			let returnDocs = await new Promise<IMessageReturn[]>(resolve => {
+				db.find({[plugin]: {$exists: true}}, (err: any, docs: any) => {
+					resolve(docs);
+				});
+			});
+
+			return returnDocs;
+		},
 		send_message: async (prev: any, args: any): Promise<IPluginReturn[]> => {
 			const message = args.message;
 
