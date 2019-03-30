@@ -27,31 +27,12 @@ interface IPluginReturn {
 }
 
 interface IMessageReturn {
-    message: string;
-    plugins: PluginMasterReturn;
-    _id: string;
-    createdAt: string;
-    updatedAt: string;
+	message: string;
+	plugins: PluginMasterReturn;
+	_id: string;
+	createdAt: string;
+	updatedAt: string;
 }
-// interface LiveSiteConfig {
-//     title: string;
-//     icon: string;
-// }
-// interface SlackConfig {
-//     channels: [string];
-//     at_channel: boolean;
-//     at_here: boolean;
-// }
-// interface TwitterConfig {
-//     _: boolean;
-// }
-// interface IPluginMaster {
-//     live_site: LiveSiteConfig
-// 	slack: SlackConfig
-// 	twitter: TwitterConfig
-// }
-
-
 
 let plugins: {
 	[name: string]: Notifier<any>;
@@ -59,17 +40,17 @@ let plugins: {
 
 const resolvers = {
 	Query: {
-        get_messages: async (prev: any, args: any): Promise<IMessageReturn[]> =>
-        {
-            const plugin = "plugins." + args.plugin
-            let return_docs = await new Promise<IMessageReturn[]>(resolve => {
-                db.find({[plugin]: {$exists: true}}, function(err: any, docs: any){
-                    resolve(docs)
-                });
-            });
-            return return_docs
+		get_messages: async (prev: any, args: any): Promise<IMessageReturn[]> => {
+			const plugin = `plugins.${args.plugin}`;
 
-        },
+			let returnDocs = await new Promise<IMessageReturn[]>(resolve => {
+				db.find({[plugin]: {$exists: true}}, (err: any, docs: any) => {
+					resolve(docs);
+				});
+			});
+
+			return returnDocs;
+		},
 		send_message: async (prev: any, args: any): Promise<IPluginReturn[]> => {
 			const message = args.message;
 
@@ -119,6 +100,7 @@ const schema = makeExecutableSchema({ typeDefs,
 app.use(
 	'/graphql',
 	bodyParser.json(),
+	isAdmin,
 	graphqlExpress({
 		schema
 	})
