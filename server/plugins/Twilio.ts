@@ -25,11 +25,11 @@ export class TwilioNotifier implements Notifier<Config> {
 	private registrationUrl: string;
 	// Refactor note: would like to have local client instead of sid, token, ts difficulties
 	constructor() {
-		const sid = process.env.TWILIO_SID;
-		const token = process.env.TWILIO_TOKEN;
-		const serviceSid = process.env.TWILIO_SERVICE_SID;
-		const registrationKey = process.env.REGISTRATION_KEY;
-		const registrationUrl = process.env.REGISTRATION_GRAPHQL;
+		const sid = process.env.TWILIO_SID || "sample";
+		const token = process.env.TWILIO_TOKEN|| "sample";
+		const serviceSid = process.env.TWILIO_SERVICE_SID|| "sample";
+		const registrationKey = process.env.REGISTRATION_KEY|| "sample";
+		const registrationUrl = process.env.REGISTRATION_GRAPHQL|| "sample";
 
 		// TODO: replace legalTags with a query call to registration API
 		if (!sid) {
