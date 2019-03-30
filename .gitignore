@@ -33,6 +33,7 @@ jspm_packages
 uploads/
 server/config/config.json
 server/config/questions\.schema\.d\.ts
+server/datastore/
 dist/
 
 # Editors
