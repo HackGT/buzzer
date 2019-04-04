@@ -1,4 +1,3 @@
-import * as querystring from "querystring";
 import fetch from "node-fetch";
 import { PluginReturn, Plugin, Notifier } from "./Plugin";
 
@@ -10,25 +9,19 @@ interface Config {
 
 export class Slack implements Notifier<Config> {
 	private url: string;
-	private token: string;
 
 	constructor() {
 		const url = process.env.SLACK_WEBHOOK_URL;
-		const token = process.env.SLACK_TOKEN;
 
 		if (!url) {
 			console.error("Missing SLACK_WEBHOOK_URL!");
 		}
-		if (!token) {
-			console.error("Missing SLACK_TOKEN!");
-		}
 
-		if (!url || !token) {
+		if (!url) {
 			throw new Error("Missing slack env vars. exiting.");
 		}
 
 		this.url = url;
-		this.token = token;
 	}
 
 	private async sendOneMessage(message: string, channel?: string): Promise<PluginReturn> {
@@ -65,12 +58,11 @@ export class Slack implements Notifier<Config> {
 
 	public async check(configTest: any): Promise<Config> {
 		const config = Slack.instanceOfConfig(configTest);
-
-		// If there no channels we don't have to make a request to check them
 		if (config.channels.length === 0) {
 			return config;
 		}
 
+		/*
 		const qs = querystring.stringify({
 			token: this.token,
 			exclude_archived: true,
@@ -102,7 +94,8 @@ export class Slack implements Notifier<Config> {
 		if (invalid.length !== 0) {
 			throw new Error(`Invalid slack channels / groups: ${invalid}`);
 		}
-		return config;
+		*/
+		return config; // Deprecated!
 	}
 
 	public static instanceOfConfig(object: any): Config {
