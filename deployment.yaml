@@ -5,7 +5,6 @@ git:
 secrets:
     - ADMIN_KEY_SECRET
 
-    - SLACK_TOKEN
     - SLACK_WEBHOOK_URL
 
     - TWITTER_CONSUMER_KEY
