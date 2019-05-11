@@ -45,6 +45,7 @@ type PluginMasterReturn  {
 type MessageReturn {
     message: String
 <<<<<<< HEAD
+<<<<<<< HEAD
     config: MetaDataType!
     _id: ID!
     createdAt: String!
@@ -84,6 +85,9 @@ type MetaDataType {
 }
 =======
     plugins: PluginMasterReturn!
+=======
+    meta: MetaDataType!
+>>>>>>> messages are now stored in different datastores according to which plugin(s) they are sent to. Each datastore holds the metadata for each message corresponding to its plugin.
     _id: ID!
     createdAt: String!
     updatedAt: String!
@@ -109,7 +113,21 @@ type TwilioConfigType {
 type TwitterConfigType {
 		_: Boolean
 	}
+<<<<<<< HEAD
 >>>>>>> graphql get_messages endpoint complete
+=======
+type MetaDataType {
+    title: String
+    icon: String
+    channels: [String!]!
+    at_channel: Boolean!
+    at_here: Boolean!
+    numbers: [String!]
+    groups: [String!]
+    _: Boolean
+
+}
+>>>>>>> messages are now stored in different datastores according to which plugin(s) they are sent to. Each datastore holds the metadata for each message corresponding to its plugin.
 
 input PluginMaster {
 	slack: SlackConfig
