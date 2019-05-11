@@ -40,3 +40,14 @@ export interface TwilioConfigType {
 export interface TwitterConfigType {
 	_: boolean;
 }
+
+export interface MetaDataType {
+	title: string;
+	icon: string;
+	channels: [string];
+	at_channel: boolean;
+	at_here: boolean;
+	numbers: [string];
+	groups: [string];
+	_: boolean;
+}
