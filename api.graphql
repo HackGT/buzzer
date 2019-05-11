@@ -35,7 +35,7 @@ type PluginMasterReturn  {
 
 type MessageReturn {
     message: String
-    plugins: PluginMasterReturn!
+    meta: MetaDataType!
     _id: ID!
     createdAt: String!
     updatedAt: String!
@@ -61,3 +61,14 @@ type TwilioConfigType {
 type TwitterConfigType {
 		_: Boolean
 	}
+type MetaDataType {
+    title: String
+    icon: String
+    channels: [String!]!
+    at_channel: Boolean!
+    at_here: Boolean!
+    numbers: [String!]
+    groups: [String!]
+    _: Boolean
+
+}
