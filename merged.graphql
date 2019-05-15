@@ -46,6 +46,7 @@ type MessageReturn {
     message: String
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     config: MetaDataType!
     _id: ID!
     createdAt: String!
@@ -88,6 +89,9 @@ type MetaDataType {
 =======
     meta: MetaDataType!
 >>>>>>> messages are now stored in different datastores according to which plugin(s) they are sent to. Each datastore holds the metadata for each message corresponding to its plugin.
+=======
+    config: MetaDataType!
+>>>>>>> change meta to config
     _id: ID!
     createdAt: String!
     updatedAt: String!
