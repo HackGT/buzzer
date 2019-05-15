@@ -38,7 +38,7 @@ type PluginMasterReturn  {
 
 type MessageReturn {
     message: String
-    meta: MetaDataType!
+    config: MetaDataType!
     _id: ID!
     createdAt: String!
     updatedAt: String!
