@@ -35,7 +35,7 @@ interface IPluginReturn {
 
 interface IMessageReturn {
 	message: string;
-	meta: MetaDataType;
+	config: MetaDataType;
 	_id: string;
 	createdAt: string;
 	updatedAt: string;
@@ -72,7 +72,7 @@ const resolvers = {
 						try {
 							const insertArg = {
 								message: args.message,
-								meta: args.plugins[rawName],
+								config: args.plugins[rawName],
 								_id: args._id,
 								createdAt: args.createdAt,
 								updatedAt: args.updatedAt
