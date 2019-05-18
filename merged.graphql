@@ -51,6 +51,7 @@ type MessageReturn {
     _id: ID!
     createdAt: String!
     errors: [Status!]!
+<<<<<<< HEAD
 }
 
 type LiveSiteConfigType {
@@ -95,31 +96,39 @@ type MetaDataType {
     _id: ID!
     createdAt: String!
     updatedAt: String!
+=======
+>>>>>>> Added error messages to db. Minor modifications addressing previous PR
 }
 
 type LiveSiteConfigType {
-		title: String
-		icon: String
-	}
+	title: String
+	icon: String
+}
 
 
 type SlackConfigType {
-		channels: [String!]!
-		at_channel: Boolean!
-		at_here: Boolean!
-	}
+	channels: [String!]!
+	at_channel: Boolean!
+	at_here: Boolean!
+}
 
 type TwilioConfigType {
-		numbers: [String!]
+	numbers: [String!]
     groups: [String!]
-	}
+}
 
 type TwitterConfigType {
+<<<<<<< HEAD
 		_: Boolean
 	}
 <<<<<<< HEAD
 >>>>>>> graphql get_messages endpoint complete
 =======
+=======
+	_: Boolean
+}
+
+>>>>>>> Added error messages to db. Minor modifications addressing previous PR
 type MetaDataType {
     title: String
     icon: String
@@ -129,7 +138,6 @@ type MetaDataType {
     numbers: [String!]
     groups: [String!]
     _: Boolean
-
 }
 >>>>>>> messages are now stored in different datastores according to which plugin(s) they are sent to. Each datastore holds the metadata for each message corresponding to its plugin.
 
