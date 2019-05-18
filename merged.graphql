@@ -59,6 +59,7 @@ type MessageReturn {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     config: MetaDataType!
     _id: ID!
     createdAt: String!
@@ -105,6 +106,9 @@ type MetaDataType {
 =======
     config: MetaDataType!
 >>>>>>> change meta to config
+=======
+    config: MetaDataType!
+>>>>>>> Added error messages to db. Minor modifications addressing previous PR
     _id: ID!
     createdAt: String!
     updatedAt: String!
@@ -171,7 +175,9 @@ type MetaDataType {
 >>>>>>> messages are now stored in different datastores according to which plugin(s) they are sent to. Each datastore holds the metadata for each message corresponding to its plugin.
 
 input PluginMaster {
+	live_site: LiveSiteConfig
 	slack: SlackConfig
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -192,7 +198,16 @@ input PluginMaster {
 >>>>>>> graphql get_messages endpoint complete
 =======
 >>>>>>> init commit
+=======
+	twilio: TwilioConfig
+	twitter: TwitterConfig
+>>>>>>> Added error messages to db. Minor modifications addressing previous PR
 }
+
+input LiveSiteConfig {
+		title: String
+		icon: String
+	}
 
 input SlackConfig {
 		channels: [String!]!
@@ -203,6 +218,7 @@ input SlackConfig {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 input TwilioConfig {
 		numbers: [String!]
@@ -210,6 +226,8 @@ input TwilioConfig {
 	}
 =======
 >>>>>>> graphql get_messages endpoint complete
+=======
+>>>>>>> Added error messages to db. Minor modifications addressing previous PR
 
 input TwilioConfig {
 		numbers: [String!]
@@ -219,6 +237,7 @@ input TwilioConfig {
 input TwitterConfig {
 		_: Boolean
 	}
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> graphql get_messages endpoint complete
 =======
@@ -233,3 +252,5 @@ input TwitterConfig {
 >>>>>>> graphql get_messages endpoint complete
 =======
 >>>>>>> init commit
+=======
+>>>>>>> Added error messages to db. Minor modifications addressing previous PR
