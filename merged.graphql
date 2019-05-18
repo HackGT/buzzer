@@ -110,28 +110,33 @@ type MetaDataType {
     plugins: PluginMasterReturn!
     _id: ID!
     createdAt: String!
+<<<<<<< HEAD
     updatedAt: String!
 >>>>>>> graphql get_messages endpoint complete
+=======
+    errors: [Status!]!
+>>>>>>> Added error messages to db. Minor modifications addressing previous PR
 }
 
 type LiveSiteConfigType {
-		title: String
-		icon: String
-	}
+	title: String
+	icon: String
+}
 
 
 type SlackConfigType {
-		channels: [String!]!
-		at_channel: Boolean!
-		at_here: Boolean!
-	}
+	channels: [String!]!
+	at_channel: Boolean!
+	at_here: Boolean!
+}
 
 type TwilioConfigType {
-		numbers: [String!]
+	numbers: [String!]
     groups: [String!]
-	}
+}
 
 type TwitterConfigType {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 		_: Boolean
@@ -139,6 +144,11 @@ type TwitterConfigType {
 <<<<<<< HEAD
 >>>>>>> graphql get_messages endpoint complete
 =======
+=======
+	_: Boolean
+}
+
+>>>>>>> Added error messages to db. Minor modifications addressing previous PR
 =======
 	_: Boolean
 }
