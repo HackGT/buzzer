@@ -13,22 +13,24 @@ export class Slack implements Notifier<Config> {
 	private token: string;
 
 	constructor() {
-		const url = process.env.SLACK_WEBHOOK_URL || "sample";
-		const token = process.env.SLACK_TOKEN || "sample";
+		const url = process.env.SLACK_WEBHOOK_URL;
+		const token = process.env.SLACK_TOKEN;
+		const devMode = process.env.DEV_MODE;
+		if (devMode !== "True") {
+			if (!url) {
+				console.error("Missing SLACK_WEBHOOK_URL!");
+			}
+			if (!token) {
+				console.error("Missing SLACK_TOKEN!");
+			}
 
-		if (!url) {
-			console.error("Missing SLACK_WEBHOOK_URL!");
-		}
-		if (!token) {
-			console.error("Missing SLACK_TOKEN!");
-		}
-
-		if (!url || !token) {
-			throw new Error("Missing slack env vars. exiting.");
+			if (!url || !token) {
+				throw new Error("Missing slack env vars. exiting.");
+			}
+			this.url = url;
+			this.token = token;
 		}
 
-		this.url = url;
-		this.token = token;
 	}
 
 	private async sendOneMessage(message: string, channel?: string): Promise<PluginReturn> {
@@ -36,7 +38,7 @@ export class Slack implements Notifier<Config> {
 			method: "POST",
 			body: JSON.stringify({
 				text: message,
-				channel: channel? `#${channel}` : undefined
+				channel: channel ? `#${channel}` : undefined
 			}),
 			headers: {
 				"Content-Type": "application/json"
@@ -81,12 +83,12 @@ export class Slack implements Notifier<Config> {
 			fetch(`https://slack.com/api/channels.list?${qs}`)
 				.then(r => r.json())
 				.then((json: { channels?: { name: string }[] }) => {
-					return json.channels? json.channels.map(c => c.name) : json;
+					return json.channels ? json.channels.map(c => c.name) : json;
 				}),
 			fetch(`https://slack.com/api/groups.list?${qs}`)
 				.then(r => r.json())
 				.then((json: { groups?: { name: string }[] }) => {
-					return json.groups? json.groups.map(c => c.name) : json;
+					return json.groups ? json.groups.map(c => c.name) : json;
 				})
 		]);
 
