@@ -26,6 +26,7 @@ type PluginReturn {
 	errors: [Status!]!
 }
 
+# Update this with every plugin type!
 type PluginMasterReturn  {
 	live_site: LiveSiteConfigType
 	slack: SlackConfigType
@@ -38,29 +39,30 @@ type MessageReturn {
     config: MetaDataType!
     _id: ID!
     createdAt: String!
-    updatedAt: String!
+    errors: [Status!]!
 }
 
 type LiveSiteConfigType {
-		title: String
-		icon: String
-	}
+	title: String
+	icon: String
+}
 
 
 type SlackConfigType {
-		channels: [String!]!
-		at_channel: Boolean!
-		at_here: Boolean!
-	}
+	channels: [String!]!
+	at_channel: Boolean!
+	at_here: Boolean!
+}
 
 type TwilioConfigType {
-		numbers: [String!]
+	numbers: [String!]
     groups: [String!]
-	}
+}
 
 type TwitterConfigType {
-		_: Boolean
-	}
+	_: Boolean
+}
+
 type MetaDataType {
     title: String
     icon: String
@@ -70,5 +72,4 @@ type MetaDataType {
     numbers: [String!]
     groups: [String!]
     _: Boolean
-
 }
