@@ -13,28 +13,30 @@ class Twitter implements Notifier<{}> {
 		const consumerSecret = process.env.TWITTER_CONSUMER_SECRET;
 		const accessToken = process.env.TWITTER_HACKGT_ACCESS_TOKEN;
 		const accessTokenSecret = process.env.TWITTER_HACKGT_ACCESS_TOKEN_SECRET;
+		const devMode = process.env.DEV_MODE;
+		if (devMode !== "True") {
+			if (!consumerKey) {
+				console.error("Missing Twitter consumer_key env var");
+			}
+			if (!consumerSecret) {
+				console.error("Missing Twitter consumer_secret env var");
+			}
+			if (!accessToken) {
+				console.error("Missing Twitter access_token env var");
+			}
+			if (!accessTokenSecret) {
+				console.error("Missing Twitter access_token_secret env var");
+			}
 
-		if (!consumerKey) {
-			console.error("Missing Twitter consumer_key env var");
-		}
-		if (!consumerSecret) {
-			console.error("Missing Twitter consumer_secret env var");
-		}
-		if (!accessToken) {
-			console.error("Missing Twitter access_token env var");
-		}
-		if (!accessTokenSecret) {
-			console.error("Missing Twitter access_token_secret env var");
+			if (!consumerKey || !consumerSecret || !accessToken || !accessTokenSecret) {
+				throw new Error("Twitter env vars missing, aborting...");
+			}
+			this.consumerKey = consumerKey;
+			this.consumerSecret = consumerSecret;
+			this.accessToken = accessToken;
+			this.accessTokenSecret = accessTokenSecret;
 		}
 
-		if (!consumerKey || !consumerSecret || !accessToken || !accessTokenSecret) {
-			throw new Error("Twitter env vars missing, aborting...");
-		}
-
-		this.consumerKey = consumerKey;
-		this.consumerSecret = consumerSecret;
-		this.accessToken = accessToken;
-		this.accessTokenSecret = accessTokenSecret;
 	}
 
 	public async check(config: any): Promise<{}> {
