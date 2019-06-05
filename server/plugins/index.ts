@@ -7,8 +7,8 @@ import Twitter from "./Twitter";
 export const mediaAPI: {
 	[key: string]: Plugin<any>;
 } = {
-	// "LiveSite": LiveSite,
+	"LiveSite": LiveSite,
 	"Slack": Slack,
-	// "Twilio": Twilio,
-	// "Twitter": Twitter
+	"Twilio": Twilio,
+	"Twitter": Twitter
 };

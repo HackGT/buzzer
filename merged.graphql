@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 schema {
@@ -99,3 +100,5 @@ input TwitterConfig {
 >>>>>>> graphql get_messages endpoint complete
 =======
 >>>>>>> init commit
+=======
+>>>>>>> Uncommented other notification plugins
