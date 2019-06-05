@@ -33,8 +33,9 @@ export class Slack implements Notifier<Config> {
 				channel: channel? `#${channel}` : undefined
 			}),
 			headers: {
-				"Content-Type": "application/json",
-				"Authorization": "Bearer " + process.env.SLACK_TOKEN
+				"Content-Type": "application/json; charset=utf-8",
+				"Authorization": "Bearer " + process.env.SLACK_TOKEN,
+				"x-slack-retry-num":"0"
 			}
 		}).then(res => res.text());
 
