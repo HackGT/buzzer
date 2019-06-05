@@ -2,6 +2,7 @@ import * as express from "express";
 import * as compression from "compression";
 import * as bodyParser from "body-parser";
 import * as Datastore from "nedb";
+import * as dotenv from "dotenv";
 
 import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
 import { makeExecutableSchema } from 'graphql-tools';
@@ -9,12 +10,17 @@ import { makeExecutableSchema } from 'graphql-tools';
 import config from './config';
 import { upperCamel } from './common';
 import { mediaAPI } from './plugins';
-import { PluginReturn, Notifier, PluginMasterReturn } from './plugins/Plugin';
+import { PluginReturn, Notifier, MetaDataType } from './plugins/Plugin';
 import typeDefs from './typeDefs';
 import { isAdmin } from './middleware';
 
 const app = express();
-const db = new Datastore({ filename: './server/datastore/message_log.db', autoload: true, timestampData: true });
+dotenv.config();
+const db: any = {};
+Object.keys(mediaAPI).forEach(key => {
+	const file = `./server/datastore/${key.toLowerCase()}_log.db`;
+	db[key] = new Datastore({ filename: file, autoload: true, timestampData: true });
+});
 
 app.use(compression());
 process.on("unhandledRejection", err => {
@@ -28,7 +34,7 @@ interface IPluginReturn {
 
 interface IMessageReturn {
 	message: string;
-	plugins: PluginMasterReturn;
+	config: MetaDataType;
 	_id: string;
 	createdAt: string;
 	updatedAt: string;
@@ -41,10 +47,9 @@ let plugins: {
 const resolvers = {
 	Query: {
 		get_messages: async (prev: any, args: any): Promise<IMessageReturn[]> => {
-			const plugin = `plugins.${args.plugin}`;
-
+			let plugin = args.plugin;
 			let returnDocs = await new Promise<IMessageReturn[]>(resolve => {
-				db.find({[plugin]: {$exists: true}}, (err: any, docs: any) => {
+				db[upperCamel(plugin)].find({}, (err: any, docs: any) => {
 					resolve(docs);
 				});
 			});
@@ -54,23 +59,19 @@ const resolvers = {
 		send_message: async (prev: any, args: any): Promise<IPluginReturn[]> => {
 			const message = args.message;
 
-			const checkQueue = Object.keys(args.plugins).map( rawName => {
+			const checkQueue = Object.keys(args.plugins).map(rawName => {
 
 				return (async () => { // Loading checkQueue IIFE
 					// Upper Cameled
 					const name = upperCamel(rawName);
 					const plugin = plugins[name];
 					const verifiedConfig = await plugin.check(args.plugins[rawName]); // Verify
-
 					return async () => { // Sending function
 						try {
 							const pluginReturn = {
 								plugin: name,
 								errors: await plugin.sendMessage(message, verifiedConfig)
 							};
-
-							db.insert(args); // Inserts the args object from GraphQL query into database
-
 							return pluginReturn;
 						}
 						catch (e) {
@@ -93,21 +94,19 @@ const resolvers = {
 	}
 };
 
-const schema = makeExecutableSchema({ typeDefs,
+const schema = makeExecutableSchema({
+	typeDefs,
 	resolvers
 });
 
 app.use(
 	'/graphql',
 	bodyParser.json(),
-	isAdmin,
 	graphqlExpress({
 		schema
 	})
 );
 app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
-// Endpoint for getting messages sent, sorted by most recent
-app.get('/message_log', (req, res) => db.find({}).sort({ createdAt: -1 }).exec((err: any, docs: any) => res.send(docs)));
 
 // Run plugin setup
 async function runSetup() {
