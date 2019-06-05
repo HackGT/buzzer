@@ -29,6 +29,7 @@ type PluginReturn {
 	errors: [Status!]!
 }
 
+# Update this with every plugin type!
 type PluginMasterReturn  {
 	live_site: LiveSiteConfigType
 	slack: SlackConfigType
@@ -77,22 +78,15 @@ type MetaDataType {
 }
 
 input PluginMaster {
-	live_site: LiveSiteConfig
 	slack: SlackConfig
-	twilio: TwilioConfig
-	twitter: TwitterConfig
 }
-
-input LiveSiteConfig {
-		title: String
-		icon: String
-	}
 
 input SlackConfig {
 		channels: [String!]!
 		at_channel: Boolean!
 		at_here: Boolean!
 	}
+<<<<<<< HEAD
 
 input TwilioConfig {
 		numbers: [String!]
@@ -103,3 +97,5 @@ input TwitterConfig {
 		_: Boolean
 	}
 >>>>>>> graphql get_messages endpoint complete
+=======
+>>>>>>> init commit
