@@ -34,6 +34,7 @@ type PluginReturn {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Update this with every plugin type!
 =======
 >>>>>>> graphql get_messages endpoint complete
@@ -42,6 +43,9 @@ type PluginReturn {
 >>>>>>> init commit
 =======
 >>>>>>> graphql get_messages endpoint complete
+=======
+# Update this with every plugin type!
+>>>>>>> init commit
 type PluginMasterReturn  {
 	live_site: LiveSiteConfigType
 	slack: SlackConfigType
@@ -170,6 +174,7 @@ input PluginMaster {
 	slack: SlackConfig
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	twilio: TwilioConfig
 	twitter: TwitterConfig
@@ -185,6 +190,8 @@ input PluginMaster {
 	twilio: TwilioConfig
 	twitter: TwitterConfig
 >>>>>>> graphql get_messages endpoint complete
+=======
+>>>>>>> init commit
 }
 
 input SlackConfig {
@@ -192,6 +199,7 @@ input SlackConfig {
 		at_channel: Boolean!
 		at_here: Boolean!
 	}
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -223,3 +231,5 @@ input TwitterConfig {
 >>>>>>> init commit
 =======
 >>>>>>> graphql get_messages endpoint complete
+=======
+>>>>>>> init commit
