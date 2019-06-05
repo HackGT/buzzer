@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 schema {
@@ -254,3 +255,5 @@ input TwitterConfig {
 >>>>>>> init commit
 =======
 >>>>>>> Added error messages to db. Minor modifications addressing previous PR
+=======
+>>>>>>> Uncommented other notification plugins
