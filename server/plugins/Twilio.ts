@@ -30,33 +30,35 @@ export class TwilioNotifier implements Notifier<Config> {
 		const serviceSid = process.env.TWILIO_SERVICE_SID;
 		const registrationKey = process.env.REGISTRATION_KEY;
 		const registrationUrl = process.env.REGISTRATION_GRAPHQL;
+		const devMode = process.env.DEV_MODE;
+		if (devMode !== "True") {
+			// TODO: replace legalTags with a query call to registration API
+			if (!sid) {
+				console.error("Missing TWILIO_SID!");
+			}
+			if (!token) {
+				console.error("Missing TWILIO_TOKEN!");
+			}
+			if (!serviceSid) {
+				console.error("Missing TWILIO_SERVICE_SID");
+			}
+			if (!registrationKey) {
+				console.error("Missing REGISTRATION_KEY");
+			}
+			if (!registrationUrl) {
+				console.error("Missing REGISTRATION_GRAPHQL");
+			}
 
-		// TODO: replace legalTags with a query call to registration API
-		if (!sid) {
-			console.error("Missing TWILIO_SID!");
-		}
-		if (!token) {
-			console.error("Missing TWILIO_TOKEN!");
-		}
-		if (!serviceSid) {
-			console.error("Missing TWILIO_SERVICE_SID");
-		}
-		if (!registrationKey) {
-			console.error("Missing REGISTRATION_KEY");
-		}
-		if (!registrationUrl) {
-			console.error("Missing REGISTRATION_GRAPHQL");
+			if (!sid || !token || !serviceSid || !registrationKey || !registrationUrl) {
+				throw new Error("Missing twilio env vars. exiting.");
+			}
+			this.sid = sid;
+			this.token = token;
+			this.serviceSid = serviceSid;
+			this.registrationKey = Buffer.from(registrationKey).toString('base64');
+			this.registrationUrl = registrationUrl;
 		}
 
-		if (!sid || !token || !serviceSid || !registrationKey || !registrationUrl) {
-			throw new Error("Missing twilio env vars. exiting.");
-		}
-
-		this.sid = sid;
-		this.token = token;
-		this.serviceSid = serviceSid;
-		this.registrationKey = Buffer.from(registrationKey).toString('base64');
-		this.registrationUrl = registrationUrl;
 	}
 
 	// Should provide a programmatic way of setting up service and numbers that runs once
@@ -194,7 +196,7 @@ export class TwilioNotifier implements Notifier<Config> {
 
 	public async check(configTest: any): Promise<Config> {
 		// Check should verify target numbers are registered in HackGT registration/checkin - skipping this step for now.
-			return TwilioNotifier.instanceOfConfig(configTest);
+		return TwilioNotifier.instanceOfConfig(configTest);
 	}
 
 	public static instanceOfConfig(object: any): Config {
@@ -243,7 +245,7 @@ export class TwilioNotifier implements Notifier<Config> {
 		if (numRaw.length < 10) return null;
 		const hasCountryCode = numRaw.charAt(0) === '+';
 		if (hasCountryCode) numRaw = numRaw.substring(1);
-		const num = numRaw.replace(/\D/g,'');
+		const num = numRaw.replace(/\D/g, '');
 		if (!hasCountryCode) return `+1${num}`; // Assume US number
 		return `+${num}`;
 	}
@@ -252,7 +254,7 @@ export class TwilioNotifier implements Notifier<Config> {
 const TwilioPlugin: Plugin<Config> = {
 	schema: () => `{
 		numbers: [String!]
-    groups: [String!]
+        groups: [String!]
 	}`,
 	init: async () => new TwilioNotifier()
 };

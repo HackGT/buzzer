@@ -12,16 +12,17 @@ export class Slack implements Notifier<Config> {
 
 	constructor() {
 		const url = process.env.SLACK_WEBHOOK_URL;
+		const devMode = process.env.DEV_MODE;
+		if (devMode !== "True") {
+			if (!url) {
+				console.error("Missing SLACK_WEBHOOK_URL!");
+			}
 
-		if (!url) {
-			console.error("Missing SLACK_WEBHOOK_URL!");
+			if (!url) {
+				throw new Error("Missing slack env vars. exiting.");
+			}
+			this.url = url;
 		}
-
-		if (!url) {
-			throw new Error("Missing slack env vars. exiting.");
-		}
-
-		this.url = url;
 	}
 
 	private async sendOneMessage(message: string, channel?: string): Promise<PluginReturn> {

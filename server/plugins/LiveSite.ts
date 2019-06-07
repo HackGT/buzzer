@@ -16,20 +16,22 @@ class LiveSite implements Notifier<Config> {
 		const appId = process.env.ONESIGNAL_APP_ID;
 		const apiKey = process.env.ONESIGNAL_API_KEY;
 		this.title = process.env.ONESIGNAL_DEFAULT_TITLE;
+		const devMode = process.env.DEV_MODE;
+		if (devMode !== "True") {
+			if (!appId) {
+				console.error("ONESIGNAL_APP_ID not specified");
+			}
+			if (!apiKey) {
+				console.error("ONESIGNAL_API_KEY key not specified");
+			}
 
-		if (!appId) {
-			console.error("ONESIGNAL_APP_ID not specified");
-		}
-		if (!apiKey) {
-			console.error("ONESIGNAL_API_KEY key not specified");
-		}
-
-		if (!appId || !apiKey) {
-			throw new Error("Some live site env vars not specified");
+			if (!appId || !apiKey) {
+				throw new Error("Some live site env vars not specified");
+			}
+			this.appId = appId;
+			this.apiKey = apiKey;
 		}
 
-		this.appId = appId;
-		this.apiKey = apiKey;
 	}
 
 	public async check(config: any): Promise<Config> {
@@ -39,7 +41,7 @@ class LiveSite implements Notifier<Config> {
 		if (config.icon && typeof config.icon !== "string") {
 			throw new Error("icon must be a string!");
 		}
-		return{
+		return {
 			title: config.title,
 			icon: config.icon
 		};
@@ -71,7 +73,7 @@ class LiveSite implements Notifier<Config> {
 		return [{
 			error,
 			key: "live_site",
-			message: error? json.errors.toString() : null
+			message: error ? json.errors.toString() : null
 		}];
 	}
 }

@@ -5,6 +5,7 @@ schema {
 
 type Query {
 	send_message(message: String!, plugins: PluginMaster!): [PluginReturn!]!
+    get_messages(plugin: String!): [MessageReturn!]!
 }
 
 type Status { # corresponding to APIReturn
@@ -12,6 +13,8 @@ type Status { # corresponding to APIReturn
 	key: String!
 	message: String
 }
+
+
 
 # Note: input PluginMaster {} will be generated during the build process
 # Sample:
@@ -24,13 +27,27 @@ type PluginReturn {
 	errors: [Status!]!
 }
 
+type MessageReturn {
+    message: String
+    config: MetaDataType!
+    _id: ID!
+    createdAt: String!
+    errors: [Status!]!
+}
+
 input PluginMaster {
 	live_site: LiveSiteConfig
 	slack: SlackConfig
+	twilio: TwilioConfig
 	twitter: TwitterConfig
 }
 
 input LiveSiteConfig {
+		title: String
+		icon: String
+	}
+
+type LiveSiteConfigType {
 		title: String
 		icon: String
 	}
@@ -41,6 +58,40 @@ input SlackConfig {
 		at_here: Boolean!
 	}
 
+type SlackConfigType {
+		channels: [String!]!
+		at_channel: Boolean!
+		at_here: Boolean!
+	}
+
+input TwilioConfig {
+		numbers: [String!]
+        groups: [String!]
+	}
+
+type TwilioConfigType {
+		numbers: [String!]
+        groups: [String!]
+	}
+
 input TwitterConfig {
+		_: Boolean
+	}
+
+type TwitterConfigType {
+		_: Boolean
+	} 
+
+type MetaDataType {
+		title: String
+		icon: String
+	
+		channels: [String!]!
+		at_channel: Boolean!
+		at_here: Boolean!
+	
+		numbers: [String!]
+        groups: [String!]
+	
 		_: Boolean
 	}

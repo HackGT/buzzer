@@ -18,19 +18,31 @@ const pluginMasterStr = `input PluginMaster {\n\t${pluginMasterBody}\n}`;
 export let pluginTypeDefs: {
 	[key: string]: string;
 } = {}; // For testing
+export let configTypeDefs: {
+	[key: string]: string;
+} = {};
 const processedPluginTypeDefs = Object.keys(mediaAPI).map(plugin => {
 	const schema = mediaAPI[plugin].schema();
-	const typeDef = `input ${plugin}Config ${schema}`;
+	const typeDef = `input ${plugin}Config ${schema}\n\ntype ${plugin}ConfigType ${schema}`;
 	pluginTypeDefs[plugin] = typeDef;
 	return typeDef;
 });
 
+let processedConfigKeys = "";
+Object.keys(mediaAPI).map(plugin => {
+	const schema = mediaAPI[plugin].schema();
+	processedConfigKeys = processedConfigKeys.concat(schema.slice(1, -1));
+	return;
+});
+
+const processedConfig = `type MetaDataType {${processedConfigKeys}}`;
 const processedStr = processedPluginTypeDefs.join("\n\n");
 
 const mergedTypeDefs = `
 ${mainTypeDefs}
 ${pluginMasterStr}\n
-${processedStr}
+${processedStr} \n
+${processedConfig}
 `;
 
 fs.writeFile('merged.graphql', mergedTypeDefs, err => {
