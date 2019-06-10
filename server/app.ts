@@ -89,21 +89,7 @@ const resolvers = {
 			});
 
 			const sendingQueue = await Promise.all(checkQueue);
-			return await Promise.all(sendingQueue.map(f => {
-
-				f().then(result => {
-					const p = result.plugin.split(/(?=[A-Z])/).join('_').toLowerCase();
-					const insertArg = {
-						message: args.message,
-						config: args.plugins[p],
-						_id: args._id,
-						createdAt: args.createdAt,
-						errors: result.errors
-					};
-					db[upperCamel(result.plugin)].insert(insertArg);
-				}).catch(err => console.log(err));
-				return f();
-			})); // Send all!
+			return await Promise.all(sendingQueue.map(f => f())); // Send all!
 		}
 	}
 };
@@ -116,7 +102,7 @@ const schema = makeExecutableSchema({
 app.use(
 	'/graphql',
 	bodyParser.json(),
-	isAdmin,
+	//isAdmin,
 	graphqlExpress({
 		schema
 	})
