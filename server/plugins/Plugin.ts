@@ -14,13 +14,6 @@ export interface Notifier<T> {
 	check(config: any): Promise<T>;
 }
 
-export interface PluginMasterReturn {
-	live_site: LiveSiteConfigType;
-	slack: SlackConfigType;
-	twilio: TwilioConfigType;
-	twitter: TwitterConfigType;
-}
-
 export interface LiveSiteConfigType {
 	title: string;
 	icon: string;

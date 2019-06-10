@@ -102,6 +102,7 @@ const schema = makeExecutableSchema({
 app.use(
 	'/graphql',
 	bodyParser.json(),
+	isAdmin,
 	graphqlExpress({
 		schema
 	})

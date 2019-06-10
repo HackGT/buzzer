@@ -26,39 +26,10 @@ type PluginReturn {
 	errors: [Status!]!
 }
 
-# Update this with every plugin type!
-type PluginMasterReturn  {
-	live_site: LiveSiteConfigType
-	slack: SlackConfigType
-	twilio: TwilioConfigType
-	twitter: TwitterConfigType
-}
-
 type MessageReturn {
     message: String
-    plugins: PluginMasterReturn!
+    config: MetaDataType!
     _id: ID!
     createdAt: String!
     errors: [Status!]!
 }
-
-type LiveSiteConfigType {
-	title: String
-	icon: String
-}
-
-
-type SlackConfigType {
-	channels: [String!]!
-	at_channel: Boolean!
-	at_here: Boolean!
-}
-
-type TwilioConfigType {
-	numbers: [String!]
-    groups: [String!]
-}
-
-type TwitterConfigType {
-		_: Boolean
-	}
