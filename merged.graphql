@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 schema {
 	query: Query
@@ -95,3 +96,5 @@ type MetaDataType {
 
 		_: Boolean
 	}
+=======
+>>>>>>> 3ca6ef8c050f93c4ebd56216c004c145d458e612

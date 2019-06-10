@@ -254,7 +254,7 @@ export class TwilioNotifier implements Notifier<Config> {
 const TwilioPlugin: Plugin<Config> = {
 	schema: () => `{
 		numbers: [String!]
-        groups: [String!]
+    groups: [String!]
 	}`,
 	init: async () => new TwilioNotifier()
 };
