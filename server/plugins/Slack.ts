@@ -11,7 +11,7 @@ export class Slack implements Notifier<Config> {
 	private url: string;
 
 	constructor() {
-		const url = process.env.SLACK_WEBHOOK_URL || "sample";
+		const url = process.env.SLACK_WEBHOOK_URL || "";
 		const devMode = process.env.DEV_MODE;
 		if (devMode !== "True") {
 			if (!url) {
@@ -34,7 +34,7 @@ export class Slack implements Notifier<Config> {
 			}),
 			headers: {
 				"Content-Type": "application/json; charset=utf-8",
-				"Authorization": "Bearer " + process.env.SLACK_TOKEN,
+				"Authorization": "Bearer " + String(process.env.SLACK_TOKEN) || "",
 				"x-slack-retry-num":"0"
 			}
 		}).then(res => res.text());
