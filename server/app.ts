@@ -89,7 +89,7 @@ const resolvers = {
 			});
 
 			const sendingQueue = await Promise.all(checkQueue);
-			await Promise.all(sendingQueue.map(f => {
+			return await Promise.all(sendingQueue.map(f => {
 
 				return f().then(result => {
 					const p = result.plugin.split(/(?=[A-Z])/).join('_').toLowerCase();
@@ -100,7 +100,7 @@ const resolvers = {
 						createdAt: args.createdAt,
 						errors: result.errors
 					};
-					db[upperCamel(result.plugin)].insert(insertArg);
+					return db[upperCamel(result.plugin)].insert(insertArg);
 				}).catch(err => console.log(err));
 			})); // Send all!
 		}
