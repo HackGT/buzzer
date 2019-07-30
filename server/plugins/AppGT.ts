@@ -21,8 +21,6 @@ class AppGT implements Notifier<Config> {
 			this.token = token;
 		}
 
-		this.token = token;
-
 	}
 
 	public static instanceOfConfig(object: any): Config {
