@@ -3,6 +3,7 @@ import LiveSite from "./LiveSite";
 import Slack from "./Slack";
 import Twilio from "./Twilio";
 import Twitter from "./Twitter";
+import AppGT from "./AppGT";
 
 export const mediaAPI: {
 	[key: string]: Plugin<any>;
@@ -10,5 +11,6 @@ export const mediaAPI: {
 	"LiveSite": LiveSite,
 	"Slack": Slack,
 	"Twilio": Twilio,
-	"Twitter": Twitter
+	"Twitter": Twitter,
+	"AppGT": AppGT
 };
