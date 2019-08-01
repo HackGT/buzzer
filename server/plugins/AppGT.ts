@@ -15,7 +15,7 @@ class AppGT implements Notifier<Config> {
 		const devMode = process.env.DEV_MODE;
 		if (devMode !== "True") {
 			if (!token) {
-				console.error("FIREBASE_token not specified");
+				console.error("FIREBASE_TOKEN not specified");
 			}
 
 			this.token = token;
@@ -68,7 +68,7 @@ class AppGT implements Notifier<Config> {
 
 		return [{
 			error,
-			key: "app_gt",
+			key: "appgt",
 			message: json.toString()
 		}];
 	}

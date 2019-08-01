@@ -31,7 +31,6 @@
     "node-fetch": "^2.0.0",
     "prettier": "^1.18.2",
     "supertest": "^4.0.2",
-    "tslint-plugin-prettier": "^2.0.1",
     "twilio": "^3.19.2",
     "twit": "^2.2.9"
   },
