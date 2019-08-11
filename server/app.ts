@@ -3,6 +3,7 @@ import * as compression from "compression";
 import * as bodyParser from "body-parser";
 import * as Datastore from "nedb";
 import * as dotenv from "dotenv";
+import * as cors from "cors";
 
 import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
 import { makeExecutableSchema } from 'graphql-tools';
@@ -10,9 +11,8 @@ import { makeExecutableSchema } from 'graphql-tools';
 import config from './config';
 import { upperCamel } from './common';
 import { mediaAPI } from './plugins';
-import { PluginReturn, Notifier, MetaDataType } from './plugins/Plugin';
+import { PluginReturn, Notifier, MetaDataType} from './plugins/Plugin';
 import typeDefs from './typeDefs';
-import { isAdmin } from './middleware';
 
 const app = express();
 dotenv.config();
@@ -47,6 +47,7 @@ let plugins: {
 const resolvers = {
 	Query: {
 		get_messages: async (prev: any, args: any): Promise<IMessageReturn[]> => {
+			console.log(args.plugin);
 			let plugin = args.plugin;
 			let returnDocs = await new Promise<IMessageReturn[]>(resolve => {
 				db[upperCamel(plugin)].find({}, (err: any, docs: any) => {
@@ -115,13 +116,13 @@ const schema = makeExecutableSchema({
 
 app.use(
 	'/graphql',
+	cors(),
 	bodyParser.json(),
-	isAdmin,
 	graphqlExpress({
 		schema
 	})
 );
-app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
+app.use('/graphiql', bodyParser.json(), graphiqlExpress({ endpointURL: '/graphql' }));
 
 // Run plugin setup
 async function runSetup() {

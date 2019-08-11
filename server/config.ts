@@ -11,7 +11,7 @@ const Config: ServerConfig = (() => {
 	const env = process.env;
 
 	// Port
-	const port = env.PORT? parseInt(env.PORT, 10): 3000;
+	const port = env.PORT? parseInt(env.PORT, 10): 8080;
 
 	// Admin Key: A secret that gives admin access to the service.
 	// TODO: add user accounts n' such
