@@ -34,7 +34,7 @@ export interface TwitterConfigType {
 	_: boolean;
 }
 
-export interface AppGTConfigType {
+export interface FCMConfigType {
 	header: string;
 	tags: string;
 }
