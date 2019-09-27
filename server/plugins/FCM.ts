@@ -7,7 +7,7 @@ interface Config {
 	tags: string;
 }
 
-class AppGT implements Notifier<Config> {
+class FCM implements Notifier<Config> {
 	private token: string;
 
 	constructor() {
@@ -39,7 +39,7 @@ class AppGT implements Notifier<Config> {
 	}
 
 	public async check(configTest: any): Promise<Config> {
-		const config = AppGT.instanceOfConfig(configTest);
+		const config = FCM.instanceOfConfig(configTest);
 
 		return config;
 	}
@@ -68,18 +68,18 @@ class AppGT implements Notifier<Config> {
 
 		return [{
 			error,
-			key: "appgt",
+			key: "fcm",
 			message: json.toString()
 		}];
 	}
 }
 
-const AppGTPlugin: Plugin<Config> = {
+const FCMPlugin: Plugin<Config> = {
 	schema: () => `{
 		header: String,
 		tags: String
 	}`,
-	init: async () => new AppGT()
+	init: async () => new FCM()
 };
 
-export default AppGTPlugin;
+export default FCMPlugin;
