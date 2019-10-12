@@ -13,6 +13,8 @@ import { upperCamel } from './common';
 import { mediaAPI } from './plugins';
 import { PluginReturn, Notifier, MetaDataType} from './plugins/Plugin';
 import typeDefs from './typeDefs';
+import fetch from 'node-fetch';
+import * as schedule from 'node-schedule';
 
 const app = express();
 dotenv.config();
@@ -44,6 +46,22 @@ let plugins: {
 	[name: string]: Notifier<any>;
 } = {};
 
+let workshopMessage = `query {
+  talks(start: 0) {
+    base {
+        start_time
+        end_time
+        notification
+    }
+  }
+
+}`;
+
+function isoToCron(iso: string) {
+	let date = new Date(iso);
+	return `${date.getSeconds()} ${date.getMinutes()} ${date.getHours()+4} ${date.getDate()} ${date.getMonth() + 1} *`;
+}
+
 const resolvers = {
 	Query: {
 		get_messages: async (prev: any, args: any): Promise<IMessageReturn[]> => {
@@ -54,14 +72,11 @@ const resolvers = {
 					resolve(docs);
 				});
 			});
-
 			return returnDocs;
 		},
 		send_message: async (prev: any, args: any): Promise<IPluginReturn[]> => {
 			const message = args.message;
-
 			const checkQueue = Object.keys(args.plugins).map(rawName => {
-
 				return (async () => { // Loading checkQueue IIFE
 					// Upper Cameled
 					const name = upperCamel(rawName);
@@ -91,7 +106,6 @@ const resolvers = {
 
 			const sendingQueue = await Promise.all(checkQueue);
 			return await Promise.all(sendingQueue.map(f => {
-
 				f().then(result => {
 					const p = result.plugin.split(/(?=[A-Z])/).join('_').toLowerCase();
 					const insertArg = {
@@ -108,6 +122,54 @@ const resolvers = {
 		}
 	}
 };
+
+async function scheduleWorkshops() {
+	fetch('https://cms.hack.gt/graphql', {
+			method: 'POST',
+			headers: {
+				'Content-Type': `application/json`,
+				'Accept'      : `application/json`
+			},
+			body: JSON.stringify({
+				query: workshopMessage,
+				variables: {
+					"start": 0
+				}
+			})
+		}).then(r => {
+			return r.json();
+		}).then(data => {
+			console.log(data.data);
+			for(let i = 0; i < data.data.talks.length; i++) {
+				if(data.data.talks[i].base != null) {
+					console.log("hello");
+					console.log(data.data.talks[i]);
+					console.log(data.data.talks[i].base.start_time);
+					let cronString = isoToCron(data.data.talks[i].base.start_time);
+					console.log(cronString);
+					schedule.scheduleJob(cronString, () => {
+						resolvers.Query.send_message(null, {
+							plugins: {
+								slack: {
+									channels: ["general"],
+									at_here: true,
+									at_channel: true
+								}
+							},
+							message: data.data.talks[i].base.notification
+						}).then(result => {
+							console.log(result);
+						}).catch(err => {
+							console.log(err);
+						});
+					});
+				}
+				console.log("scheduling made");
+			}
+		}).catch(err => {
+			console.log(err);
+		});
+}
 
 const schema = makeExecutableSchema({
 	typeDefs,
@@ -129,6 +191,8 @@ async function runSetup() {
 	await Promise.all(Object.keys(mediaAPI).map(async pluginKey => {
 		plugins[pluginKey] = await mediaAPI[pluginKey].init();
 	}));
+	await scheduleWorkshops();
+	// Code for getting schedule
 }
 
 runSetup().then(() => {
