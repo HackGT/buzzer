@@ -34,6 +34,11 @@ export interface TwitterConfigType {
 	_: boolean;
 }
 
+export interface FCMConfigType {
+	header: string;
+	tags: string;
+}
+
 export interface MetaDataType {
 	title: string;
 	icon: string;
