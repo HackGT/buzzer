@@ -174,9 +174,18 @@ async function scheduleWorkshops() {
 						resolvers.Query.send_message(null, {
 							plugins: {
 								slack: {
-									channels: ["general"],
+									channels: ["announcements"],
 									at_here: true,
 									at_channel: true
+								},
+								socketio: {
+									// TODO!
+								},
+								f_c_m: {
+									// TODO!
+								},
+								live_site: {
+									// TODO!
 								}
 							},
 							message: data.data.talks[i].base.notification
