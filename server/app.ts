@@ -15,6 +15,7 @@ import { PluginReturn, Notifier, MetaDataType} from './plugins/Plugin';
 import typeDefs from './typeDefs';
 import fetch from 'node-fetch';
 import * as schedule from 'node-schedule';
+import * as path from 'path';
 
 const app = express();
 dotenv.config();
@@ -25,6 +26,8 @@ Object.keys(mediaAPI).forEach(key => {
 });
 
 app.use(compression());
+app.use(express.static(path.join(__dirname, '../', 'client/')));
+app.use('/static', express.static(path.join(__dirname, '../', 'client/build/static')));
 process.on("unhandledRejection", err => {
 	throw err;
 });
@@ -169,6 +172,10 @@ async function scheduleWorkshops() {
 			console.log(err);
 		});
 }
+
+app.get('/', (req, res) => {
+	res.sendFile(path.join(__dirname, '../', 'client/build/index.html'));
+});
 
 const schema = makeExecutableSchema({
 	typeDefs,

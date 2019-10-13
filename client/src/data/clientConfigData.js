@@ -14,5 +14,9 @@ export default {
     },
     twitter: {
         _: "boolean"
+    },
+    f_c_m: {
+        header: "string",
+        tags: "string"
     }
 }

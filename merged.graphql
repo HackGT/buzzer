@@ -40,7 +40,7 @@ input PluginMaster {
 	slack: SlackConfig
 	twilio: TwilioConfig
 	twitter: TwitterConfig
-	appgt: AppGTConfig
+	f_c_m: FCMConfig
 }
 
 input LiveSiteConfig {
@@ -83,29 +83,29 @@ type TwitterConfigType {
 		_: Boolean
 	}
 
-input AppGTConfig {
+input FCMConfig {
 		header: String,
 		tags: String
 	}
 
-type AppGTConfigType {
+type FCMConfigType {
 		header: String,
 		tags: String
-	}
+	} 
 
 type MetaDataType {
 		title: String
 		icon: String
-
+	
 		channels: [String!]!
 		at_channel: Boolean!
 		at_here: Boolean!
-
+	
 		numbers: [String!]
         groups: [String!]
-
+	
 		_: Boolean
-
+	
 		header: String,
 		tags: String
 	}

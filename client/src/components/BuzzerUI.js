@@ -18,6 +18,11 @@ class BuzzerUI extends Component {
 	};
 
 	render() {
+        let x = this.state
+        let y = Object.keys(this.state, key => {
+            return {key: this.state.key}
+        })
+        console.log(y)
         return (
             <div>
                 <br/>
@@ -28,20 +33,27 @@ class BuzzerUI extends Component {
                 </div>
                 <div className="row">
                     <div className="column">
-                        <ClientDropdown onClientChange={this.onDataChange}/>
+                        <ClientDropdown onClientChange={(value) => {
+                                this.setState(prevState =>({
+                                    client: [...value]
+                                }))
+                            }}
+                        />
                     </div>
                 </div>
                 <div className="row">
                     <div className="column">
                         <Input className="inputCustom"
                             placeholder={"Message"}
-                            onChange={(e,{value})=>this.onDataChange(value, "message")}/>
+                            onChange={(e,{value})=>this.setState({
+                                message: value
+                            })}/>
                     </div>
                 </div>
                 <div className="row">
                     <div className="column">
-                    <ClientConfig config={clientConfigData[this.state.client] || {}}
-                    onConfigChange={this.onConfigChange}
+                    <ClientConfig config={clientConfigData || {}}
+                    selectedClients={this.state.client||[]} onConfigChange={this.onConfigChange}
                     />
                     </div>
                 </div>
@@ -61,11 +73,10 @@ class BuzzerUI extends Component {
                                     + "\" sent to " + this.state.client}
                             />
                     </div>
-
                 </div>
             </div>
         )
-	};
+    };
 
     close() {
         this.setState({
@@ -84,10 +95,10 @@ class BuzzerUI extends Component {
         })
     }
 
-    onConfigChange(value, key) {
+    onConfigChange(value, key, client) {
         console.log(value, key)
         this.setState(prev => ({
-            [this.state.client]: {
+            [client]: {
                 ...prev[this.state.client],
                 [key]: value
             }

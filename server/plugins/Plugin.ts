@@ -48,4 +48,6 @@ export interface MetaDataType {
 	numbers: [string];
 	groups: [string];
 	_: boolean;
+	header: string;
+	tags: string;
 }

@@ -14,8 +14,9 @@ class ClientDropdown extends Component {
             name="droppy"
             compact
             placeholder='Select Client'
-            onChange={(e,{value})=>this.props.onClientChange(value, "client")}
+            onChange={(e,{value})=>this.props.onClientChange(value)}
             fluid
+            multiple
             selection
             options={clientData}
         />)
