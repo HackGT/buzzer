@@ -3,6 +3,14 @@ import * as compression from "compression";
 import * as bodyParser from "body-parser";
 import * as Datastore from "nedb";
 import * as dotenv from "dotenv";
+import * as http from "http";
+
+const MAPGT_URL = process.env.MAPGT_URL;
+const SOCKET_OPTIONS = {
+	allowUpgrades: true,
+	transports: [ 'polling', 'websocket' ],
+	origins: process.env.MAPGT_URL
+};
 
 import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
 import { makeExecutableSchema } from 'graphql-tools';
@@ -11,10 +19,20 @@ import config from './config';
 import { upperCamel } from './common';
 import { mediaAPI } from './plugins';
 import { PluginReturn, Notifier, MetaDataType } from './plugins/Plugin';
-import typeDefs from './typeDefs';
+import SocketPlugin from './plugins/Socket';
+import typeDefs, { SOCKETIO_KEY } from './typeDefs';
 import { isAdmin } from './middleware';
 
 const app = express();
+const server = new http.Server(app);
+const io = require('socket.io')(SOCKET_OPTIONS).listen(server); // tslint:disable-line
+io.origins((origin: any, callback: any) => {
+	if (origin === MAPGT_URL) {
+		return callback(null, true);
+	}
+	callback('illegal', false);
+});
+
 dotenv.config();
 const db: any = {};
 Object.keys(mediaAPI).forEach(key => {
@@ -48,6 +66,9 @@ const resolvers = {
 	Query: {
 		get_messages: async (prev: any, args: any): Promise<IMessageReturn[]> => {
 			let plugin = args.plugin;
+			if (plugin === SOCKETIO_KEY) {
+				return []; // TODO
+			}
 			let returnDocs = await new Promise<IMessageReturn[]>(resolve => {
 				db[upperCamel(plugin)].find({}, (err: any, docs: any) => {
 					resolve(docs);
@@ -91,6 +112,7 @@ const resolvers = {
 			const sendingQueue = await Promise.all(checkQueue);
 			return Promise.all(sendingQueue.map(async f => {
 				const result = await f();
+				if (result.plugin === SOCKETIO_KEY) return result;
 				const p = result.plugin.split(/(?=[A-Z])/).join('_').toLowerCase();
 				const insertArg = {
 					message: args.message,
@@ -111,13 +133,13 @@ const schema = makeExecutableSchema({
 	resolvers
 });
 
+const middlewares = [bodyParser.json(), graphqlExpress({schema})];
+if (process.env.DEV_MODE !== 'True') {
+	middlewares.splice(1, 0, isAdmin);
+}
 app.use(
 	'/graphql',
-	bodyParser.json(),
-	isAdmin,
-	graphqlExpress({
-		schema
-	})
+	...middlewares
 );
 app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
 
@@ -126,10 +148,12 @@ async function runSetup() {
 	await Promise.all(Object.keys(mediaAPI).map(async pluginKey => {
 		plugins[pluginKey] = await mediaAPI[pluginKey].init();
 	}));
+	// tslint:disable-next-line
+	plugins[SOCKETIO_KEY] = await SocketPlugin.init(io);
 }
 
 runSetup().then(() => {
-	app.listen(config.port, () => {
+	server.listen(config.port, () => {
 		console.log(`Buzzer system started on 0.0.0.0:${config.port}`);
 	});
 }).catch(error => {
