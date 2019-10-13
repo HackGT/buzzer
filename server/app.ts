@@ -16,6 +16,7 @@ import typeDefs from './typeDefs';
 import fetch from 'node-fetch';
 import * as schedule from 'node-schedule';
 import * as path from 'path';
+import { isAdmin } from './middleware';
 
 const app = express();
 dotenv.config();
@@ -186,6 +187,7 @@ app.use(
 	'/graphql',
 	cors(),
 	bodyParser.json(),
+	isAdmin,
 	graphqlExpress({
 		schema
 	})

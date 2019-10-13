@@ -18,13 +18,9 @@ class BuzzerUI extends Component {
 	};
 
 	render() {
-        let x = this.state
-        let y = Object.keys(this.state, key => {
-            return {key: this.state.key}
-        })
-        console.log(y)
         return (
             <div>
+
                 <br/>
                 <div className="row">
                     <div className="column">
