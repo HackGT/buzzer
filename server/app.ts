@@ -5,13 +5,11 @@ import * as Datastore from "nedb";
 import * as dotenv from "dotenv";
 import * as http from "http";
 
-// TODO deploy
-// tslint:disable: comment-format
-const MAPGT_URL = 'http://localhost:8000';
+const MAPGT_URL = process.env.MAPGT_URL;
 const SOCKET_OPTIONS = {
 	allowUpgrades: true,
 	transports: [ 'polling', 'websocket' ],
-	origins: MAPGT_URL
+	origins: process.env.MAPGT_URL
 };
 
 import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';

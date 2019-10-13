@@ -2,7 +2,9 @@ import { PluginReturn, Notifier } from "./Plugin";
 
 // Socket will only forward expected variables
 interface Config {
-	area?: string;
+	area: string;
+	title: string;
+	time: string;
 }
 
 export class SocketNotifier implements Notifier<Config> {
@@ -16,11 +18,11 @@ export class SocketNotifier implements Notifier<Config> {
 
 	public async sendMessage(message: string, config: Config): Promise<PluginReturn[]> {
 		const msgJson: any = {
-			message
+			message,
+			area: config.area,
+			title: config.title,
+			time: config.time
 		};
-		if (config.area) {
-			msgJson.area = config.area;
-		}
 		this.socket.emit(this.SOCKETIO_EVENT, msgJson);
 		return Promise.resolve([{
 			error: false,
@@ -35,6 +37,16 @@ export class SocketNotifier implements Notifier<Config> {
 				throw new Error("'area' on Socket plugin must be string");
 			}
 		}
+		if (configTest.title) {
+			if (typeof configTest.time !== "string") {
+				throw new Error("'area' on Socket plugin must be string");
+			}
+		}
+		if (configTest.time) {
+			if (typeof configTest.title !== "string") {
+				throw new Error("'area' on Socket plugin must be string");
+			}
+		}
 		return configTest;
 	}
 }
@@ -44,6 +56,8 @@ export class SocketNotifier implements Notifier<Config> {
 const SocketPlugin = {
 	schema: () => `{
 		area: String
+		title: String
+		time: String
 	}`,
 	init: async (socket: any) => new SocketNotifier(socket)
 };

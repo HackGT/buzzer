@@ -96,10 +96,14 @@ type FCMConfigType {
 
 input SocketioConfig {
 		area: String
+		title: String
+		time: String
 	}
 
 type SocketioConfigType {
 		area: String
+		title: String
+		time: String
 	} 
 
 type MetaDataType {
