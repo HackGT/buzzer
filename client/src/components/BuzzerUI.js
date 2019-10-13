@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ClientDropdown from './ClientDropdown';
 import ClientConfig from './ClientConfig';
+import SecretRequest from './SecretRequest';
 import clientConfigData from '../data/clientConfigData'
 import sendNotification from '../data/query.js'
 import { Button, Grid, Input, Confirm, Header } from 'semantic-ui-react'
@@ -20,7 +21,9 @@ class BuzzerUI extends Component {
 	render() {
         return (
             <div>
-
+				<SecretRequest onCookieSet={(secret) => {
+						this.setState({buzzer_secret:secret})
+					}}/>
                 <br/>
                 <div className="row">
                     <div className="column">
@@ -80,7 +83,7 @@ class BuzzerUI extends Component {
         })
     }
     onSendNotification() {
-        let response = sendNotification(this.state.message, this.state.client, this.state[this.state.client])
+        let response = sendNotification(this.state.message, this.state.client, this.state[this.state.client], this.state.buzzer_secret)
         this.setState({
             open: true
         })

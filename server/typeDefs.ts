@@ -1,12 +1,15 @@
 import * as fs from "fs";
 import * as path from "path";
 import { mediaAPI } from './plugins';
+import SocketPlugin from "./plugins/Socket";
 import { lowerSnake } from './common';
 
+export const SOCKETIO_KEY = "Socketio";
 const mainTypeDefs = fs.readFileSync(path.resolve(__dirname, "../api.graphql"), "utf8");
 
 const baseNames = Object.keys(mediaAPI);
 
+baseNames.push(SOCKETIO_KEY);
 // Generate PluginMaster body (See base api.graphql)
 const configStrArr = baseNames.map(name => {
 	const lowerSnaked = lowerSnake(name);
@@ -27,6 +30,10 @@ const processedPluginTypeDefs = Object.keys(mediaAPI).map(plugin => {
 	pluginTypeDefs[plugin] = typeDef;
 	return typeDef;
 });
+
+const socketSchema = SocketPlugin.schema();
+const socketTypeDef = `input ${SOCKETIO_KEY}Config ${socketSchema}\n\ntype ${SOCKETIO_KEY}ConfigType ${socketSchema}`;
+processedPluginTypeDefs.push(socketTypeDef); // Note we don't update pluginTypeDefs here
 
 let processedConfigKeys = "";
 Object.keys(mediaAPI).map(plugin => {

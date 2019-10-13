@@ -8,7 +8,7 @@ var queryMessage = `query send_message($message:String!, $plugins:PluginMaster!)
   }
 }`;
 
-export default (message, clients, plugins) => {
+export default (message, clients, plugins, adminKey) => {
     let clientSchema = clients.map(client => {
         console.log("client:!")
         console.log(client)
@@ -30,7 +30,8 @@ export default (message, clients, plugins) => {
             method: 'POST',
             headers: {
                 'Content-Type': `application/json`,
-                'Accept'      : `application/json`
+                'Accept'      : `application/json`,
+                'Authorization': 'Basic ' + adminKey
             },
             body: JSON.stringify({
                 query: queryMessage,

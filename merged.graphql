@@ -41,6 +41,7 @@ input PluginMaster {
 	twilio: TwilioConfig
 	twitter: TwitterConfig
 	f_c_m: FCMConfig
+	socketio: SocketioConfig
 }
 
 input LiveSiteConfig {
@@ -91,6 +92,18 @@ input FCMConfig {
 type FCMConfigType {
 		header: String,
 		tags: String
+	}
+
+input SocketioConfig {
+		area: String
+		title: String
+		time: String
+	}
+
+type SocketioConfigType {
+		area: String
+		title: String
+		time: String
 	} 
 
 type MetaDataType {
