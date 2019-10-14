@@ -39,6 +39,12 @@ export interface FCMConfigType {
 	tags: string;
 }
 
+export interface MapGTConfigType {
+	area: string;
+	title: string;
+	time: string;
+}
+
 export interface MetaDataType {
 	title: string;
 	icon: string;
@@ -50,4 +56,6 @@ export interface MetaDataType {
 	_: boolean;
 	header: string;
 	tags: string;
+	area: string;
+	time: string;
 }

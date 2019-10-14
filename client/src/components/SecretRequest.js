@@ -7,15 +7,15 @@ class SecretRequest extends Component {
 		super()
         var token = cookie.load('BUZZER_TOKEN')
         this.state = {
-            open: !token
+            modal_open: !token
         }
 	};
 
 	render() {
         return (
             <div>
-            <Button onClick={()=>{this.setState({open: true})}}> Enter Buzzer Token </Button>
-                <Modal open={this.state.open}>
+            <Button onClick={()=>{this.setState({modal_open: true})}}> Enter Buzzer Token </Button>
+                <Modal open={this.state.modal_open}>
                     <Modal.Header>Enter Buzzer Secret</Modal.Header>
                     <Modal.Content>
                         <Input className="inputCustom"
@@ -32,13 +32,11 @@ class SecretRequest extends Component {
     };
     handleClick = () => {
         this.setState({
-          open: false
+          modal_open: false
         });
         cookie.save('BUZZER_TOKEN', this.state.token, { path: '/' })
         this.props.onCookieSet(this.state.token)
     }
-
 };
-
 
 export default SecretRequest;

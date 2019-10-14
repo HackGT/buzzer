@@ -18,5 +18,10 @@ export default {
     f_c_m: {
         header: "string",
         tags: "string"
+    },
+    map_g_t: {
+        area: "string",
+        title: "string",
+        time: "string"
     }
 }

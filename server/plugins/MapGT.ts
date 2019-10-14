@@ -1,13 +1,13 @@
 import { PluginReturn, Notifier } from "./Plugin";
 
-// Socket will only forward expected variables
+// MapGT will only forward expected variables
 interface Config {
 	area: string;
 	title: string;
 	time: string;
 }
 
-export class SocketNotifier implements Notifier<Config> {
+export class MapGTNotifier implements Notifier<Config> {
 	private socket: any;
 	public SOCKETIO_EVENT: string;
 
@@ -34,17 +34,17 @@ export class SocketNotifier implements Notifier<Config> {
 	public async check(configTest: any): Promise<Config> {
 		if (configTest.area) {
 			if (typeof configTest.area !== "string") {
-				throw new Error("'area' on Socket plugin must be string");
+				throw new Error("'area' on MapGT plugin must be string");
 			}
 		}
 		if (configTest.title) {
 			if (typeof configTest.time !== "string") {
-				throw new Error("'area' on Socket plugin must be string");
+				throw new Error("'area' on MapGT plugin must be string");
 			}
 		}
 		if (configTest.time) {
 			if (typeof configTest.title !== "string") {
-				throw new Error("'area' on Socket plugin must be string");
+				throw new Error("'area' on MapGT plugin must be string");
 			}
 		}
 		return configTest;
@@ -53,13 +53,13 @@ export class SocketNotifier implements Notifier<Config> {
 
 // Not a real plugin due to need for socket
 // TODO split schema and init
-const SocketPlugin = {
+const MapGTPlugin = {
 	schema: () => `{
 		area: String
 		title: String
 		time: String
 	}`,
-	init: async (socket: any) => new SocketNotifier(socket)
+	init: async (socket: any) => new MapGTNotifier(socket)
 };
 
-export default SocketPlugin;
+export default MapGTPlugin;

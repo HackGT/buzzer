@@ -15,7 +15,7 @@ class ClientConfig extends Component {
             return (
                 <div>
                 <Header as='h3'>{
-                        client.charAt(0).toUpperCase() + client.slice(1)}
+                        client.charAt(0).toUpperCase() + client.slice(1).replace("_","")}
                 </Header>
                 {Object.keys(this.props.config[client]).map(input => {
                     switch(config[client][input]) {
