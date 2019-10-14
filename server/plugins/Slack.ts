@@ -9,19 +9,26 @@ interface Config {
 
 export class Slack implements Notifier<Config> {
 	private url: string;
+	private token: string;
 
 	constructor() {
-		const url = process.env.SLACK_WEBHOOK_URL || "";
+		const url = process.env.SLACK_API_URL || "";
+		const token = process.env.SLACK_OAUTH_TOKEN || "";
 		const devMode = process.env.DEV_MODE;
 		if (devMode !== "True") {
 			if (!url) {
-				console.error("Missing SLACK_WEBHOOK_URL!");
+				console.error("Missing SLACK_API_URL!");
 			}
 
-			if (!url) {
+			if (!token) {
+				console.error("Missing SLACK_OAUTH_TOKEN!");
+			}
+
+			if (!url || !token) {
 				throw new Error("Missing slack env vars. exiting.");
 			}
 		}
+		this.token = token;
 		this.url = url;
 	}
 
@@ -30,11 +37,11 @@ export class Slack implements Notifier<Config> {
 			method: "POST",
 			body: JSON.stringify({
 				text: message,
-				channel: channel? `#${channel}` : undefined
+				channel: channel ? `#${channel}` : "announcements"
 			}),
 			headers: {
 				"Content-Type": "application/json; charset=utf-8",
-				"Authorization": "Bearer " + String(process.env.SLACK_TOKEN) || "",
+				"Authorization": "Bearer " + this.token || "",
 				"x-slack-retry-num":"0"
 			}
 		}).then(res => res.text());

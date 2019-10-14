@@ -5,7 +5,12 @@ git:
 secrets:
     - ADMIN_KEY_SECRET
 
-    - SLACK_WEBHOOK_URL
+    - SLACK_API_URL
+    - SLACK_OAUTH_TOKEN
+
+    - MAPGT_URL
+
+    - FIREBASE_TOKEN
 
     - TWITTER_CONSUMER_KEY
     - TWITTER_CONSUMER_SECRET
@@ -14,7 +19,7 @@ secrets:
 
     - ONESIGNAL_APP_ID
     - ONESIGNAL_API_KEY
-    
+
     - TWILIO_SID
     - TWILIO_TOKEN
     - TWILIO_SERVICE_SID
