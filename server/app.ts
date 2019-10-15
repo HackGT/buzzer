@@ -4,24 +4,41 @@ import * as bodyParser from "body-parser";
 import * as Datastore from "nedb";
 import * as dotenv from "dotenv";
 import * as http from "http";
-
 const MAPGT_URL = process.env.MAPGT_URL;
 const SOCKET_OPTIONS = {
 	allowUpgrades: true,
-	transports: [ 'polling', 'websocket' ],
+	transports: ['polling', 'websocket'],
 	origins: process.env.MAPGT_URL
 };
-
-import { graphqlExpress, graphiqlExpress } from 'graphql-server-express';
-import { makeExecutableSchema } from 'graphql-tools';
-
+import {
+	graphqlExpress,
+	graphiqlExpress
+} from 'graphql-server-express';
+import {
+	makeExecutableSchema
+} from 'graphql-tools';
 import config from './config';
-import { upperCamel } from './common';
-import { mediaAPI } from './plugins';
-import { PluginReturn, Notifier, MetaDataType } from './plugins/Plugin';
-import SocketPlugin from './plugins/Socket';
-import typeDefs, { SOCKETIO_KEY } from './typeDefs';
-import { isAdmin } from './middleware';
+import {
+	upperCamel
+} from './common';
+import {
+	mediaAPI
+} from './plugins';
+import {
+	PluginReturn,
+	Notifier,
+	MetaDataType
+} from './plugins/Plugin';
+import fetch from 'node-fetch';
+import * as schedule from 'node-schedule';
+import * as path from 'path';
+import MapGTPlugin from './plugins/MapGT';
+import typeDefs, {
+	SOCKETIO_KEY
+} from './typeDefs';
+import {
+	isAdmin
+} from './middleware';
 
 const app = express();
 const server = new http.Server(app);
@@ -32,15 +49,28 @@ io.origins((origin: any, callback: any) => {
 	}
 	callback('illegal', false);
 });
-
 dotenv.config();
 const db: any = {};
 Object.keys(mediaAPI).forEach(key => {
 	const file = `./server/datastore/${key.toLowerCase()}_log.db`;
-	db[key] = new Datastore({ filename: file, autoload: true, timestampData: true });
+	db[key] = new Datastore({
+		filename: file,
+		autoload: true,
+		timestampData: true
+	});
+});
+
+// Hack for mapgt
+const fileMapgt = `./server/datastore/map_g_t_log.db`;
+db.MapGT = new Datastore({
+	filename: fileMapgt,
+	autoload: true,
+	timestampData: true
 });
 
 app.use(compression());
+app.use(express.static(path.join(__dirname, '../', 'client/')));
+app.use('/static', express.static(path.join(__dirname, '../', 'client/build/static')));
 process.on("unhandledRejection", err => {
 	throw err;
 });
@@ -59,29 +89,42 @@ interface IMessageReturn {
 }
 
 let plugins: {
-	[name: string]: Notifier<any>;
+	[name: string]: Notifier < any > ;
 } = {};
+
+const workshopMessage = `query {
+talks(start: 0) {
+base {
+    start_time
+    end_time
+    notification
+}
+}
+
+}`;
+
+function isoToCron(iso: string) {
+	let date = new Date(iso);
+	return `${date.getSeconds()} ${date.getMinutes()} ${date.getHours() + 4} ${date.getDate()} ${date.getMonth() + 1} *`;
+}
 
 const resolvers = {
 	Query: {
-		get_messages: async (prev: any, args: any): Promise<IMessageReturn[]> => {
+		get_messages: async (prev: any, args: any): Promise < IMessageReturn[] > => {
 			let plugin = args.plugin;
 			if (plugin === SOCKETIO_KEY) {
 				return []; // TODO
 			}
-			let returnDocs = await new Promise<IMessageReturn[]>(resolve => {
+			let returnDocs = await new Promise < IMessageReturn[] > (resolve => {
 				db[upperCamel(plugin)].find({}, (err: any, docs: any) => {
 					resolve(docs);
 				});
 			});
-
 			return returnDocs;
 		},
-		send_message: async (prev: any, args: any): Promise<IPluginReturn[]> => {
+		send_message: async (prev: any, args: any): Promise < IPluginReturn[] > => {
 			const message = args.message;
-
 			const checkQueue = Object.keys(args.plugins).map(rawName => {
-
 				return (async () => { // Loading checkQueue IIFE
 					// Upper Cameled
 					const name = upperCamel(rawName);
@@ -94,8 +137,7 @@ const resolvers = {
 								errors: await plugin.sendMessage(message, verifiedConfig)
 							};
 							return pluginReturn;
-						}
-						catch (e) {
+						} catch (e) {
 							return {
 								plugin: name,
 								errors: [{
@@ -112,7 +154,6 @@ const resolvers = {
 			const sendingQueue = await Promise.all(checkQueue);
 			return Promise.all(sendingQueue.map(async f => {
 				const result = await f();
-				if (result.plugin === SOCKETIO_KEY) return result;
 				const p = result.plugin.split(/(?=[A-Z])/).join('_').toLowerCase();
 				const insertArg = {
 					message: args.message,
@@ -122,34 +163,94 @@ const resolvers = {
 					errors: result.errors
 				};
 				db[upperCamel(result.plugin)].insert(insertArg);
+				if (result.plugin === SOCKETIO_KEY) return result;
 				return result; // We catch in sending function
 			})); // Send all!
 		}
 	}
 };
 
+async function scheduleWorkshops() {
+	fetch('https://cms.hack.gt/graphql', {
+		method: 'POST',
+		headers: {
+			'Content-Type': `application/json`,
+			'Accept': `application/json`
+		},
+		body: JSON.stringify({
+			query: workshopMessage,
+			variables: {
+				"start": 0
+			}
+		})
+	}).then(r => {
+		return r.json();
+	}).then(data => {
+		for (let i = 0; i < data.data.talks.length; i++) {
+			if (data.data.talks[i].base != null) {
+				let cronString = isoToCron(data.data.talks[i].base.start_time);
+				schedule.scheduleJob(cronString, () => {
+					resolvers.Query.send_message(null, {
+						plugins: {
+							slack: {
+								channels: ["announcements"],
+								at_here: true,
+								at_channel: true
+							},
+							socketio: {
+								// TODO!
+							},
+							f_c_m: {
+								// TODO!
+							},
+							live_site: {
+								// TODO!
+							}
+						},
+						message: data.data.talks[i].base.notification
+					}).then(result => {
+						console.log(result);
+					}).catch(err => {
+						console.log(err);
+					});
+				});
+			}
+			console.log("scheduling made");
+		}
+	}).catch(err => {
+		console.log(err);
+	});
+}
+
+app.get('/', (req, res) => {
+	res.sendFile(path.join(__dirname, '../', 'client/build/index.html'));
+});
+
 const schema = makeExecutableSchema({
 	typeDefs,
 	resolvers
 });
 
-const middlewares = [bodyParser.json(), graphqlExpress({schema})];
-if (process.env.DEV_MODE !== 'True') {
-	middlewares.splice(1, 0, isAdmin);
-}
+const middlewares = [bodyParser.json(), isAdmin, graphqlExpress({
+	schema
+})];
 app.use(
 	'/graphql',
 	...middlewares
 );
-app.use('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
+app.use('/graphiql', bodyParser.json(), graphiqlExpress({
+	endpointURL: '/graphql'
+}));
 
 // Run plugin setup
 async function runSetup() {
 	await Promise.all(Object.keys(mediaAPI).map(async pluginKey => {
 		plugins[pluginKey] = await mediaAPI[pluginKey].init();
 	}));
+	await scheduleWorkshops();
+	// Code for getting schedule
 	// tslint:disable-next-line
-	plugins[SOCKETIO_KEY] = await SocketPlugin.init(io);
+	plugins[SOCKETIO_KEY] = await MapGTPlugin.init(io);
 }
 
 runSetup().then(() => {
