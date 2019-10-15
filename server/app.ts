@@ -49,7 +49,6 @@ io.origins((origin: any, callback: any) => {
 	}
 	callback('illegal', false);
 });
-
 dotenv.config();
 const db: any = {};
 Object.keys(mediaAPI).forEach(key => {
@@ -112,7 +111,6 @@ function isoToCron(iso: string) {
 const resolvers = {
 	Query: {
 		get_messages: async (prev: any, args: any): Promise < IMessageReturn[] > => {
-			console.log(args.plugin);
 			let plugin = args.plugin;
 			if (plugin === SOCKETIO_KEY) {
 				return []; // TODO
@@ -164,7 +162,6 @@ const resolvers = {
 					createdAt: args.createdAt,
 					errors: result.errors
 				};
-				console.log(upperCamel(result.plugin));
 				db[upperCamel(result.plugin)].insert(insertArg);
 				if (result.plugin === SOCKETIO_KEY) return result;
 				return result; // We catch in sending function
@@ -189,14 +186,9 @@ async function scheduleWorkshops() {
 	}).then(r => {
 		return r.json();
 	}).then(data => {
-		console.log(data.data);
 		for (let i = 0; i < data.data.talks.length; i++) {
 			if (data.data.talks[i].base != null) {
-				console.log("hello");
-				console.log(data.data.talks[i]);
-				console.log(data.data.talks[i].base.start_time);
 				let cronString = isoToCron(data.data.talks[i].base.start_time);
-				console.log(cronString);
 				schedule.scheduleJob(cronString, () => {
 					resolvers.Query.send_message(null, {
 						plugins: {

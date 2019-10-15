@@ -18,7 +18,7 @@ const Config: ServerConfig = (() => {
 	// TODO: add user accounts n' such
 	let admin = env.ADMIN_KEY_SECRET;
 	if(env.DEV_MODE) {
-		admin = Buffer.from("DEV_SECRET","base64").toString();
+		// Admin = Buffer.from("DEV_SECRET","base64").toString();
 	}
 	if (!admin && !env.DEV_MODE) {
 		throw new Error("Must have admin key set in `ADMIN_KEY_SECRET`.");
