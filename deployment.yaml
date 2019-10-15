@@ -6,7 +6,6 @@ secrets:
     - ADMIN_KEY_SECRET
 
     - SLACK_API_URL
-    - SLACK_OAUTH_TOKEN
     
     - MAPGT_URL
 
