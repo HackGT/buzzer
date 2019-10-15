@@ -11,7 +11,7 @@ export function isAdmin(
 	const auth = request.headers.authorization;
 
 	if (auth && typeof auth === "string" && auth.includes(" ")) {
-		const key = auth.split(" ")[1];// Buffer.from(auth.split(" ")[1], "base64").toString();
+		const key = Buffer.from(auth.split(" ")[1], "base64").toString();
 		if (key === config.secrets.admin) {
 			next();
 		}
