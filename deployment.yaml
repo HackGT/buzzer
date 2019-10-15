@@ -5,11 +5,6 @@ git:
 secrets:
     - ADMIN_KEY_SECRET
 
-    - SLACK_API_URL
-    - SLACK_OAUTH_TOKEN
-
-    - MAPGT_URL
-
     - FIREBASE_TOKEN
 
     - TWITTER_CONSUMER_KEY
@@ -25,6 +20,9 @@ secrets:
     - TWILIO_SERVICE_SID
     - REGISTRATION_KEY
     - REGISTRATION_GRAPHQL
+    
+    - SLACK_API_URL
+    - SLACK_OAUTH_TOKEN
 
 env:
     ONESIGNAL_DEFAULT_TITLE: HackGT Alert!
