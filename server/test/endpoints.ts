@@ -1,6 +1,6 @@
 import "mocha";
-import * as request from "supertest";
-import * as express from "express";
+import request from "supertest";
+import express from "express";
 
 // Mock config data
 const ADMIN_KEY = "hello admin key whats up";

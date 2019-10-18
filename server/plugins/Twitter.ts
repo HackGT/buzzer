@@ -1,6 +1,6 @@
 import { PluginReturn, Plugin, Notifier } from "./Plugin";
 
-import * as TwitterAPI from "twit";
+import TwitterAPI from "twit";
 
 class Twitter implements Notifier<{}> {
 	private consumerKey: string;

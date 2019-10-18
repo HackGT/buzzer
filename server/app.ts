@@ -1,9 +1,11 @@
-import * as express from "express";
-import * as compression from "compression";
-import * as bodyParser from "body-parser";
-import * as Datastore from "nedb";
-import * as dotenv from "dotenv";
-import * as http from "http";
+import express from "express";
+import compression from "compression";
+import bodyParser from "body-parser";
+import Datastore from "nedb";
+import dotenv from "dotenv";
+import http from "http";
+import moment from "moment-timezone";
+
 const MAPGT_URL = process.env.MAPGT_URL;
 const SOCKET_OPTIONS = {
 	allowUpgrades: true,
@@ -103,6 +105,18 @@ base {
 
 }`;
 
+// tslint:disable-next-line
+const UNSAFE_parseAsLocal = (t: string) => { // Parse iso-formatted string as local time
+	let localString = t;
+	if (t.slice(-1).toLowerCase() === "z") {
+		localString = t.slice(0, -1);
+	}
+	return moment(localString);
+};
+
+// tslint:disable-next-line
+const UNSAFE_toUTC = (t: string) => UNSAFE_parseAsLocal(t).utc();
+
 function isoToCron(iso: string) {
 	let date = new Date(iso);
 	return `${date.getSeconds()} ${date.getMinutes()} ${date.getHours() + 4} ${date.getDate()} ${date.getMonth() + 1} *`;
@@ -186,10 +200,19 @@ async function scheduleWorkshops() {
 	}).then(r => {
 		return r.json();
 	}).then(data => {
+		// TODO check all eventbases not just workshops
+		// TODO change this to a check instead of scheduling cron
 		for (let i = 0; i < data.data.talks.length; i++) {
 			if (data.data.talks[i].base != null) {
+				const rawTime = data.data.talks[i].base.start_time;
+				const hackedTime = UNSAFE_toUTC(rawTime);
+				const now = moment();
+				const difference = now.diff(hackedTime, "minutes");
+				if (difference < 0 || difference >= 16) return;
 				let cronString = isoToCron(data.data.talks[i].base.start_time);
 				schedule.scheduleJob(cronString, () => {
+					// Link: https://stackoverflow.com/questions/37711082/how-to-handle-notification-when-app-in-background-in-firebase
+					// TODO send FCM data payloads, not notifications
 					resolvers.Query.send_message(null, {
 						plugins: {
 							slack: {
@@ -198,9 +221,6 @@ async function scheduleWorkshops() {
 								at_channel: true
 							},
 							socketio: {
-								// TODO!
-							},
-							f_c_m: {
 								// TODO!
 							},
 							live_site: {

@@ -1,4 +1,4 @@
-import * as Twilio from "twilio";
+import Twilio from "twilio";
 import fetch from "node-fetch";
 
 import { PluginReturn, Plugin, Notifier } from "./Plugin";
