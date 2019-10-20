@@ -4,7 +4,7 @@ import { PluginReturn, Plugin, Notifier } from "./Plugin";
 
 interface Config {
 	header: string;
-	tags: string;
+	id: string;
 }
 
 class FCM implements Notifier<Config> {
@@ -34,7 +34,7 @@ class FCM implements Notifier<Config> {
 
 		return {
 			header: object.header,
-			tags: object.tags
+			id: object.id
 		};
 	}
 
@@ -52,10 +52,7 @@ class FCM implements Notifier<Config> {
 					body: message,
 					title: config.header
 				},
-				data: {
-					tags: config.tags
-				},
-				to: "/topics/all"
+				to: `/topics/${config.id}`
 			}),
 			headers: {
 				"Content-Type": "application/json",
@@ -77,7 +74,7 @@ class FCM implements Notifier<Config> {
 const FCMPlugin: Plugin<Config> = {
 	schema: () => `{
 		header: String,
-		tags: String
+		id: String,
 	}`,
 	init: async () => new FCM()
 };
