@@ -1,4 +1,3 @@
-var fetch = require('node-fetch')
 var fs = require('fs')
 var queryMessage = `query {
     areas(start: 0) {
@@ -96,7 +95,6 @@ export default async function getCMSData() {
 			headers: {
 				'Content-Type': `application/json`,
 				'Accept' : `application/json`,
-                'Access-Control-Allow-Origin':'*'
 			},
 			body: JSON.stringify({
 				query: queryMessage,
