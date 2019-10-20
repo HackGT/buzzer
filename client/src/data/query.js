@@ -8,36 +8,22 @@ var queryMessage = `query send_message($message:String!, $plugins:PluginMaster!)
   }
 }`;
 
-export default (message, clients, plugins, adminKey) => {
-    let clientSchema = clients.map(client => {
-        console.log("client:!")
-        console.log(client)
-        return ({
-            [client]: {
-                ...plugins
-            }
-        })
-    });
-    console.log("schema")
-    console.log(clientSchema)
-    let clientSchemaJson = {}
-    clientSchema.map(client => {
-        let index = Object.keys(client)[0];
-        clientSchemaJson[index] = client[index];
-    })
-    console.log(clientSchemaJson)
-    return fetch('/graphql', {
+export default (message, client, plugins) => {
+    return fetch('http://0.0.0.0:8080/graphql', {
             method: 'POST',
             headers: {
                 'Content-Type': `application/json`,
-                'Accept'      : `application/json`,
-                'Authorization': 'Basic ' + adminKey
+                'Accept'      : `application/json`
             },
             body: JSON.stringify({
                 query: queryMessage,
                 variables: {
                     "message": message,
-                    "plugins": clientSchemaJson
+                    "plugins": {
+                        [client]: {
+                            ...plugins
+                        }
+                    }
                 }
             })
         }).then(r =>
