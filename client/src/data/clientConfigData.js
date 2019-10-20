@@ -1,27 +1,32 @@
 export default {
     live_site: {
-        title: "string",
-        icon: "string"
+        title: {type:"string"},
+        icon: {type:"string"}
     },
     slack: {
-        channels: "string-array",
-        at_channel: "boolean",
-        at_here: "boolean"
+        channels: {type:"string-array"},
+        at_channel: {type:"boolean"},
+        at_here: {type:"boolean"}
     },
     twilio: {
-        numbers: "string-array",
-        groups: "string-array"
+        numbers: {type:"string-array"},
+        groups: {type:"string-array"}
     },
     twitter: {
-        _: "boolean"
+        _: {type:"boolean"}
     },
     f_c_m: {
-        header: "string",
-        tags: "string"
+        header: {type:"string"},
+        tags: {type:"string"}
     },
     map_g_t: {
-        area: "string",
-        title: "string",
-        time: "string"
+        area: {
+            type: "dropdown",
+            cms: "areas",
+            value: "mapgt_slug",
+            text: "name"
+        },
+        title: {type:"string"},
+        time: {type:"string"}
     }
 }
