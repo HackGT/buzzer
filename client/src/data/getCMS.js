@@ -95,10 +95,7 @@ export default async function getCMSData() {
 			method: 'POST',
 			headers: {
 				'Content-Type': `application/json`,
-				'Accept' : `application/json`,
-                'Access-Control-Allow-Headers': '*'
-
-                
+				'Accept' : `application/json`
 			},
 			body: JSON.stringify({
 				query: queryMessage,
