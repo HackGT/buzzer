@@ -37,7 +37,7 @@ export class Slack implements Notifier<Config> {
 			method: "POST",
 			body: JSON.stringify({
 				text: message,
-				channel: channel ? `#${channel}` : "announcements"
+				channel: channel ? `#${channel}` : "#announcements"
 			}),
 			headers: {
 				"Content-Type": "application/json; charset=utf-8",
