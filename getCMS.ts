@@ -4,6 +4,7 @@ const moment = require("moment-timezone");
 const eventBasics = `
 	eventbases(start: 0) {
 		title
+		points
 		start_time
 		end_time
 		checkin_slug
@@ -27,13 +28,13 @@ const getCMSData = async (queryString) => {
 			}`
 		})
 	})
-		.then(r => {
-			return r.json();
-		})
-		.catch(err => {
-			console.error(err);
-			return false;
-		});
+	.then(r => {
+		return r.json();
+	})
+	.catch(err => {
+		console.error(err);
+		return false;
+	});
 }
 
 const eToSlug = (e) => {
@@ -61,9 +62,11 @@ getCMSData(eventBasics).then(result => {
 		const startTime = UNSAFE_toUTC(e.start_time).format();
 		const endTime = UNSAFE_toUTC(e.end_time).format();
 		const shouldWarn = e.type === 'meal' || tag === "stacey_abrams" || tag === "tshirts";
-		return { tag, startTime, endTime, shouldWarn };
+		const points = e.points;
+		const title = e.title;
+		return { title, tag, startTime, endTime, shouldWarn, points };
 	});
-	console.log(checkinInfo[0]);
+	console.log(checkinInfo);
 }).catch(err => {
 	console.log(err);
 });

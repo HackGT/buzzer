@@ -17,7 +17,7 @@ export default {
     },
     f_c_m: {
         header: {type:"string"},
-        tags: {type:"string"}
+        id: {type:"string"}
     },
     map_g_t: {
         area: {

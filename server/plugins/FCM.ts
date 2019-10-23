@@ -28,8 +28,8 @@ class FCM implements Notifier<Config> {
 			throw new Error("Header must be a string");
 		}
 
-		if (typeof object.tags !== "string") {
-			throw new Error("Tags must be a string");
+		if (typeof object.id !== "string") {
+			throw new Error("Id must be a string");
 		}
 
 		return {
