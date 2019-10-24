@@ -209,7 +209,7 @@ function scheduleCMS() {
 			const area = e.area.name;
 			const id = e.id;
 			const tagList = e.tags.map((t: any) => t.slug);
-			const now = moment();
+			const now = moment(Date.now()).utcOffset('-0500')
 			const difference = startTime.diff(now, "minutes");
 			const title = e.title;
 			console.log(difference);
