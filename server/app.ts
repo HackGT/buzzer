@@ -210,7 +210,7 @@ function scheduleCMS() {
 			const id = e.id;
 			const tagList = e.tags.map((t: any) => t.slug);
 			const now = moment.utc().tz("America/New_York");
-			const difference = startTime.diff(now, "minutes");
+			const difference = startTime.diff(now, "minutes") + 240;
 			const title = e.title;
 			console.log(difference);
 			if (difference < 0 || difference >= 16) return;
