@@ -41,7 +41,7 @@ input PluginMaster {
 	twilio: TwilioConfig
 	twitter: TwitterConfig
 	f_c_m: FCMConfig
-	map_g_t: MapGTConfig
+	mapgt: mapgtConfig
 }
 
 input LiveSiteConfig {
@@ -94,13 +94,13 @@ type FCMConfigType {
 		id: String,
 	}
 
-input MapGTConfig {
+input mapgtConfig {
 		area: String
 		title: String
 		time: String
 	}
 
-type MapGTConfigType {
+type mapgtConfigType {
 		area: String
 		title: String
 		time: String

@@ -143,9 +143,11 @@ const resolvers = {
 			const checkQueue = Object.keys(args.plugins).map(rawName => {
 				return (async () => { // Loading checkQueue IIFE
 					// Upper Cameled
-					const name = upperCamel(rawName);
+					const name = (rawName==="mapgt") ? rawName : upperCamel(rawName);
 					const plugin = plugins[name];
+
 					const verifiedConfig = await plugin.check(args.plugins[rawName]); // Verify
+
 					return async () => { // Sending function
 						try {
 							const pluginReturn = {
@@ -178,7 +180,8 @@ const resolvers = {
 					createdAt: args.createdAt,
 					errors: result.errors
 				};
-				db[upperCamel(result.plugin)].insert(insertArg);
+				const dbName = (result.plugin === "mapgt") ? result.plugin : upperCamel(result.plugin);
+				db[dbName].insert(insertArg);
 				return result; // We catch in sending function
 			})); // Send all!
 		}
