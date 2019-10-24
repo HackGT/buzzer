@@ -53,14 +53,22 @@ import {
 import cors from "cors";
 const app = express();
 app.use(cors());
+app.options('*', cors());
+app.use((req: any, res: any, next: any) => {
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
+	res.header("Access-Control-Allow-Credentials", "true");
+	next();
+});
 const server = new http.Server(app);
 const io = require('socket.io')(SOCKET_OPTIONS).listen(server); // tslint:disable-line
 io.origins((origin: any, callback: any) => {
-	console.log(origin);
 	if (origin === MAPGT_URL) {
+		console.log(origin);
 		return callback(null, true);
 	}
-	callback('illegal', false);
+	callback("illegal", false);
 });
 dotenv.config();
 const db: any = {};
