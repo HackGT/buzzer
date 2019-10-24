@@ -6,6 +6,9 @@ class SecretRequest extends Component {
 	constructor() {
 		super()
         var token = cookie.load('BUZZER_TOKEN')
+		if(token) {
+			this.props.onCookieSet(token);
+		}
         this.state = {
             modal_open: !token
         }

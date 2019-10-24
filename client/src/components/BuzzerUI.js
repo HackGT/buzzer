@@ -52,7 +52,6 @@ class BuzzerUI extends Component {
                 <div className="column">
                     <Button content="Submit" onClick={(e, {value}) => this.onSendNotification()}/>
                 </div>
-
             </div>
             <div className="row">
                 <div className="column">
