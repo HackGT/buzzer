@@ -27,6 +27,6 @@ export default [
     {
         key: "5",
         text: "MapGT",
-        value: "map_g_t"
+        value: "mapgt"
     }
 ]

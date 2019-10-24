@@ -19,7 +19,7 @@ export default {
         header: {type:"string"},
         id: {type:"string"}
     },
-    map_g_t: {
+    mapgt: {
         area: {
             type: "dropdown",
             cms: "areas",
