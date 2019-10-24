@@ -215,7 +215,7 @@ function scheduleCMS() {
 			if (difference < 0 || difference >= 16) return;
 			if((id in events)) return;
 			events[id] = true;
-			console.log("sending...")
+			console.log("sending...");
 			const topic = tagList.includes("core") ? "all" : id;
 			resolvers.Query.send_message(null, {
 				plugins: {
