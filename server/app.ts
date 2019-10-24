@@ -64,11 +64,9 @@ app.use((req: any, res: any, next: any) => {
 const server = new http.Server(app);
 const io = require('socket.io')(SOCKET_OPTIONS).listen(server); // tslint:disable-line
 io.origins((origin: any, callback: any) => {
-	if (origin === MAPGT_URL) {
-		console.log(origin);
-		return callback(null, true);
-	}
-	callback("illegal", false);
+	console.log(origin,MAPGT_URL);
+	console.log((origin === MAPGT_URL));
+	return callback(null, true);
 });
 dotenv.config();
 const db: any = {};
