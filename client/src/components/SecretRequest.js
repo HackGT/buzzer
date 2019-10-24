@@ -3,11 +3,11 @@ import { Button, Input, Header, Modal } from 'semantic-ui-react'
 import './css/index.css';
 import cookie from 'react-cookies'
 class SecretRequest extends Component {
-	constructor() {
-		super()
+	constructor(props) {
+		super(props)
         var token = cookie.load('BUZZER_TOKEN')
 		if(token) {
-			this.props.onCookieSet(token);
+			props.onCookieSet(token);
 		}
         this.state = {
             modal_open: !token
