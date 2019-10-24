@@ -212,6 +212,7 @@ function scheduleCMS() {
 			const now = moment();
 			const difference = startTime.diff(now, "minutes");
 			const title = e.title;
+			console.log(difference);
 			if (difference < 0 || difference >= 16) return;
 			if((id in events)) return;
 			events[id] = true;
