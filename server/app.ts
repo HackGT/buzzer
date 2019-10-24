@@ -11,7 +11,7 @@ const SOCKET_OPTIONS = {
 	handlePreflightRequest: (req: any, res: any) => {
 		const headers = {
 			"Access-Control-Allow-Headers": "Content-Type, Authorization",
-			"Access-Control-Allow-Origin": req.headers.origin,
+			"Access-Control-Allow-Origin": "*",
 			"Access-Control-Allow-Credentials": true
 		};
 		res.writeHead(200, headers);
@@ -50,8 +50,9 @@ import typeDefs, {
 import {
 	isAdmin
 } from './middleware';
-
+import cors from "cors";
 const app = express();
+app.use(cors());
 const server = new http.Server(app);
 const io = require('socket.io')(SOCKET_OPTIONS).listen(server); // tslint:disable-line
 io.origins((origin: any, callback: any) => {
