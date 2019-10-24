@@ -10,7 +10,7 @@ const MAPGT_URL = process.env.MAPGT_URL;
 const SOCKET_OPTIONS = {
 	allowUpgrades: true,
 	transports: ['polling', 'websocket'],
-	origins: process.env.MAPGT_URL
+	origins: "https://map.hack.gt/"
 };
 import {
 	graphqlExpress,
@@ -46,6 +46,7 @@ const app = express();
 const server = new http.Server(app);
 const io = require('socket.io')(SOCKET_OPTIONS).listen(server); // tslint:disable-line
 io.origins((origin: any, callback: any) => {
+	console.log(origin);
 	if (origin === MAPGT_URL) {
 		return callback(null, true);
 	}
@@ -215,7 +216,6 @@ function scheduleCMS() {
 			const now = moment.utc().tz("America/New_York");
 			const difference = startTime.diff(now, "minutes") + 240;
 			const title = e.title;
-			console.log(difference);
 			if (difference < 0 || difference >= 16) return;
 			if((id in events)) return;
 			events[id] = true;
@@ -258,7 +258,6 @@ function scheduleCMS() {
 
 async function scheduleWorkshops() {
 	schedule.scheduleJob("*/1 * * * *", () => {
-		console.log("check");
 		scheduleCMS();
 	});
 }
