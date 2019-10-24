@@ -203,13 +203,13 @@ function scheduleCMS() {
 		const info = result.data.eventbases;
 		info.forEach((e: any) => {
 
-			const startTime = UNSAFE_toUTC(e.start_time).local();
-			const startTimeFormatted = startTime.format("hh:mm");
+			const startTime = moment(UNSAFE_toUTC(e.start_time)).tz("America/New_York");
+			const startTimeFormatted = startTime.local().format("hh:mm");
 			const notification = e.notification;
 			const area = e.area.name;
 			const id = e.id;
 			const tagList = e.tags.map((t: any) => t.slug);
-			const now = moment(Date.now()).utcOffset('-0500');
+			const now = moment.utc();
 			const difference = startTime.diff(now, "minutes");
 			const title = e.title;
 			console.log(difference);
