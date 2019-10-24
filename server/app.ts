@@ -10,7 +10,7 @@ const MAPGT_URL = process.env.MAPGT_URL;
 const SOCKET_OPTIONS = {
 	allowUpgrades: true,
 	transports: ['polling', 'websocket'],
-	origins: "https://map.hack.gt/"
+	origins: "*:*"
 };
 import {
 	graphqlExpress,
