@@ -65,8 +65,8 @@ Object.keys(mediaAPI).forEach(key => {
 });
 
 // Hack for mapgt
-const fileMapgt = `./server/datastore/map_g_t_log.db`;
-db.Mapgt = new Datastore({
+const fileMapgt = `./server/datastore/mapgt_log.db`;
+db.mapgt = new Datastore({
 	filename: fileMapgt,
 	autoload: true,
 	timestampData: true
@@ -288,7 +288,7 @@ async function runSetup() {
 	await scheduleWorkshops();
 	// Code for getting schedule
 	// tslint:disable-next-line
-	plugins["Mapgt"] = await MapGTPlugin.init(io);
+	plugins["mapgt"] = await MapGTPlugin.init(io);
 }
 
 runSetup().then(() => {

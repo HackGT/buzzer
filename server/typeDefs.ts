@@ -4,17 +4,17 @@ import { mediaAPI } from './plugins';
 import MapGTPlugin from "./plugins/MapGT";
 import { lowerSnake } from './common';
 
-export const SOCKETIO_KEY = "MapGT";
+export const SOCKETIO_KEY = "mapgt";
 const mainTypeDefs = fs.readFileSync(path.resolve(__dirname, "../api.graphql"), "utf8");
 
 const baseNames = Object.keys(mediaAPI);
 
-baseNames.push(SOCKETIO_KEY);
 // Generate PluginMaster body (See base api.graphql)
 const configStrArr = baseNames.map(name => {
 	const lowerSnaked = lowerSnake(name);
 	return `${lowerSnaked}: ${name}Config`;
 });
+configStrArr.push(`mapgt: mapgtConfig`);
 const pluginMasterBody = configStrArr.join("\n\t");
 const pluginMasterStr = `input PluginMaster {\n\t${pluginMasterBody}\n}`;
 
@@ -32,7 +32,7 @@ const processedPluginTypeDefs = Object.keys(mediaAPI).map(plugin => {
 });
 
 const mapgtSchema = MapGTPlugin.schema();
-const mapgtTypeDef = `input MapGTConfig ${mapgtSchema}\n\ntype MapGTConfigType ${mapgtSchema}`;
+const mapgtTypeDef = `input mapgtConfig ${mapgtSchema}\n\ntype mapgtConfigType ${mapgtSchema}`;
 processedPluginTypeDefs.push(mapgtTypeDef); // Note we don't update pluginTypeDefs here
 
 let processedConfigKeys = "";
