@@ -45,6 +45,7 @@ class FCM implements Notifier<Config> {
 	}
 
 	public async sendMessage(message: string, config: Config): Promise<PluginReturn[]> {
+
 		const response = await fetch("https://fcm.googleapis.com/fcm/send", {
 			method: "POST",
 			body: JSON.stringify({
@@ -52,7 +53,7 @@ class FCM implements Notifier<Config> {
 					body: message,
 					title: config.header
 				},
-				to: `/topics/${(!!config.id || config.id.length < 5 ? config.id : "all")}`
+				to: `/topics/${((!!config.id) && config.id.length >= 5 ? config.id : "all")}`
 			}),
 			headers: {
 				"Content-Type": "application/json",
