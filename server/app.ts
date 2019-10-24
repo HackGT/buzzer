@@ -53,6 +53,8 @@ io.origins((origin: any, callback: any) => {
 });
 dotenv.config();
 const db: any = {};
+const events: any = {};
+
 Object.keys(mediaAPI).forEach(key => {
 	const file = `./server/datastore/${key.toLowerCase()}_log.db`;
 	db[key] = new Datastore({
@@ -64,7 +66,7 @@ Object.keys(mediaAPI).forEach(key => {
 
 // Hack for mapgt
 const fileMapgt = `./server/datastore/map_g_t_log.db`;
-db.MapGT = new Datastore({
+db.Mapgt = new Datastore({
 	filename: fileMapgt,
 	autoload: true,
 	timestampData: true
@@ -94,15 +96,20 @@ let plugins: {
 	[name: string]: Notifier < any > ;
 } = {};
 
-const workshopMessage = `query {
-talks(start: 0) {
-base {
-    start_time
-    end_time
-    notification
-}
-}
-
+const eventQuery = `query {
+	eventbases(start: 0) {
+		id
+		title
+		start_time
+		notification
+		area {
+			name
+		}
+		tags {
+			slug
+		}
+		type
+	}
 }`;
 
 // tslint:disable-next-line
@@ -116,11 +123,6 @@ const UNSAFE_parseAsLocal = (t: string) => { // Parse iso-formatted string as lo
 
 // tslint:disable-next-line
 const UNSAFE_toUTC = (t: string) => UNSAFE_parseAsLocal(t).utc();
-
-function isoToCron(iso: string) {
-	let date = new Date(iso);
-	return `${date.getSeconds()} ${date.getMinutes()} ${date.getHours() + 4} ${date.getDate()} ${date.getMonth() + 1} *`;
-}
 
 const resolvers = {
 	Query: {
@@ -177,14 +179,12 @@ const resolvers = {
 					errors: result.errors
 				};
 				db[upperCamel(result.plugin)].insert(insertArg);
-				if (result.plugin === SOCKETIO_KEY) return result;
 				return result; // We catch in sending function
 			})); // Send all!
 		}
 	}
 };
-
-async function scheduleWorkshops() {
+function scheduleCMS() {
 	fetch('https://cms.hack.gt/graphql', {
 		method: 'POST',
 		headers: {
@@ -192,53 +192,69 @@ async function scheduleWorkshops() {
 			'Accept': `application/json`
 		},
 		body: JSON.stringify({
-			query: workshopMessage,
+			query: eventQuery,
 			variables: {
 				"start": 0
 			}
 		})
-	}).then(r => {
+	}).then((r: any) => {
 		return r.json();
-	}).then(data => {
-		// TODO check all eventbases not just workshops
-		// TODO change this to a check instead of scheduling cron
-		for (let i = 0; i < data.data.talks.length; i++) {
-			if (data.data.talks[i].base != null) {
-				const rawTime = data.data.talks[i].base.start_time;
-				const hackedTime = UNSAFE_toUTC(rawTime);
-				const now = moment();
-				const difference = now.diff(hackedTime, "minutes");
-				if (difference < 0 || difference >= 16) return;
-				let cronString = isoToCron(data.data.talks[i].base.start_time);
-				schedule.scheduleJob(cronString, () => {
-					// Link: https://stackoverflow.com/questions/37711082/how-to-handle-notification-when-app-in-background-in-firebase
-					// TODO send FCM data payloads, not notifications
-					resolvers.Query.send_message(null, {
-						plugins: {
-							slack: {
-								channels: ["announcements"],
-								at_here: true,
-								at_channel: true
-							},
-							socketio: {
-								// TODO!
-							},
-							live_site: {
-								// TODO!
-							}
-						},
-						message: data.data.talks[i].base.notification
-					}).then(result => {
-						console.log(result);
-					}).catch(err => {
-						console.log(err);
-					});
-				});
-			}
-			console.log("scheduling made");
-		}
-	}).catch(err => {
+	}).then((result: any) => {
+		const info = result.data.eventbases;
+		info.forEach((e: any) => {
+
+			const startTime = UNSAFE_toUTC(e.start_time).local();
+			const startTimeFormatted = startTime.format("hh:mm");
+			const notification = e.notification;
+			const area = e.area.name;
+			const id = e.id;
+			const tagList = e.tags.map((t: any) => t.slug);
+			const now = moment();
+			const difference = startTime.diff(now, "minutes");
+			const title = e.title;
+			if (difference < 0 || difference >= 16) return;
+			if((id in events)) return;
+			events[id] = true;
+
+			const topic = tagList.includes("core") ? "all" : id;
+			resolvers.Query.send_message(null, {
+				plugins: {
+					slack: {
+						channels: ["announcements"],
+						at_channel: false,
+						at_here: false
+					},
+					mapgt: {
+						title,
+						area,
+						time: startTime.format()
+					},
+					live_site: {
+						title
+					},
+					f_c_m: {
+						header: title,
+						id: topic
+					}
+				},
+				message: notification ? notification : `${title} starts at ${startTimeFormatted} in ${area}!`
+			}).then((msgOut: any) => {
+				return msgOut;
+			}).catch((err: any) => {
+				console.log(err);
+			});
+		});
+	}).then((output: any) => {
+		return output;
+	}).catch((err: any) => {
 		console.log(err);
+	});
+
+}
+
+async function scheduleWorkshops() {
+	schedule.scheduleJob("*/1 * * * *", () => {
+		scheduleCMS();
 	});
 }
 
@@ -270,7 +286,7 @@ async function runSetup() {
 	await scheduleWorkshops();
 	// Code for getting schedule
 	// tslint:disable-next-line
-	plugins[SOCKETIO_KEY] = await MapGTPlugin.init(io);
+	plugins["Mapgt"] = await MapGTPlugin.init(io);
 }
 
 runSetup().then(() => {
