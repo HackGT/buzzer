@@ -228,6 +228,7 @@ function scheduleCMS() {
 			const startTimeFormatted = startTime.local().format("hh:mm");
 			const notification = e.notification;
 			const area = e.area.mapgt_slug;
+			const area_name = e.area.name;
 			const id = e.id;
 			const tagList = e.tags.map((t: any) => t.slug);
 			const now = moment.utc().tz("America/New_York");
@@ -258,7 +259,7 @@ function scheduleCMS() {
 						id: topic
 					}
 				},
-				message: notification ? notification : `${title} starts at ${startTimeFormatted} in ${area}!`
+				message: notification ? notification : `${title} starts at ${startTimeFormatted} in ${area_name}!`
 			}).then((msgOut: any) => {
 				return msgOut;
 			}).catch((err: any) => {
