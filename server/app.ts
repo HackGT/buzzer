@@ -121,6 +121,7 @@ const eventQuery = `query {
 		notification
 		area {
 			name
+			mapgt_slug
 		}
 		tags {
 			slug
@@ -226,7 +227,7 @@ function scheduleCMS() {
 			const startTime = moment(UNSAFE_toUTC(e.start_time)).tz("America/New_York");
 			const startTimeFormatted = startTime.local().format("hh:mm");
 			const notification = e.notification;
-			const area = e.area.name;
+			const area = e.area.mapgt_slug;
 			const id = e.id;
 			const tagList = e.tags.map((t: any) => t.slug);
 			const now = moment.utc().tz("America/New_York");
@@ -247,7 +248,7 @@ function scheduleCMS() {
 					mapgt: {
 						title,
 						area,
-						time: startTime.format()
+						time: moment(UNSAFE_toUTC(e.start_time)).format()
 					},
 					live_site: {
 						title
