@@ -242,7 +242,7 @@ function scheduleCMS() {
 			resolvers.Query.send_message(null, {
 				plugins: {
 					slack: {
-						channels: ["general"],
+						channels: ["bot-test"],
 						at_channel: false,
 						at_here: false
 					},
