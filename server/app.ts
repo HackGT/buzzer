@@ -206,7 +206,7 @@ const resolvers = {
 	}
 };
 function scheduleCMS() {
-	fetch('https://cms.hack.gt/graphql', {
+	fetch('https://cms.horizons.hack.gt/graphql', {
 		method: 'POST',
 		headers: {
 			'Content-Type': `application/json`,
@@ -242,7 +242,7 @@ function scheduleCMS() {
 			resolvers.Query.send_message(null, {
 				plugins: {
 					slack: {
-						channels: ["announcements"],
+						channels: ["general"],
 						at_channel: false,
 						at_here: false
 					},
