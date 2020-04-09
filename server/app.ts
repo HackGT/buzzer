@@ -223,17 +223,17 @@ function scheduleCMS() {
 	}).then((result: any) => {
 		const info = result.data.eventbases;
 		info.forEach((e: any) => {
-
 			const startTime = moment(UNSAFE_toUTC(e.start_time)).tz("America/New_York");
 			const startTimeFormatted = startTime.local().format("hh:mm");
 			const notification = e.notification;
-			const area = e.area.mapgt_slug;
-			const areaName = e.area.name;
+			const title = e.title;
+			const area = e.area ? e.area.mapgt_slug : "";
+			const areaName = e.area ? e.area.name : "";
+			let msg = e.area ? `${title} starts at ${startTimeFormatted} in ${areaName}!` : `${title} starts at ${startTimeFormatted}!`;
 			const id = e.id;
 			const tagList = e.tags.map((t: any) => t.slug);
 			const now = moment.utc().tz("America/New_York");
 			const difference = startTime.diff(now, "minutes") + 300;
-			const title = e.title;
 			if (difference < 0 || difference >= 16) return;
 			if((id in events)) return;
 			events[id] = true;
@@ -259,7 +259,7 @@ function scheduleCMS() {
 						id: topic
 					}
 				},
-				message: notification ? notification : `${title} starts at ${startTimeFormatted} in ${areaName}!`
+				message: notification ? notification : msg
 			}).then((msgOut: any) => {
 				return msgOut;
 			}).catch((err: any) => {
