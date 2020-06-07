@@ -31,7 +31,7 @@ describe("Middleware", () => {
 		});
 
 		it("Accepts requests with the right key.", done => {
-			const key = Buffer.from(ADMIN_KEY).toString("base64");
+			const key = ADMIN_KEY;
 
 			request(app)
 				.get("/admin")
