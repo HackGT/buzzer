@@ -64,7 +64,7 @@ app.use((req: any, res: any, next: any) => {
 const server = new http.Server(app);
 const io = require('socket.io')(SOCKET_OPTIONS).listen(server); // tslint:disable-line
 io.origins((origin: any, callback: any) => {
-	console.log(origin,MAPGT_URL);
+	console.log(origin, MAPGT_URL);
 	console.log((origin === MAPGT_URL));
 	return callback(null, true);
 });
@@ -110,7 +110,7 @@ interface IMessageReturn {
 }
 
 let plugins: {
-	[name: string]: Notifier < any > ;
+	[name: string]: Notifier<any>;
 } = {};
 
 const eventQuery = `query {
@@ -144,24 +144,24 @@ const UNSAFE_toUTC = (t: string) => UNSAFE_parseAsLocal(t).utc();
 
 const resolvers = {
 	Query: {
-		get_messages: async (prev: any, args: any): Promise < IMessageReturn[] > => {
+		get_messages: async (prev: any, args: any): Promise<IMessageReturn[]> => {
 			let plugin = args.plugin;
 			if (plugin === SOCKETIO_KEY) {
 				return []; // TODO
 			}
-			let returnDocs = await new Promise < IMessageReturn[] > (resolve => {
+			let returnDocs = await new Promise<IMessageReturn[]>(resolve => {
 				db[upperCamel(plugin)].find({}, (err: any, docs: any) => {
 					resolve(docs);
 				});
 			});
 			return returnDocs;
 		},
-		send_message: async (prev: any, args: any): Promise < IPluginReturn[] > => {
+		send_message: async (prev: any, args: any): Promise<IPluginReturn[]> => {
 			const message = args.message;
 			const checkQueue = Object.keys(args.plugins).map(rawName => {
 				return (async () => { // Loading checkQueue IIFE
 					// Upper Cameled
-					const name = (rawName==="mapgt") ? rawName : upperCamel(rawName);
+					const name = (rawName === "mapgt") ? rawName : upperCamel(rawName);
 					const plugin = plugins[name];
 
 					const verifiedConfig = await plugin.check(args.plugins[rawName]); // Verify
@@ -235,7 +235,7 @@ function scheduleCMS() {
 			const difference = startTime.diff(now, "minutes") + 240;
 			const title = e.title;
 			if (difference < 0 || difference >= 16) return;
-			if((id in events)) return;
+			if ((id in events)) return;
 			events[id] = true;
 			console.log("sending...");
 			const topic = tagList.includes("core") ? "all" : id;

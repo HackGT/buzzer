@@ -5,6 +5,7 @@ interface Config {
 	channels: string[];
 	at_channel: boolean;
 	at_here: boolean;
+	user_token: string;
 }
 
 export class Slack implements Notifier<Config> {
@@ -32,7 +33,8 @@ export class Slack implements Notifier<Config> {
 		this.url = url;
 	}
 
-	private async sendOneMessage(message: string, channel?: string): Promise<PluginReturn> {
+	private async sendOneMessage(message: string, channel?: string, userToken?: string): Promise<PluginReturn> {
+		console.log('sending message');
 		const body = await fetch(this.url, {
 			method: "POST",
 			body: JSON.stringify({
@@ -41,8 +43,8 @@ export class Slack implements Notifier<Config> {
 			}),
 			headers: {
 				"Content-Type": "application/json; charset=utf-8",
-				"Authorization": "Bearer " + this.token || "",
-				"x-slack-retry-num":"0"
+				"Authorization": "Bearer " + (userToken ? userToken : (this.token || "")),
+				"x-slack-retry-num": "0"
 			}
 		}).then(res => res.text());
 
@@ -57,12 +59,12 @@ export class Slack implements Notifier<Config> {
 		// Slack webhooks have a default channel, add a sentinel
 		if (config.channels.length === 0) {
 			return [
-				await this.sendOneMessage(Slack.processMessage(config, message))
+				await this.sendOneMessage(Slack.processMessage(config, message), undefined, config.user_token)
 			];
 		}
 
-		return await Promise.all(config.channels.map(chan => {
-			return this.sendOneMessage(Slack.processMessage(config, message), chan);
+		return await Promise.all(config.channels.map(channel => {
+			return this.sendOneMessage(Slack.processMessage(config, message), channel, config.user_token);
 		}));
 	}
 
@@ -120,7 +122,8 @@ export class Slack implements Notifier<Config> {
 		return {
 			channels: object.channels,
 			at_channel: !!object.at_channel,
-			at_here: !!object.at_here
+			at_here: !!object.at_here,
+			user_token: object.user_token
 		};
 	}
 
@@ -140,6 +143,7 @@ const SlackPlugin: Plugin<Config> = {
 		channels: [String!]!
 		at_channel: Boolean!
 		at_here: Boolean!
+		user_token: String
 	}`,
 	init: async () => new Slack()
 };

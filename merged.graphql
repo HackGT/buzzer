@@ -58,12 +58,14 @@ input SlackConfig {
 		channels: [String!]!
 		at_channel: Boolean!
 		at_here: Boolean!
+		user_token: String
 	}
 
 type SlackConfigType {
 		channels: [String!]!
 		at_channel: Boolean!
 		at_here: Boolean!
+		user_token: String
 	}
 
 input TwilioConfig {
@@ -113,6 +115,7 @@ type MetaDataType {
 		channels: [String!]!
 		at_channel: Boolean!
 		at_here: Boolean!
+		user_token: String
 	
 		numbers: [String!]
         groups: [String!]

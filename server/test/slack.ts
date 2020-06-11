@@ -11,7 +11,8 @@ describe("Slack Plugin", () => {
 			const msg = Slack.processMessage({
 				channels: [],
 				at_here: true,
-				at_channel: false
+				at_channel: false,
+				user_token: ''
 			}, "hello");
 			expect(msg).to.include("<!here>");
 			expect(msg).and.to.not.include("<!channel>");
@@ -21,7 +22,8 @@ describe("Slack Plugin", () => {
 			const msg = Slack.processMessage({
 				channels: [],
 				at_here: false,
-				at_channel: true
+				at_channel: true,
+				user_token: ''
 			}, "hello");
 			expect(msg).to.not.include("<!here>");
 			expect(msg).and.to.include("<!channel>");
@@ -31,7 +33,8 @@ describe("Slack Plugin", () => {
 			const msg = Slack.processMessage({
 				channels: [],
 				at_here: true,
-				at_channel: true
+				at_channel: true,
+				user_token: ''
 			}, "hello");
 			expect(msg).to.include("<!here>");
 			expect(msg).and.to.include("<!channel>");
@@ -41,7 +44,8 @@ describe("Slack Plugin", () => {
 			const msg = Slack.processMessage({
 				channels: [],
 				at_here: false,
-				at_channel: false
+				at_channel: false,
+				user_token: ''
 			}, "hello");
 			expect(msg).to.not.include("<!here>");
 			expect(msg).and.to.not.include("<!channel>");
@@ -66,7 +70,8 @@ describe("Slack Plugin", () => {
 			})).to.deep.equal({
 				channels: ["hello", "true"],
 				at_channel: false,
-				at_here: false
+				at_here: false,
+				user_token: undefined
 			});
 		});
 
@@ -76,7 +81,8 @@ describe("Slack Plugin", () => {
 			})).to.deep.equal({
 				channels: [""],
 				at_channel: false,
-				at_here: false
+				at_here: false,
+				user_token: undefined
 			});
 
 			expect(Slack.instanceOfConfig({
@@ -85,7 +91,8 @@ describe("Slack Plugin", () => {
 			})).to.deep.equal({
 				channels: [""],
 				at_channel: true,
-				at_here: false
+				at_here: false,
+				user_token: undefined
 			});
 
 			expect(Slack.instanceOfConfig({
@@ -94,7 +101,8 @@ describe("Slack Plugin", () => {
 			})).to.deep.equal({
 				channels: [""],
 				at_channel: false,
-				at_here: true
+				at_here: true,
+				user_token: undefined
 			});
 
 			expect(Slack.instanceOfConfig({
@@ -104,7 +112,8 @@ describe("Slack Plugin", () => {
 			})).to.deep.equal({
 				channels: [""],
 				at_channel: true,
-				at_here: true
+				at_here: true,
+				user_token: undefined
 			});
 		});
 	});
