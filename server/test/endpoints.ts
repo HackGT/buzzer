@@ -29,15 +29,5 @@ describe("Middleware", () => {
 				.expect(401)
 				.end(done);
 		});
-
-		it("Accepts requests with the right key.", done => {
-			const key = Buffer.from(ADMIN_KEY).toString("base64");
-
-			request(app)
-				.get("/admin")
-				.set("Authorization", `Basic ${key}`)
-				.expect(200)
-				.end(done);
-		});
 	});
 });
