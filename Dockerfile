@@ -1,5 +1,5 @@
 FROM node:10-alpine
-
+ENV TZ="America/New_York"
 # Templating from registration repo
 RUN apk update && apk add bash git
 

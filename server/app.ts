@@ -113,20 +113,21 @@ let plugins: {
 	[name: string]: Notifier<any>;
 } = {};
 
-const eventQuery = `query {
-	eventbases(start: 0) {
+const eventQuery = `{
+	allEvents(where: {
+		hackathon: {
+			name: "HackGT 7"
+		}
+	}) {
 		id
-		title
-		start_time
-		notification
-		area {
+		name
+		startDate
+		type {
 			name
-			mapgt_slug
 		}
 		tags {
-			slug
+			name
 		}
-		type
 	}
 }`;
 
@@ -206,57 +207,48 @@ const resolvers = {
 	}
 };
 function scheduleCMS() {
-	fetch('https://cms.horizons.hack.gt/graphql', {
+	fetch('https://keystone.dev.hack.gt/admin/api', {
 		method: 'POST',
 		headers: {
 			'Content-Type': `application/json`,
 			'Accept': `application/json`
 		},
 		body: JSON.stringify({
-			query: eventQuery,
-			variables: {
-				"start": 0
-			}
+			query: eventQuery
 		})
-	}).then((r: any) => {
-		return r.json();
+	}).then(async (r: any) => {
+		const resp = await r.json();
+		console.log(resp);
+		return resp;
 	}).then((result: any) => {
-		const info = result.data.eventbases;
+		const info = result.data.allEvents;
 		info.forEach((e: any) => {
-			const startTime = moment(UNSAFE_toUTC(e.start_time)).tz("America/New_York");
-			const startTimeFormatted = startTime.local().format("hh:mm");
+			const startTime = moment(UNSAFE_toUTC(e.startDate)).tz("America/New_York");
+			const startTimeFormatted = startTime.local().format("hh:mm A");
 			const notification = e.notification;
-			const title = e.title;
-			const area = e.area ? e.area.mapgt_slug : "";
-			const areaName = e.area ? e.area.name : "";
-			let msg = e.area ? `${title} starts at ${startTimeFormatted} in ${areaName}!` : `${title} starts at ${startTimeFormatted}!`;
+			const title = e.name;
+			const url = e.url;
 			const id = e.id;
 			const tagList = e.tags.map((t: any) => t.slug);
 			const now = moment.utc().tz("America/New_York");
-			const difference = startTime.diff(now, "minutes") + 300;
+			const difference = startTime.diff(now, "minutes");
+			// Check if event is 15min. away
 			if (difference < 0 || difference >= 16) return;
+
+			// Ensure notifications dont get sent out multiple times
 			if ((id in events)) return;
 			events[id] = true;
+
+			const msg = url ? `${title} starts at ${startTimeFormatted} EDT. Click here to join: ${url}!` : `${title} starts at ${startTimeFormatted}!`;
 			console.log("sending...");
 			const topic = tagList.includes("core") ? "all" : id;
+			console.log(topic);
 			resolvers.Query.send_message(null, {
 				plugins: {
 					slack: {
-						channels: ["general"],
+						channels: ["bot-spam"],
 						at_channel: false,
 						at_here: false
-					},
-					mapgt: {
-						title,
-						area,
-						time: moment(UNSAFE_toUTC(e.start_time)).format()
-					},
-					live_site: {
-						title
-					},
-					f_c_m: {
-						header: title,
-						id: topic
 					}
 				},
 				message: notification ? notification : msg
@@ -275,6 +267,7 @@ function scheduleCMS() {
 }
 
 async function scheduleWorkshops() {
+	scheduleCMS();
 	schedule.scheduleJob("*/1 * * * *", () => {
 		scheduleCMS();
 	});
