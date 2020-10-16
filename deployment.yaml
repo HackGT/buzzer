@@ -20,11 +20,12 @@ secrets:
     - TWILIO_SERVICE_SID
     - REGISTRATION_KEY
     - REGISTRATION_GRAPHQL
-    
+
     - SLACK_API_URL
     - SLACK_OAUTH_TOKEN
 
 env:
     ONESIGNAL_DEFAULT_TITLE: HackGT Alert!
+    CMS_URL: https://cms.hack.gt/admin/api
 
 target_port: 8000

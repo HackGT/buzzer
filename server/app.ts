@@ -128,6 +128,7 @@ const eventQuery = `{
 		tags {
 			name
 		}
+		url
 	}
 }`;
 
@@ -207,7 +208,8 @@ const resolvers = {
 	}
 };
 function scheduleCMS() {
-	fetch('https://keystone.dev.hack.gt/admin/api', {
+	const cmsUrl = (process.env.CMS_URL && !process.env.DEV_MODE) ? process.env.CMS_URL : "https://keystone.dev.hack.gt/admin/api";
+	fetch(cmsUrl, {
 		method: 'POST',
 		headers: {
 			'Content-Type': `application/json`,
@@ -218,7 +220,6 @@ function scheduleCMS() {
 		})
 	}).then(async (r: any) => {
 		const resp = await r.json();
-		console.log(resp);
 		return resp;
 	}).then((result: any) => {
 		const info = result.data.allEvents;
@@ -229,28 +230,39 @@ function scheduleCMS() {
 			const title = e.name;
 			const url = e.url;
 			const id = e.id;
-			const tagList = e.tags.map((t: any) => t.slug);
+			const type = e.type ? e.type.name : "";
 			const now = moment.utc().tz("America/New_York");
 			const difference = startTime.diff(now, "minutes");
 			// Check if event is 15min. away
 			if (difference < 0 || difference >= 16) return;
-
 			// Ensure notifications dont get sent out multiple times
 			if ((id in events)) return;
 			events[id] = true;
 
 			const msg = url ? `${title} starts at ${startTimeFormatted} EDT. Click here to join: ${url}!` : `${title} starts at ${startTimeFormatted}!`;
-			console.log("sending...");
-			const topic = tagList.includes("core") ? "all" : id;
-			console.log(topic);
-			resolvers.Query.send_message(null, {
-				plugins: {
-					slack: {
-						channels: ["bot-spam"],
-						at_channel: false,
-						at_here: false
-					}
+			console.log("sending...", startTimeFormatted);
+			const topic = (type === "important") ? "all" : id;
+			const slackChannel = process.env.DEV_MODE ? "bot-spam" : "general";
+
+			let pluginJson: any = {
+				live_site: {
+					title
 				},
+				f_c_m: {
+					header: title,
+					id: topic
+				}
+			};
+
+			if(type === "important") {
+				pluginJson.slack = {
+					channels: [slackChannel],
+					at_channel: false,
+					at_here: false
+				};
+			}
+			resolvers.Query.send_message(null, {
+				plugins: pluginJson,
 				message: notification ? notification : msg
 			}).then((msgOut: any) => {
 				return msgOut;
