@@ -132,6 +132,8 @@ const eventQuery = `{
 	}
 }`;
 
+const DEVELOPMENT = process.env.DEV_MODE === 'True';
+
 // tslint:disable-next-line
 const UNSAFE_parseAsLocal = (t: string) => { // Parse iso-formatted string as local time
 	let localString = t;
@@ -208,7 +210,7 @@ const resolvers = {
 	}
 };
 function scheduleCMS() {
-	const cmsUrl = (process.env.CMS_URL && !process.env.DEV_MODE) ? process.env.CMS_URL : "https://keystone.dev.hack.gt/admin/api";
+	const cmsUrl = (process.env.CMS_URL && !DEVELOPMENT) ? process.env.CMS_URL : "https://keystone.dev.hack.gt/admin/api";
 	fetch(cmsUrl, {
 		method: 'POST',
 		headers: {
@@ -242,7 +244,7 @@ function scheduleCMS() {
 			const msg = url ? `${title} starts at ${startTimeFormatted} EDT. Click here to join: ${url}!` : `${title} starts at ${startTimeFormatted}!`;
 			console.log("sending...", startTimeFormatted);
 			const topic = (type === "important") ? "all" : id;
-			const slackChannel = process.env.DEV_MODE ? "bot-spam" : "general";
+			const slackChannel = DEVELOPMENT ? "bot-spam" : "general";
 
 			let pluginJson: any = {
 				live_site: {
