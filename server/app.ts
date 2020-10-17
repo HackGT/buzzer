@@ -241,7 +241,7 @@ function scheduleCMS() {
 			if ((id in events)) return;
 			events[id] = true;
 
-			const msg = url ? `${title} starts at ${startTimeFormatted} EDT. Click here to join: ${url}!` : `${title} starts at ${startTimeFormatted}!`;
+			const msg = url ? `${title} starts at ${startTimeFormatted} EDT. Click here to join: https://calls.hack.gt/event/${id}!` : `${title} starts at ${startTimeFormatted}!`;
 			console.log("sending...", startTimeFormatted);
 			const topic = (type === "important") ? "all" : id;
 			const slackChannel = DEVELOPMENT ? "bot-spam" : "general";
@@ -257,7 +257,7 @@ function scheduleCMS() {
 				slack: {
 					channels: [slackChannel],
 					at_channel: false,
-					at_here: true
+					at_here: false
 				}
 			};
 
