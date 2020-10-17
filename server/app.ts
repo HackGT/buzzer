@@ -253,16 +253,14 @@ function scheduleCMS() {
 				f_c_m: {
 					header: title,
 					id: topic
+				},
+				slack: {
+					channels: [slackChannel],
+					at_channel: false,
+					at_here: true
 				}
 			};
 
-			if(type === "important") {
-				pluginJson.slack = {
-					channels: [slackChannel],
-					at_channel: false,
-					at_here: false
-				};
-			}
 			resolvers.Query.send_message(null, {
 				plugins: pluginJson,
 				message: notification ? notification : msg
