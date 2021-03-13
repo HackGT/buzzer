@@ -134,18 +134,6 @@ const eventQuery = `{
 
 const DEVELOPMENT = process.env.DEV_MODE === 'True';
 
-// tslint:disable-next-line
-const UNSAFE_parseAsLocal = (t: string) => { // Parse iso-formatted string as local time
-	let localString = t;
-	if (t.slice(-1).toLowerCase() === "z") {
-		localString = t.slice(0, -1);
-	}
-	return moment(localString);
-};
-
-// tslint:disable-next-line
-const UNSAFE_toUTC = (t: string) => UNSAFE_parseAsLocal(t).utc();
-
 const resolvers = {
 	Query: {
 		get_messages: async (prev: any, args: any): Promise<IMessageReturn[]> => {
