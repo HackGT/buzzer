@@ -1,14 +1,12 @@
 {
-  "name": "buzzer",
-  "version": "0.0.1",
-  "description": "TBD",
-  "main": "server/app.js",
+  "name": "buzzer-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.ts",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha",
-    "build": "bash ./build.sh",
-    "start": "node -r dotenv/config dist/app.js",
-    "build-start": "npm run build && npm start",
-    "bs": "npm run build-start"
+    "start": "ts-node src/app.ts",
+    "dev": "nodemon --watch 'src/**/*' -e ts,graphql --exec 'ts-node' src/app.ts",
+    "test": "./node_modules/mocha/bin/mocha"
   },
   "author": "Joel Ye",
   "repository": {

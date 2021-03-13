@@ -1,30 +1,28 @@
 git:
-    remote: https://github.com/HackGT/buzzer.git
-    branch: master
+  remote: https://github.com/HackGT/buzzer.git
+  branch: master
 
 secrets:
-    - ADMIN_KEY_SECRET
-    - FIREBASE_TOKEN
+  - ADMIN_KEY_SECRET
+  - FIREBASE_TOKEN
 
-    - TWITTER_CONSUMER_KEY
-    - TWITTER_CONSUMER_SECRET
-    - TWITTER_HACKGT_ACCESS_TOKEN
-    - TWITTER_HACKGT_ACCESS_TOKEN_SECRET
+  - TWITTER_CONSUMER_KEY
+  - TWITTER_CONSUMER_SECRET
+  - TWITTER_HACKGT_ACCESS_TOKEN
+  - TWITTER_HACKGT_ACCESS_TOKEN_SECRET
 
-    - ONESIGNAL_APP_ID
-    - ONESIGNAL_API_KEY
+  - ONESIGNAL_APP_ID
+  - ONESIGNAL_API_KEY
 
-    - TWILIO_SID
-    - TWILIO_TOKEN
-    - TWILIO_SERVICE_SID
-    - REGISTRATION_KEY
-    - REGISTRATION_GRAPHQL
+  - TWILIO_SID
+  - TWILIO_TOKEN
+  - TWILIO_SERVICE_SID
+  - REGISTRATION_KEY
+  - REGISTRATION_GRAPHQL
 
-    - SLACK_API_URL
-    - SLACK_OAUTH_TOKEN
+  - SLACK_API_URL
+  - SLACK_OAUTH_TOKEN
 
 env:
-    ONESIGNAL_DEFAULT_TITLE: HackGT Alert!
-    CMS_URL: https://cms.hack.gt/admin/api
-
-target_port: 8000
+  ONESIGNAL_DEFAULT_TITLE: HackGT Alert!
+  CMS_URL: https://cms.hack.gt/admin/api
