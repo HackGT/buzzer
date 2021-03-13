@@ -116,7 +116,7 @@ let plugins: {
 const eventQuery = `{
 	allEvents(where: {
 		hackathon: {
-			name: "HackGT 7"
+			name: "HealthTech 2021"
 		}
 	}) {
 		id
