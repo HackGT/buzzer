@@ -218,6 +218,7 @@ function scheduleCMS() {
 			const startTimeFormatted = startTime.local().format("hh:mm A");
 			const notification = e.notification;
 			const title = e.name;
+			console.log(title);
 			const url = e.url;
 			const id = e.id;
 			const type = e.type ? e.type.name : "";
