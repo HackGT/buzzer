@@ -218,13 +218,13 @@ function scheduleCMS() {
 			const startTimeFormatted = startTime.local().format("hh:mm A");
 			const notification = e.notification;
 			const title = e.name;
-			console.log(title);
 			const url = e.url;
 			const id = e.id;
 			const type = e.type ? e.type.name : "";
 			const now = moment.utc().tz("America/New_York");
 			const difference = startTime.diff(now, "minutes");
 			// Check if event is 15min. away
+			console.log(title + " " + difference);
 			if (difference < 0 || difference >= 16) return;
 			// Ensure notifications dont get sent out multiple times
 			if ((id in events)) return;
