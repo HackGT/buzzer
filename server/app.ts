@@ -241,7 +241,7 @@ function scheduleCMS() {
 			if ((id in events)) return;
 			events[id] = true;
 
-			const msg = url ? `${title} starts at ${startTimeFormatted} EDT. Click here to join: https://calls.hack.gt/${id}!` : `${title} starts at ${startTimeFormatted}!`;
+			const msg = url ? `${title} starts at ${startTimeFormatted} EDT. Click here to join: https://calls.healthtech.hack.gt/${id}!` : `${title} starts at ${startTimeFormatted}!`;
 			console.log("sending...", startTimeFormatted);
 			const topic = (type === "important") ? "all" : id;
 			const slackChannel = DEVELOPMENT ? "bot-spam" : "general";
