@@ -224,7 +224,7 @@ function scheduleCMS() {
 			const now = moment.utc().tz("America/New_York");
 			const difference = startTime.diff(now, "minutes");
 			// Check if event is 15min. away
-			console.log(title + " " + difference);
+			console.log(title, difference);
 			if (difference < 0 || difference >= 16) return;
 			// Ensure notifications dont get sent out multiple times
 			if ((id in events)) return;
