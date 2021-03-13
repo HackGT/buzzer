@@ -47,7 +47,7 @@ app.use((req: any, res: any, next: any) => {
 });
 const server = new http.Server(app);
 const io = require("socket.io")(SOCKET_OPTIONS).listen(server);
-// tslint:disable-line
+
 io.origins((origin: any, callback: any) => {
   console.log(origin, MAPGT_URL);
   console.log(origin === MAPGT_URL);
@@ -308,14 +308,13 @@ async function runSetup() {
   );
   await scheduleWorkshops();
   // Code for getting schedule
-  // tslint:disable-next-line
   plugins.mapgt = await MapGTPlugin.init(io);
 }
 
 runSetup()
   .then(() => {
     server.listen(config.port, () => {
-      console.log(`Buzzer system started on 0.0.0.0:${config.port}`);
+      console.log(`Buzzer system started on port ${config.port}`);
     });
   })
   .catch(error => {
