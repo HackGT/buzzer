@@ -6,11 +6,11 @@ import Twitter from "./Twitter";
 import FCM from "./FCM";
 
 export const mediaAPI: {
-	[key: string]: Plugin<any>;
+  [key: string]: Plugin<any>;
 } = {
-	"LiveSite": LiveSite,
-	"Slack": Slack,
-	"Twilio": Twilio,
-	"Twitter": Twitter,
-	"FCM": FCM
+  LiveSite: LiveSite,
+  Slack: Slack,
+  Twilio: Twilio,
+  Twitter: Twitter,
+  FCM: FCM,
 };

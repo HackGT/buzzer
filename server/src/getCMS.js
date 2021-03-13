@@ -1,6 +1,7 @@
-var fetch = require('node-fetch')
-var fs = require('fs')
-var queryMessage = `query {
+const fetch = require("node-fetch");
+const fs = require("fs");
+
+const queryMessage = `query {
     talks(start: 0) {
       base {
           start_time
@@ -47,7 +48,7 @@ var queryMessage = `query {
             }
         }
     }
-}`
+}`;
 // var workshopMessage = `query {
 //     workshops(start: 0) {
 //       id
@@ -87,24 +88,22 @@ var queryMessage = `query {
 // }`
 
 async function getCMSData() {
-	return fetch('https://cms.hack.gt/graphql', {
-			method: 'POST',
-			headers: {
-				'Content-Type': `application/json`,
-				'Accept' : `application/json`
-			},
-			body: JSON.stringify({
-				query: queryMessage,
-			})
-		}).then(r => {
-			return r.json();
-		}).catch(err => {
-            return false;
-		});
+  return fetch("https://cms.hack.gt/graphql", {
+    method: "POST",
+    headers: {
+      "Content-Type": `application/json`,
+      "Accept": `application/json`,
+    },
+    body: JSON.stringify({
+      query: queryMessage,
+    }),
+  })
+    .then(r => r.json())
+    .catch(err => false);
 }
 getCMSData().then(result => {
-    fs.writeFile('resources_all.json', JSON.stringify(result), (err) => {
-        if (err) throw err;
-        console.log('Resources saved!');
-    });
+  fs.writeFile("resources_all.json", JSON.stringify(result), err => {
+    if (err) throw err;
+    console.log("Resources saved!");
+  });
 });

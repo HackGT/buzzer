@@ -1,24 +1,21 @@
 {
   "name": "buzzer-server",
   "version": "1.0.0",
+  "private": true,
   "description": "",
   "main": "app.ts",
   "scripts": {
     "start": "ts-node src/app.ts",
     "dev": "nodemon --watch 'src/**/*' -e ts,graphql --exec 'ts-node' src/app.ts",
-    "test": "./node_modules/mocha/bin/mocha"
+    "test": "./node_modules/mocha/bin/mocha",
+    "lint": "eslint ./ --fix; prettier ./ --write"
   },
   "author": "Joel Ye",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/HackGT/buzzer.git"
-  },
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/HackGT/buzzer/issues"
+  "eslintConfig": {
+    "extends": "@hex-labs/eslint-config"
   },
-  "homepage": "https://github.com/HackGT/buzzer#readme",
-  "private": true,
+  "prettier": "@hex-labs/prettier-config",
   "dependencies": {
     "@types/cors": "^2.8.5",
     "@types/node-schedule": "^1.2.4",
@@ -34,13 +31,16 @@
     "nedb": "^1.8.0",
     "node-fetch": "^2.0.0",
     "node-schedule": "^1.3.2",
-    "prettier": "^1.18.2",
+    "prettier": "^2.2.1",
     "socket.io": "^2.3.0",
     "supertest": "^4.0.2",
     "twilio": "^3.19.2",
     "twit": "^2.2.9"
   },
   "devDependencies": {
+    "@hex-labs/eslint-config": "^1.1.0",
+    "@hex-labs/prettier-config": "^1.1.0",
+    "@hex-labs/tsconfig": "^1.1.0",
     "@types/body-parser": "^1.16.8",
     "@types/chai": "^4.1.2",
     "@types/compression": "0.0.35",
@@ -58,6 +58,7 @@
     "@types/zen-observable": "0.5.3",
     "chai": "^4.1.2",
     "dotenv": "^5.0.1",
+    "eslint": "^7.22.0",
     "graphql-tools": "^2.21.0",
     "mocha": "^5.0.1",
     "tslint": "^5.16.0",
