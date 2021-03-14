@@ -8,6 +8,7 @@ export function isAdmin(
   next: express.NextFunction
 ) {
   response.setHeader("Cache-Control", "private");
+
   const auth = request.headers.authorization;
   if (auth && typeof auth === "string" && auth.includes(" ")) {
     const key = auth.split(" ")[1];

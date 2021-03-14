@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import fetch from "node-fetch";
 
 import { PluginReturn, Plugin, Notifier } from "./Plugin";
@@ -14,24 +15,14 @@ export class Slack implements Notifier<Config> {
   private token: string;
 
   constructor() {
-    const url = process.env.SLACK_API_URL || "";
-    const token = process.env.SLACK_OAUTH_TOKEN || "";
-    const devMode = process.env.DEV_MODE;
-    if (devMode !== "True") {
-      if (!url) {
-        console.error("Missing SLACK_API_URL!");
-      }
+    this.url = process.env.SLACK_API_URL || "";
+    this.token = process.env.SLACK_OAUTH_TOKEN || "";
 
-      if (!token) {
-        console.error("Missing SLACK_OAUTH_TOKEN!");
-      }
-
-      if (!url || !token) {
+    if (process.env.DEV_MODE !== "True") {
+      if (!this.url || !this.token) {
         throw new Error("Missing slack env vars. exiting.");
       }
     }
-    this.token = token;
-    this.url = url;
   }
 
   private async sendOneMessage(
@@ -39,7 +30,6 @@ export class Slack implements Notifier<Config> {
     channel?: string,
     userToken?: string
   ): Promise<PluginReturn> {
-    console.log("sending message");
     const body = await fetch(this.url, {
       method: "POST",
       body: JSON.stringify({
@@ -61,24 +51,21 @@ export class Slack implements Notifier<Config> {
   }
 
   public async sendMessage(message: string, config: Config): Promise<PluginReturn[]> {
+    const processedMessage = Slack.processMessage(config, message);
+
     // Slack webhooks have a default channel, add a sentinel
     if (config.channels.length === 0) {
-      return [
-        await this.sendOneMessage(
-          Slack.processMessage(config, message),
-          undefined,
-          config.user_token
-        ),
-      ];
+      return [await this.sendOneMessage(processedMessage, undefined, config.user_token)];
     }
 
     return await Promise.all(
       config.channels.map(channel =>
-        this.sendOneMessage(Slack.processMessage(config, message), channel, config.user_token)
+        this.sendOneMessage(processedMessage, channel, config.user_token)
       )
     );
   }
 
+  // eslint-disable-next-line class-methods-use-this
   public async check(configTest: any): Promise<Config> {
     const config = Slack.instanceOfConfig(configTest);
     if (config.channels.length === 0) {
@@ -140,10 +127,10 @@ export class Slack implements Notifier<Config> {
 
   public static processMessage(config: Config, msg: string): string {
     if (config.at_here) {
-      msg = `<!here> ${msg}`;
+      return `<!here> ${msg}`;
     }
     if (config.at_channel) {
-      msg = `<!channel> ${msg}`;
+      return `<!channel> ${msg}`;
     }
     return msg;
   }
@@ -156,7 +143,7 @@ const SlackPlugin: Plugin<Config> = {
 		at_here: Boolean!
 		user_token: String
 	}`,
-  init: async () => new Slack(),
+  init: () => new Slack(),
 };
 
 export default SlackPlugin;

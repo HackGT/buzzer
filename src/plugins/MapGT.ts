@@ -7,23 +7,24 @@ interface Config {
   time: string;
 }
 
-export class MapGTNotifier implements Notifier<Config> {
+const SOCKETIO_EVENT = "buzzer_message";
+
+export class MapGT implements Notifier<Config> {
   private socket: any;
-  public SOCKETIO_EVENT: string;
 
   constructor(socket: any) {
     this.socket = socket;
-    this.SOCKETIO_EVENT = "buzzer_message";
   }
 
   public async sendMessage(message: string, config: Config): Promise<PluginReturn[]> {
-    const msgJson: any = {
+    const messageJson: any = {
       message,
       area: config.area,
       title: config.title,
       time: config.time,
     };
-    this.socket.emit(this.SOCKETIO_EVENT, msgJson);
+
+    this.socket.emit(SOCKETIO_EVENT, messageJson);
     return Promise.resolve([
       {
         error: false,
@@ -33,6 +34,7 @@ export class MapGTNotifier implements Notifier<Config> {
     ]);
   }
 
+  // eslint-disable-next-line class-methods-use-this
   public async check(configTest: any): Promise<Config> {
     if (configTest.area) {
       if (typeof configTest.area !== "string") {
@@ -61,7 +63,7 @@ const MapGTPlugin = {
 		title: String
 		time: String
 	}`,
-  init: async (socket: any) => new MapGTNotifier(socket),
+  init: (socket: any) => new MapGT(socket),
 };
 
 export default MapGTPlugin;

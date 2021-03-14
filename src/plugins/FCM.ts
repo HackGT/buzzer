@@ -11,32 +11,24 @@ class FCM implements Notifier<Config> {
   private token: string;
 
   constructor() {
-    const token = process.env.FIREBASE_TOKEN || "";
-    const devMode = process.env.DEV_MODE;
-    if (devMode !== "True") {
-      if (!token) {
+    this.token = process.env.FIREBASE_TOKEN || "";
+    if (process.env.DEV_MODE !== "True") {
+      if (!this.token) {
         console.error("FIREBASE_TOKEN not specified");
       }
-
-      this.token = token;
     }
   }
 
-  public static instanceOfConfig(object: any): Config {
-    if (typeof object.header !== "string") {
+  // eslint-disable-next-line class-methods-use-this
+  public async check(configTest: any): Promise<Config> {
+    if (typeof configTest.header !== "string") {
       throw new Error("Header must be a string");
     }
 
     return {
-      header: object.header,
-      id: object.id,
+      header: configTest.header,
+      id: configTest.id,
     };
-  }
-
-  public async check(configTest: any): Promise<Config> {
-    const config = FCM.instanceOfConfig(configTest);
-
-    return config;
   }
 
   public async sendMessage(message: string, config: Config): Promise<PluginReturn[]> {
@@ -73,7 +65,7 @@ const FCMPlugin: Plugin<Config> = {
 		header: String,
 		id: String,
 	}`,
-  init: async () => new FCM(),
+  init: () => new FCM(),
 };
 
 export default FCMPlugin;

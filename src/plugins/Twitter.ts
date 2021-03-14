@@ -1,86 +1,72 @@
+/* eslint-disable camelcase, @typescript-eslint/ban-types */
 import TwitterAPI from "twit";
 
 import { PluginReturn, Plugin, Notifier } from "./Plugin";
 
+type TwitterResponse = {
+  data: {
+    user?: {
+      screen_name?: string;
+    };
+    id_str?: string;
+  };
+};
+
 class Twitter implements Notifier<{}> {
-  private consumerKey: string;
-  private consumerSecret: string;
-  private accessToken: string;
-  private accessTokenSecret: string;
+  private client: TwitterAPI;
 
   constructor() {
-    const consumerKey = process.env.TWITTER_CONSUMER_KEY;
-    const consumerSecret = process.env.TWITTER_CONSUMER_SECRET;
-    const accessToken = process.env.TWITTER_HACKGT_ACCESS_TOKEN;
-    const accessTokenSecret = process.env.TWITTER_HACKGT_ACCESS_TOKEN_SECRET;
-    const devMode = process.env.DEV_MODE;
-    if (devMode !== "True") {
-      if (!consumerKey) {
-        console.error("Missing Twitter consumer_key env var");
-      }
-      if (!consumerSecret) {
-        console.error("Missing Twitter consumer_secret env var");
-      }
-      if (!accessToken) {
-        console.error("Missing Twitter access_token env var");
-      }
-      if (!accessTokenSecret) {
-        console.error("Missing Twitter access_token_secret env var");
-      }
-
+    const consumerKey = process.env.TWITTER_CONSUMER_KEY || "";
+    const consumerSecret = process.env.TWITTER_CONSUMER_SECRET || "";
+    const accessToken = process.env.TWITTER_HACKGT_ACCESS_TOKEN || "";
+    const accessTokenSecret = process.env.TWITTER_HACKGT_ACCESS_TOKEN_SECRET || "";
+    if (process.env.DEV_MODE !== "True") {
       if (!consumerKey || !consumerSecret || !accessToken || !accessTokenSecret) {
         throw new Error("Twitter env vars missing, aborting...");
       }
-      this.consumerKey = consumerKey;
-      this.consumerSecret = consumerSecret;
-      this.accessToken = accessToken;
-      this.accessTokenSecret = accessTokenSecret;
     }
+
+    this.client = new TwitterAPI({
+      consumer_key: consumerKey,
+      consumer_secret: consumerSecret,
+      access_token: accessToken,
+      access_token_secret: accessTokenSecret,
+    });
   }
 
-  public async check(config: any): Promise<{}> {
+  // eslint-disable-next-line class-methods-use-this
+  public async check(): Promise<{}> {
     return {}; // No config currently
   }
 
-  public async sendMessage(message: string, config: {}): Promise<PluginReturn[]> {
-    const client = new TwitterAPI({
-      consumer_key: this.consumerKey,
-      consumer_secret: this.consumerSecret,
-      access_token: this.accessToken,
-      access_token_secret: this.accessTokenSecret,
-    });
+  public async sendMessage(message: string): Promise<PluginReturn[]> {
     const params = { status: message };
-    const res: Promise<PluginReturn> = new Promise((resolve, reject) => {
-      client.post(
-        "statuses/update",
-        params,
-        (error, data: { user?: { screen_name?: string }; id_str?: string }, response) => {
-          if (!error) {
-            if (data.user && data.user.screen_name && data.id_str) {
-              const url = `https://twitter.com/${data.user.screen_name}/status/${data.id_str}`;
-              resolve({
-                error: false,
-                key: "twitter",
-                message: `Successful tweet, view at ${url}`,
-              });
-            } else {
-              resolve({
-                error: false,
-                key: "twitter",
-                message: "Successful tweet, but error loading url",
-              });
-            }
-          } else {
-            resolve({
-              error: true,
-              key: "twitter",
-              message: `${error.message}`,
-            });
-          }
-        }
-      );
-    });
-    return [await res];
+    try {
+      const { data }: TwitterResponse = await this.client.post("statuses/update", params);
+
+      let url;
+      if (data.user && data.user.screen_name && data.id_str) {
+        url = `https://twitter.com/${data.user.screen_name}/status/${data.id_str}`;
+      }
+
+      return [
+        {
+          error: false,
+          key: "twitter",
+          message: url
+            ? `Successful tweet, view at ${url}`
+            : "Successful tweet, but error loading url",
+        },
+      ];
+    } catch (error) {
+      return [
+        {
+          error: true,
+          key: "twitter",
+          message: `${error.message}`,
+        },
+      ];
+    }
   }
 }
 
@@ -88,7 +74,7 @@ const TwitterPlugin: Plugin<{}> = {
   schema: () => `{
 		_: Boolean
 	}`,
-  init: async () => new Twitter(),
+  init: () => new Twitter(),
 };
 
 export default TwitterPlugin;

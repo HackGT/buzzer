@@ -26,3 +26,4 @@ secrets:
 env:
   ONESIGNAL_DEFAULT_TITLE: HackGT Alert!
   CMS_URL: https://cms.hack.gt/admin/api
+  SLACK_ANNOUNCEMENTS_CHANNEL: general

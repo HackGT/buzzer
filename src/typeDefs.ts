@@ -3,10 +3,10 @@ import path from "path";
 
 import { mediaAPI } from "./plugins";
 import MapGTPlugin from "./plugins/MapGT";
-import { lowerSnake } from "./common";
+import { lowerSnake } from "./util";
 
 export const SOCKETIO_KEY = "mapgt";
-const mainTypeDefs = fs.readFileSync(path.resolve(__dirname, "../api.graphql"), "utf8");
+const mainTypeDefs = fs.readFileSync(path.resolve(__dirname, "./api.graphql"), "utf8");
 
 const baseNames = Object.keys(mediaAPI);
 
@@ -54,6 +54,6 @@ ${processedConfig}
 
 fs.writeFile("merged.graphql", mergedTypeDefs, err => {
   if (err) throw err;
-}); // For logging/debugging
+});
 
 export default mergedTypeDefs;

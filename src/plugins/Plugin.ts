@@ -6,7 +6,7 @@ export interface PluginReturn {
 
 export interface Plugin<T> {
   // Separate schema and notifier
-  init(): Promise<Notifier<T>>;
+  init(): Notifier<T>;
   schema(): string;
 }
 

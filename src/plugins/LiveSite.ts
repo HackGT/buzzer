@@ -13,26 +13,18 @@ class LiveSite implements Notifier<Config> {
   private title: string | undefined;
 
   constructor() {
-    const appId = process.env.ONESIGNAL_APP_ID;
-    const apiKey = process.env.ONESIGNAL_API_KEY;
+    this.appId = process.env.ONESIGNAL_APP_ID || "";
+    this.apiKey = process.env.ONESIGNAL_API_KEY || "";
     this.title = process.env.ONESIGNAL_DEFAULT_TITLE;
-    const devMode = process.env.DEV_MODE;
-    if (devMode !== "True") {
-      if (!appId) {
-        console.error("ONESIGNAL_APP_ID not specified");
-      }
-      if (!apiKey) {
-        console.error("ONESIGNAL_API_KEY key not specified");
-      }
 
-      if (!appId || !apiKey) {
+    if (process.env.DEV_MODE !== "True") {
+      if (!this.appId || !this.apiKey) {
         throw new Error("Some live site env vars not specified");
       }
-      this.appId = appId;
-      this.apiKey = apiKey;
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
   public async check(config: any): Promise<Config> {
     if (config.title && typeof config.title !== "string") {
       throw new Error("title must be a string!");
@@ -84,7 +76,7 @@ const LiveSitePlugin: Plugin<Config> = {
 		title: String
 		icon: String
 	}`,
-  init: async () => new LiveSite(),
+  init: () => new LiveSite(),
 };
 
 export default LiveSitePlugin;

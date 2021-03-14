@@ -14,3 +14,11 @@ export function lowerSnake(before: string): string {
     .join("_")
     .toLowerCase();
 }
+
+// Flatten nested arrays into one array
+export function flatten(arr: any[]): any[] {
+  return arr.reduce(
+    (flat, toFlatten) => flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten),
+    []
+  );
+}

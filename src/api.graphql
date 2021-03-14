@@ -14,7 +14,6 @@ type Status { # corresponding to APIReturn
 }
 
 
-
 # Note: input PluginMaster {} will be generated during the build process
 # Sample:
 # input PluginMaster {
