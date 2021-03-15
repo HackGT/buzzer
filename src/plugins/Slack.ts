@@ -45,7 +45,7 @@ class Slack implements Notifier<Config> {
       });
 
       return {
-        error: response.ok,
+        error: !response.ok,
         key: channel || "default",
         message: null,
       };

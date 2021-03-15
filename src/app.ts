@@ -49,9 +49,10 @@ const schema = makeExecutableSchema({
   resolvers,
 });
 
+app.use(isAdmin);
+
 app.use(
   "/graphql",
-  isAdmin,
   graphqlExpress({
     schema,
   })
@@ -78,5 +79,3 @@ runSetup()
     console.log("App setup failed");
     throw error;
   });
-
-export default app;

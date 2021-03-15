@@ -25,9 +25,9 @@ type PluginReturn {
 }
 
 type MessageReturn {
+  _id: ID!
   message: String
   config: MetaDataType!
-  _id: ID!
   createdAt: String!
   errors: [Status!]!
 }
