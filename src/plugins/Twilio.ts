@@ -30,7 +30,10 @@ export class TwilioNotifier implements Notifier<Config> {
   private registrationUrl: string;
 
   constructor() {
-    this.client = Twilio(process.env.TWILIO_SID || "AC", process.env.TWILIO_TOKEN || " ");
+    this.client = Twilio(
+      process.env.TWILIO_ACCOUNT_SID || "AC",
+      process.env.TWILIO_AUTH_TOKEN || " "
+    );
     this.serviceSid = process.env.TWILIO_SERVICE_SID || "";
     this.registrationKey = Buffer.from(process.env.REGISTRATION_KEY || "").toString("base64");
     this.registrationUrl = process.env.REGISTRATION_GRAPHQL || "";
@@ -90,57 +93,56 @@ export class TwilioNotifier implements Notifier<Config> {
   }
 
   public async sendMessage(message: string, config: Config): Promise<PluginReturn[]> {
-    // Best effort policy, send as many messages as possible, don't care about success/fail of individual (Don't wait for returns)
-    await Promise.all(config.numbers.map(phoneNumber => this.sendOneMessage(message, phoneNumber))); // Explicit number sending
+    let allNumbers = config.numbers;
 
-    const groupNames = config.groups.map(name => name.toLowerCase().trim());
+    if (config.groups.length > 0) {
+      const groupNames = config.groups.map(name => name.toLowerCase().trim());
+      let queries: string[];
 
-    let queries: string[];
-    if (config.groups.includes("all")) {
-      queries = [""]; // No filter query
-    } else {
-      const branchNames: string[] = [];
-      groupNames.forEach((g: string, index: number) => {
-        switch (g) {
-          case "participant":
-            branchNames.push("Participant - Travel Reimbursement");
-            branchNames.push("Participant - No Travel Reimbursement");
-            break;
-          case "mentor":
-          case "volunteer":
-            branchNames.push(g[0].toUpperCase() + g.slice(1)); // Capitalize
-            break;
-          default:
-            if (index < config.groups.length) {
-              branchNames.push(config.groups[index]);
-            }
-        }
-      });
-      queries = branchNames.map((qs: string) => `application_branch: "${qs}"`);
+      if (groupNames.includes("all")) {
+        queries = [""]; // No filter query
+      } else {
+        const branchNames: string[] = [];
+        groupNames.forEach((g: string, index: number) => {
+          switch (g) {
+            case "participant":
+              branchNames.push("Participant - Travel Reimbursement");
+              branchNames.push("Participant - No Travel Reimbursement");
+              break;
+            case "mentor":
+            case "volunteer":
+              branchNames.push(g[0].toUpperCase() + g.slice(1)); // Capitalize
+              break;
+            default:
+              if (index < config.groups.length) {
+                branchNames.push(config.groups[index]);
+              }
+          }
+        });
+        queries = branchNames.map((qs: string) => `application_branch: "${qs}"`);
+      }
+
+      const registrationNumbers: string[] = flatten(
+        await Promise.all(queries.map(query => this.getUserNumbers(query)))
+      );
+
+      allNumbers = allNumbers.concat(registrationNumbers);
     }
 
-    const numbers: string[] = flatten(
-      await Promise.all(queries.map(query => this.getUserNumbers(query)))
-    );
-
-    await Promise.all(
-      numbers.map(number => {
+    return await Promise.all(
+      allNumbers.map(number => {
         const cleanedNumber = TwilioNotifier.cleanNumber(number);
         if (!cleanedNumber) {
-          return Promise.resolve({}); // Invalid format
+          return Promise.resolve({
+            error: true,
+            key: number,
+            message: "Invalid number provided",
+          });
         }
 
         return this.sendOneMessage(message, cleanedNumber);
       })
     );
-
-    return [
-      {
-        error: false,
-        key: "twilio",
-        message: "Twilio API successfully queried",
-      },
-    ];
   }
 
   // TODO: Check should verify target numbers are registered in HackGT registration/checkin - skipping this step for now.

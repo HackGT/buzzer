@@ -2,7 +2,7 @@
 export interface PluginReturn {
   error: boolean;
   key: string;
-  message: string;
+  message: string | null;
 }
 
 export interface Plugin<T> {

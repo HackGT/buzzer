@@ -47,11 +47,11 @@ class Slack implements Notifier<Config> {
       return {
         error: response.ok,
         key: channel || "default",
-        message: "",
+        message: null,
       };
     } catch (error) {
       return {
-        error: false,
+        error: true,
         key: channel || "default",
         message: error,
       };
@@ -81,35 +81,37 @@ class Slack implements Notifier<Config> {
 
   // eslint-disable-next-line class-methods-use-this
   public async check(configTest: any): Promise<Config> {
+    let response;
     try {
-      const response = await this.getWeb(configTest.user_token).conversations.list({
+      response = await this.getWeb(configTest.user_token).conversations.list({
         exclude_archived: true,
         types: "public_channel,private_channel",
+        limit: 300,
       });
-
-      if (!response.ok) {
-        throw new Error(`Error while making slack api call. ${JSON.stringify(response)}`);
-      }
-
-      // @ts-ignore
-      const allChannels: string[] = response.channels.map(channel => channel.name);
-      const invalidChannels = configTest.channels.filter(
-        (channel: string) => !allChannels.includes(channel)
-      );
-
-      if (invalidChannels.length !== 0) {
-        throw new Error(`Invalid slack channels / groups: ${invalidChannels}`);
-      }
-
-      return {
-        channels: configTest.channels,
-        at_channel: !!configTest.at_channel,
-        at_here: !!configTest.at_here,
-        user_token: configTest.user_token,
-      };
     } catch (error) {
       throw new Error(`Could not make slack api call. ${JSON.stringify(error)}`);
     }
+
+    if (!response.ok) {
+      throw new Error(`Error while making slack api call. ${JSON.stringify(response)}`);
+    }
+
+    // @ts-ignore
+    const allChannels: string[] = response.channels.map(channel => channel.name);
+    const invalidChannels = configTest.channels.filter(
+      (channel: string) => !allChannels.includes(channel)
+    );
+
+    if (invalidChannels.length !== 0) {
+      throw new Error(`Invalid slack channels / groups: ${invalidChannels}`);
+    }
+
+    return {
+      channels: configTest.channels,
+      at_channel: !!configTest.at_channel,
+      at_here: !!configTest.at_here,
+      user_token: configTest.user_token,
+    };
   }
 }
 
