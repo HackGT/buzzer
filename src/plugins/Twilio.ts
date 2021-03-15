@@ -9,12 +9,6 @@ interface Config {
   groups: string[]; // Groups to message - queried from registration - this will be based on participant type, until registration api clarifies
 }
 
-interface UserQuestionData {
-  question: {
-    value: string;
-  };
-}
-
 const MAX_USERS_BATCH = 2000;
 const REGISTRATION_QUERY = (filterString: string) => `
 query {
@@ -36,7 +30,7 @@ export class TwilioNotifier implements Notifier<Config> {
   private registrationUrl: string;
 
   constructor() {
-    this.client = Twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
+    this.client = Twilio(process.env.TWILIO_SID || "AC", process.env.TWILIO_TOKEN || " ");
     this.serviceSid = process.env.TWILIO_SERVICE_SID || "";
     this.registrationKey = Buffer.from(process.env.REGISTRATION_KEY || "").toString("base64");
     this.registrationUrl = process.env.REGISTRATION_GRAPHQL || "";

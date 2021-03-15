@@ -1,18 +1,17 @@
 schema {
-	query: Query
+  query: Query
 }
 
 type Query {
-	send_message(message: String!, plugins: PluginMaster!): [PluginReturn!]!
-    get_messages(plugin: String!): [MessageReturn!]!
+  send_message(message: String!, plugins: PluginMaster!): [PluginReturn!]!
+  get_messages(plugin: String!): [MessageReturn!]!
 }
 
 type Status { # corresponding to APIReturn
-	error: Boolean!
-	key: String!
-	message: String
+  error: Boolean!
+  key: String!
+  message: String
 }
-
 
 # Note: input PluginMaster {} will be generated during the build process
 # Sample:
@@ -21,14 +20,14 @@ type Status { # corresponding to APIReturn
 # }
 
 type PluginReturn {
-	plugin: String!
-	errors: [Status!]!
+  plugin: String!
+  errors: [Status!]!
 }
 
 type MessageReturn {
-    message: String
-    config: MetaDataType!
-    _id: ID!
-    createdAt: String!
-    errors: [Status!]!
+  message: String
+  config: MetaDataType!
+  _id: ID!
+  createdAt: String!
+  errors: [Status!]!
 }

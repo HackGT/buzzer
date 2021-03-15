@@ -74,9 +74,9 @@ export const resolvers = {
             .join("_")
             .toLowerCase();
           const insertArg = {
+            _id: args._id, // eslint-disable-line no-underscore-dangle
             message: args.message,
             config: args.plugins[p],
-            _id: args._id,
             createdAt: args.createdAt,
             errors: result.errors,
           };

@@ -1,7 +1,5 @@
 import express from "express";
 
-import config from "./config";
-
 export function isAdmin(
   request: express.Request,
   response: express.Response,
@@ -12,7 +10,7 @@ export function isAdmin(
   const auth = request.headers.authorization;
   if (auth && typeof auth === "string" && auth.includes(" ")) {
     const key = auth.split(" ")[1];
-    if (key === config.secrets.admin) {
+    if (key === process.env.ADMIN_KEY_SECRET) {
       next();
     } else {
       response.status(401).json({

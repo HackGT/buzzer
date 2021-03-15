@@ -37,7 +37,7 @@ const mapgtTypeDef = `input mapgtConfig ${mapgtSchema}\n\ntype mapgtConfigType $
 processedPluginTypeDefs.push(mapgtTypeDef); // Note we don't update pluginTypeDefs here
 
 let processedConfigKeys = "";
-Object.keys(mediaAPI).map(plugin => {
+Object.keys(mediaAPI).forEach(plugin => {
   const schema = mediaAPI[plugin].schema();
   processedConfigKeys = processedConfigKeys.concat(schema.slice(1, -1));
 });

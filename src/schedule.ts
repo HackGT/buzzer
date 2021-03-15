@@ -1,5 +1,6 @@
 import * as schedule from "node-schedule";
 import moment from "moment-timezone";
+import fetch from "node-fetch";
 
 import { resolvers } from "./graphql";
 

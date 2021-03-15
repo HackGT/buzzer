@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 export interface PluginReturn {
   error: boolean;
   key: string;

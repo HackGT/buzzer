@@ -6,8 +6,8 @@ import { graphqlExpress, graphiqlExpress } from "graphql-server-express";
 import { makeExecutableSchema } from "graphql-tools";
 import cors from "cors";
 import morgan from "morgan";
+import { Server } from "socket.io";
 
-import config from "./config";
 import { setupPlugins } from "./plugins";
 import typeDefs from "./typeDefs";
 import { isAdmin } from "./middleware";
@@ -16,20 +16,9 @@ import { scheduleAll } from "./schedule";
 
 dotenv.config();
 
-const SOCKET_OPTIONS = {
-  handlePreflightRequest: (req: any, res: any) => {
-    const headers = {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      "Access-Control-Allow-Credentials": true,
-    };
-    res.writeHead(200, headers);
-    res.end();
-  },
-  allowUpgrades: true,
-  transports: ["polling", "websocket"],
-  origins: "*:*",
-};
+process.on("unhandledRejection", err => {
+  throw err;
+});
 
 const app = express();
 
@@ -46,13 +35,13 @@ app.use((req: any, res: any, next: any) => {
 });
 
 const server = new http.Server(app);
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const io = require("socket.io")(SOCKET_OPTIONS).listen(server);
-
-io.origins((origin: any, callback: any) => callback(null, true));
-
-process.on("unhandledRejection", err => {
-  throw err;
+const io = new Server(server, {
+  cors: {
+    origin: "*:*",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  },
 });
 
 const schema = makeExecutableSchema({
@@ -81,8 +70,8 @@ async function runSetup() {
 
 runSetup()
   .then(() => {
-    server.listen(config.port, () => {
-      console.log(`Buzzer system started on port ${config.port}`);
+    server.listen(process.env.PORT, () => {
+      console.log(`Buzzer system started on port ${process.env.PORT}`);
     });
   })
   .catch(error => {

@@ -10,7 +10,7 @@ interface Config {
   user_token: string;
 }
 
-export class Slack implements Notifier<Config> {
+class Slack implements Notifier<Config> {
   private url: string;
   private token: string;
 

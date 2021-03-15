@@ -16,10 +16,10 @@ class Twitter implements Notifier<{}> {
   private client: TwitterAPI;
 
   constructor() {
-    const consumerKey = process.env.TWITTER_CONSUMER_KEY || "";
-    const consumerSecret = process.env.TWITTER_CONSUMER_SECRET || "";
-    const accessToken = process.env.TWITTER_HACKGT_ACCESS_TOKEN || "";
-    const accessTokenSecret = process.env.TWITTER_HACKGT_ACCESS_TOKEN_SECRET || "";
+    const consumerKey = process.env.TWITTER_CONSUMER_KEY || " ";
+    const consumerSecret = process.env.TWITTER_CONSUMER_SECRET || " ";
+    const accessToken = process.env.TWITTER_HACKGT_ACCESS_TOKEN || " ";
+    const accessTokenSecret = process.env.TWITTER_HACKGT_ACCESS_TOKEN_SECRET || " ";
     if (process.env.DEV_MODE !== "True") {
       if (!consumerKey || !consumerSecret || !accessToken || !accessTokenSecret) {
         throw new Error("Twitter env vars missing, aborting...");

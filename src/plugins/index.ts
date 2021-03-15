@@ -1,4 +1,5 @@
 import Datastore from "nedb";
+import dotenv from "dotenv";
 
 import { Notifier, Plugin } from "./Plugin";
 import LiveSite from "./LiveSite";
@@ -7,6 +8,8 @@ import Twilio from "./Twilio";
 import Twitter from "./Twitter";
 import FCM from "./FCM";
 import MapGTPlugin from "./MapGT";
+
+dotenv.config();
 
 export const mediaAPI: {
   [key: string]: Plugin<any>;
