@@ -52,7 +52,7 @@ ${processedStr} \n
 ${processedConfig}
 `;
 
-fs.writeFile("merged.graphql", mergedTypeDefs, err => {
+fs.writeFile("./src/merged.graphql", mergedTypeDefs, err => {
   if (err) throw err;
 });
 
