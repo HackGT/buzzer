@@ -35,24 +35,24 @@ class Slack implements Notifier<Config> {
 
   private async sendOneMessage(
     message: string,
-    channel?: string,
+    channel: string,
     userToken?: string
   ): Promise<PluginReturn> {
     try {
       const response = await this.getWeb(userToken).chat.postMessage({
         text: message,
-        channel: channel ? `#${channel}` : "#announcements",
+        channel: `#${channel}`,
       });
 
       return {
         error: !response.ok,
-        key: channel || "default",
-        message: null,
+        key: channel,
+        message: "Slack message sent successfully",
       };
     } catch (error) {
       return {
         error: true,
-        key: channel || "default",
+        key: channel,
         message: error,
       };
     }
@@ -67,11 +67,6 @@ class Slack implements Notifier<Config> {
       processedMessage = `<!channel> ${message}`;
     }
 
-    // Slack webhooks have a default channel, add a sentinel
-    if (config.channels.length === 0) {
-      return [await this.sendOneMessage(processedMessage, undefined, config.user_token)];
-    }
-
     return await Promise.all(
       config.channels.map(channel =>
         this.sendOneMessage(processedMessage, channel, config.user_token)
@@ -81,6 +76,10 @@ class Slack implements Notifier<Config> {
 
   // eslint-disable-next-line class-methods-use-this
   public async check(configTest: any): Promise<Config> {
+    if (configTest.channels.length === 0) {
+      throw new Error("You must include at least one channel");
+    }
+
     let response;
     try {
       response = await this.getWeb(configTest.user_token).conversations.list({
