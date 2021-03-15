@@ -6,7 +6,7 @@
   "main": "src/app.ts",
   "scripts": {
     "start": "ts-node src/app.ts",
-    "dev": "nodemon --watch 'src/**/*' -e ts,graphql --exec 'ts-node' src/app.ts",
+    "dev": "nodemon --watch 'src/**/*' --exec 'ts-node' src/app.ts",
     "lint": "eslint ./ --fix; prettier ./ --write"
   },
   "author": "Joel Ye",
@@ -16,6 +16,7 @@
   },
   "prettier": "@hex-labs/prettier-config",
   "dependencies": {
+    "@slack/web-api": "^6.1.0",
     "body-parser": "^1.19.0",
     "compression": "^1.7.4",
     "cors": "^2.8.5",

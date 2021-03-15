@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import fetch from "node-fetch";
+import { WebClient } from "@slack/web-api";
 
 import { PluginReturn, Plugin, Notifier } from "./Plugin";
 
@@ -11,18 +11,26 @@ interface Config {
 }
 
 class Slack implements Notifier<Config> {
-  private url: string;
-  private token: string;
+  private web: WebClient;
 
   constructor() {
-    this.url = process.env.SLACK_API_URL || "";
-    this.token = process.env.SLACK_OAUTH_TOKEN || "";
+    const slackToken = process.env.SLACK_TOKEN || "";
 
     if (process.env.DEV_MODE !== "True") {
-      if (!this.url || !this.token) {
+      if (!slackToken) {
         throw new Error("Missing slack env vars. exiting.");
       }
     }
+
+    this.web = new WebClient(slackToken);
+  }
+
+  private getWeb(userToken?: string): WebClient {
+    // If a user token is provided, use that to send the message, otherwise use the default slack token
+    if (userToken) {
+      return new WebClient(userToken);
+    }
+    return this.web;
   }
 
   private async sendOneMessage(
@@ -30,28 +38,34 @@ class Slack implements Notifier<Config> {
     channel?: string,
     userToken?: string
   ): Promise<PluginReturn> {
-    const body = await fetch(this.url, {
-      method: "POST",
-      body: JSON.stringify({
+    try {
+      const response = await this.getWeb(userToken).chat.postMessage({
         text: message,
         channel: channel ? `#${channel}` : "#announcements",
-      }),
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-        "Authorization": `Bearer ${userToken || this.token || ""}`,
-        "x-slack-retry-num": "0",
-      },
-    }).then(res => res.text());
+      });
 
-    return {
-      error: body !== "ok",
-      key: channel || "default",
-      message: body,
-    };
+      return {
+        error: response.ok,
+        key: channel || "default",
+        message: "",
+      };
+    } catch (error) {
+      return {
+        error: false,
+        key: channel || "default",
+        message: error,
+      };
+    }
   }
 
   public async sendMessage(message: string, config: Config): Promise<PluginReturn[]> {
-    const processedMessage = Slack.processMessage(config, message);
+    let processedMessage = message;
+
+    if (config.at_here) {
+      processedMessage = `<!here> ${message}`;
+    } else if (config.at_channel) {
+      processedMessage = `<!channel> ${message}`;
+    }
 
     // Slack webhooks have a default channel, add a sentinel
     if (config.channels.length === 0) {
@@ -67,72 +81,35 @@ class Slack implements Notifier<Config> {
 
   // eslint-disable-next-line class-methods-use-this
   public async check(configTest: any): Promise<Config> {
-    const config = Slack.instanceOfConfig(configTest);
-    if (config.channels.length === 0) {
-      return config;
+    try {
+      const response = await this.getWeb(configTest.user_token).conversations.list({
+        exclude_archived: true,
+        types: "public_channel,private_channel",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error while making slack api call. ${JSON.stringify(response)}`);
+      }
+
+      // @ts-ignore
+      const allChannels: string[] = response.channels.map(channel => channel.name);
+      const invalidChannels = configTest.channels.filter(
+        (channel: string) => !allChannels.includes(channel)
+      );
+
+      if (invalidChannels.length !== 0) {
+        throw new Error(`Invalid slack channels / groups: ${invalidChannels}`);
+      }
+
+      return {
+        channels: configTest.channels,
+        at_channel: !!configTest.at_channel,
+        at_here: !!configTest.at_here,
+        user_token: configTest.user_token,
+      };
+    } catch (error) {
+      throw new Error(`Could not make slack api call. ${JSON.stringify(error)}`);
     }
-
-    /*
-		const qs = querystring.stringify({
-			token: this.token,
-			exclude_archived: true,
-			exclude_members: true
-		});
-
-		const destinations = await Promise.all([
-			fetch(`https://slack.com/api/channels.list?${qs}`)
-				.then(r => r.json())
-				.then((json: { channels?: { name: string }[] }) => {
-					return json.channels? json.channels.map(c => c.name) : json;
-				}),
-			fetch(`https://slack.com/api/groups.list?${qs}`)
-				.then(r => r.json())
-				.then((json: { groups?: { name: string }[] }) => {
-					return json.groups? json.groups.map(c => c.name) : json;
-				})
-		]);
-
-		for (const dest of destinations) {
-			if (!Array.isArray(dest)) {
-				throw new Error(`Could not retrieve channels / groups: ${JSON.stringify(dest)}`);
-			}
-		}
-
-		const everything = [].concat.apply([], destinations);
-		const invalid = config.channels.filter(c => !everything.includes(c));
-
-		if (invalid.length !== 0) {
-			throw new Error(`Invalid slack channels / groups: ${invalid}`);
-		}
-		*/
-    return config; // Deprecated!
-  }
-
-  public static instanceOfConfig(object: any): Config {
-    // Check channels
-    if (!Array.isArray(object.channels)) {
-      throw new Error("'channels' must be an array");
-    }
-    if (!object.channels.every((channel: any) => typeof channel === "string")) {
-      throw new Error("Slack config should have a channels variable which is an array of strings.");
-    }
-
-    return {
-      channels: object.channels,
-      at_channel: !!object.at_channel,
-      at_here: !!object.at_here,
-      user_token: object.user_token,
-    };
-  }
-
-  public static processMessage(config: Config, msg: string): string {
-    if (config.at_here) {
-      return `<!here> ${msg}`;
-    }
-    if (config.at_channel) {
-      return `<!channel> ${msg}`;
-    }
-    return msg;
   }
 }
 
