@@ -26,12 +26,6 @@ class LiveSite implements Notifier<Config> {
 
   // eslint-disable-next-line class-methods-use-this
   public async check(config: any): Promise<Config> {
-    if (config.title && typeof config.title !== "string") {
-      throw new Error("title must be a string!");
-    }
-    if (config.icon && typeof config.icon !== "string") {
-      throw new Error("icon must be a string!");
-    }
     return {
       title: config.title,
       icon: config.icon,

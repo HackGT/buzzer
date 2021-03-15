@@ -21,10 +21,6 @@ class FCM implements Notifier<Config> {
 
   // eslint-disable-next-line class-methods-use-this
   public async check(configTest: any): Promise<Config> {
-    if (typeof configTest.header !== "string") {
-      throw new Error("Header must be a string");
-    }
-
     return {
       header: configTest.header,
       id: configTest.id,

@@ -36,22 +36,11 @@ export class MapGT implements Notifier<Config> {
 
   // eslint-disable-next-line class-methods-use-this
   public async check(configTest: any): Promise<Config> {
-    if (configTest.area) {
-      if (typeof configTest.area !== "string") {
-        throw new Error("'area' on MapGT plugin must be string");
-      }
-    }
-    if (configTest.title) {
-      if (typeof configTest.time !== "string") {
-        throw new Error("'area' on MapGT plugin must be string");
-      }
-    }
-    if (configTest.time) {
-      if (typeof configTest.title !== "string") {
-        throw new Error("'area' on MapGT plugin must be string");
-      }
-    }
-    return configTest;
+    return {
+      area: configTest.area,
+      title: configTest.title,
+      time: configTest.time,
+    };
   }
 }
 

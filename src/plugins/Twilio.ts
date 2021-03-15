@@ -152,27 +152,17 @@ export class TwilioNotifier implements Notifier<Config> {
     };
 
     if (configTest.numbers) {
-      if (!Array.isArray(configTest.numbers)) {
-        throw new Error("'numbers' must be an array");
-      }
-      if (configTest.numbers.length === 0) {
-        throw new Error("Empty 'numbers' arg");
-      }
-      if (!configTest.numbers.every((phoneNumber: any) => typeof phoneNumber === "string")) {
-        // TODO: replace 'true' with phone number regex check
+      const phoneNumberTest = (phoneNumber: string) =>
+        /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/.test(phoneNumber);
+
+      if (!configTest.numbers.every(phoneNumberTest)) {
         throw new Error("Malformed phone number in config");
       }
       config.numbers = configTest.numbers;
     }
 
+    // TODO: replace legalTags with a query call to registration API
     if (configTest.groups) {
-      if (!Array.isArray(configTest.groups)) {
-        throw new Error("'groups' must be an array");
-      }
-      if (configTest.groups.length === 0) {
-        throw new Error("Empty 'groups' arg");
-      }
-      // TODO: replace legalTags with a query call to registration API
       const legalTagString = process.env.REGISTRATION_LEGAL_TAGS; // Static method, this can't be a class attr.
       if (!legalTagString) {
         throw new Error("No registration tags provided");
