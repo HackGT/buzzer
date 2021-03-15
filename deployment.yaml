@@ -4,6 +4,7 @@ git:
 
 secrets:
   - ADMIN_KEY_SECRET
+
   - FIREBASE_TOKEN
 
   - TWITTER_CONSUMER_KEY
@@ -18,12 +19,15 @@ secrets:
   - TWILIO_SERVICE_SID
   - TWILIO_AUTH_TOKEN
 
-  - REGISTRATION_KEY
-  - REGISTRATION_GRAPHQL
-
   - SLACK_TOKEN
+
+  - REGISTRATION_KEY
 
 env:
   ONESIGNAL_DEFAULT_TITLE: HackGT Alert!
-  CMS_URL: https://cms.hack.gt/admin/api
-  SLACK_ANNOUNCEMENTS_CHANNEL: general
+
+  REGISTRATION_GRAPHQL: https://registration.hack.gt/graphql
+
+  SCHEDULE_CMS_URL: https://cms.hack.gt/admin/api
+  SCHEDULE_CMS_CURRENT_HACKATHON: HealthTech 2021
+  SCHEDULE_SLACK_ANNOUNCEMENTS_CHANNEL: general

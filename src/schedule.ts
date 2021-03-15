@@ -1,103 +1,117 @@
+/* eslint-disable camelcase */
 import * as schedule from "node-schedule";
-import moment from "moment-timezone";
 import fetch from "node-fetch";
+import { DateTime } from "luxon";
 
 import { resolvers } from "./graphql";
+import { flatten } from "./util";
+import { PluginReturn } from "./plugins/Plugin";
 
-const eventQuery = `{
+const CMS_EVENTS_QUERY = (startDate_gte: string, startDate_lte: string) => `{
 	allEvents(where: {
 		hackathon: {
-			name: "HealthTech 2021"
-		}
+			name: "${process.env.SCHEDULE_CMS_CURRENT_HACKATHON}"
+		},
+    startDate_gte: "${startDate_gte}",
+    startDate_lte: "${startDate_lte}"
 	}) {
 		id
 		name
 		startDate
 		type {
+      id
 			name
 		}
 		tags {
+      id
 			name
 		}
 		url
 	}
 }`;
 
-const events: any = {};
+type CMSEvent = {
+  id: string;
+  name: string;
+  startDate: string;
+  type?: {
+    id?: string;
+    name?: string;
+  };
+  tags: {
+    id: string;
+    name: string;
+  }[];
+  url?: string;
+};
 
-function scheduleCMS() {
-  const cmsUrl = process.env.CMS_URL || "https://keystone.dev.hack.gt/admin/api";
-  const slackAnnouncementsChannel = process.env.SLACK_ANNOUNCEMENTS_CHANNEL || "bot-spam";
+// Keep track of already sent notifications
+const sentNotifications: any = {};
 
-  fetch(cmsUrl, {
+async function scheduleCMS() {
+  const CMS_URL = process.env.SCHEDULE_CMS_URL || "https://keystone.dev.hack.gt/admin/api";
+
+  const currentTime = DateTime.now();
+  const currentTimeAhead = currentTime.plus({ minutes: 15 });
+
+  const response = await fetch(CMS_URL, {
     method: "POST",
     headers: {
       "Content-Type": `application/json`,
       "Accept": `application/json`,
     },
     body: JSON.stringify({
-      query: eventQuery,
+      query: CMS_EVENTS_QUERY(currentTime.toISO(), currentTimeAhead.toISO()),
     }),
-  })
-    .then(async (r: any) => {
-      const resp = await r.json();
-      return resp;
-    })
-    .then((result: any) => {
-      const info = result.data.allEvents;
-      info.forEach((e: any) => {
-        const startTime = moment(e.startDate).tz("America/New_York");
-        const startTimeFormatted = startTime.local().format("hh:mm A");
-        const { url, id, notification, name: title } = e;
-        const type = e.type ? e.type.name : "";
+  });
 
-        const now = moment.utc().tz("America/New_York");
-        const difference = startTime.diff(now, "minutes");
-        // Check if event is 15min. away
-        if (difference < 0 || difference >= 16) return;
-        // Ensure notifications dont get sent out multiple times
-        if (id in events) return;
-        events[id] = true;
+  const json = await response.json();
+  const { allEvents } = json.data;
 
-        const msg = url
-          ? `${title} starts at ${startTimeFormatted} EDT. Click here to join: https://calls.healthtech.hack.gt/${id}!`
-          : `${title} starts at ${startTimeFormatted}!`;
-        const topic = type === "important" ? "all" : id;
+  allEvents.forEach(async (event: CMSEvent) => {
+    // Ensure notifications dont get sent out multiple times
+    if (event.id in sentNotifications) return;
+    sentNotifications[event.id] = true;
 
-        const pluginJson: any = {
-          live_site: {
-            title,
-          },
-          f_c_m: {
-            header: title,
-            id: topic,
-          },
-          slack: {
-            channels: [slackAnnouncementsChannel],
-            at_channel: false,
-            at_here: false,
-          },
-        };
+    const startTime = DateTime.fromISO(event.startDate, {
+      zone: "America/New_York",
+    }).toLocaleString(DateTime.TIME_SIMPLE);
 
-        resolvers.Query.send_message(null, {
-          plugins: pluginJson,
-          message: notification || msg,
-        })
-          .then((msgOut: any) => msgOut)
-          .catch((err: any) => {
-            console.log(err);
-          });
-      });
-    })
-    .then((output: any) => output)
-    .catch((err: any) => {
-      console.log(err);
+    // TODO: Allow events to have custom notifications through CMS
+    const message = event.url
+      ? `${event.name} starts at ${startTime} ET. Click here to join: https://calls.healthtech.hack.gt/${event.id}!`
+      : `${event.name} starts at ${startTime}!`;
+
+    const pluginJson: any = {
+      live_site: {
+        title: event.name,
+      },
+      f_c_m: {
+        header: event.name,
+        id: event.type?.name === "important" ? "all" : event.id,
+      },
+      slack: {
+        channels: [process.env.SCHEDULE_SLACK_ANNOUNCEMENTS_CHANNEL || "bot-spam"],
+        at_channel: false,
+        at_here: false,
+      },
+    };
+
+    const pluginReturn = await resolvers.Query.send_message(null, {
+      plugins: pluginJson,
+      message,
     });
+
+    const errors = flatten(pluginReturn.map(plugin => plugin.errors)) as PluginReturn[];
+    console.error(errors.filter(error => error.error)); // Log messages to console when error is true
+  });
 }
 
 export async function scheduleAll() {
-  scheduleCMS();
-  schedule.scheduleJob("*/1 * * * *", () => {
-    scheduleCMS();
+  await scheduleCMS();
+
+  // Execute this job every minute
+  schedule.scheduleJob("*/1 * * * *", async () => {
+    await scheduleCMS();
   });
 }
