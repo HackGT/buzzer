@@ -1,90 +1,69 @@
-import { upperCamel } from "./util";
 import { SOCKETIO_KEY } from "./typeDefs";
-import { MetaDataType, PluginReturn } from "./plugins/Plugin";
-import { plugins, logs } from "./plugins";
+import { plugins } from "./plugins";
+import { IMessage, Message } from "./schema";
+import { Status } from "./plugins/types";
 
-interface IPluginReturn {
+interface PluginReturn {
   plugin: string;
-  errors: PluginReturn[];
-}
-
-interface IMessageReturn {
-  _id: string;
-  message: string;
-  config: MetaDataType;
-  createdAt: string;
-  updatedAt: string;
+  results: Status[];
 }
 
 export const resolvers = {
   Query: {
-    get_messages: async (prev: any, args: any): Promise<IMessageReturn[]> => {
-      const { plugin } = args;
-      if (plugin === SOCKETIO_KEY) {
+    getMessages: async (prev: any, args: any): Promise<IMessage[]> => {
+      if (args.plugin === SOCKETIO_KEY) {
         return []; // TODO
       }
-      const returnDocs = await new Promise<IMessageReturn[]>(resolve => {
-        logs[upperCamel(plugin)].find({}, (err: any, docs: any) => {
-          resolve(docs);
-        });
-      });
-      return returnDocs;
+
+      return await Message.find({ plugin: args.plugin });
     },
-    send_message: async (prev: any, args: any): Promise<IPluginReturn[]> => {
-      const { message } = args;
-      const checkQueue = Object.keys(args.plugins).map(rawName =>
-        (async () => {
-          // Loading checkQueue IIFE
-          // Upper Cameled
-          const name = rawName === "mapgt" ? rawName : upperCamel(rawName);
+    sendMessage: async (prev: any, args: any): Promise<PluginReturn[]> => {
+      // Verify config for each plugin
+      await Promise.all(
+        Object.entries(args.plugins).map(async ([name, config]) => {
           const plugin = plugins[name];
 
-          const verifiedConfig = await plugin.check(args.plugins[rawName]); // Verify
-
-          return async () => {
-            // Sending function
-            try {
-              const pluginReturn = {
-                plugin: name,
-                errors: await plugin.sendMessage(message, verifiedConfig),
-              };
-              return pluginReturn;
-            } catch (e) {
-              return {
-                plugin: name,
-                errors: [
-                  {
-                    error: true,
-                    key: name,
-                    message: e.toString(),
-                  },
-                ],
-              };
-            }
-          };
-        })()
+          await plugin.check(config);
+        })
       );
 
-      const sendingQueue = await Promise.all(checkQueue);
-      return Promise.all(
-        sendingQueue.map(async f => {
-          const result = await f();
-          const p = result.plugin
-            .split(/(?=[A-Z])/)
-            .join("_")
-            .toLowerCase();
-          const insertArg = {
-            _id: args._id, // eslint-disable-line no-underscore-dangle
+      // Sending function
+      const pluginReturns = await Promise.all(
+        Object.entries(args.plugins).map(async ([name, config]) => {
+          const plugin = plugins[name];
+
+          let pluginReturn: PluginReturn;
+          try {
+            pluginReturn = {
+              plugin: name,
+              results: await plugin.sendMessage(args.message, config),
+            };
+          } catch (error) {
+            pluginReturn = {
+              plugin: name,
+              results: [
+                {
+                  error: true,
+                  key: name,
+                  message: error.toString(),
+                },
+              ],
+            };
+          }
+
+          await Message.create({
+            plugin: pluginReturn.plugin,
             message: args.message,
-            config: args.plugins[p],
+            config: args.plugins[pluginReturn.plugin],
             createdAt: args.createdAt,
-            errors: result.errors,
-          };
-          const dbName = result.plugin === "mapgt" ? result.plugin : upperCamel(result.plugin);
-          logs[dbName].insert(insertArg);
-          return result; // We catch in sending function
+            results: pluginReturn.results,
+          });
+
+          return pluginReturn;
         })
-      ); // Send all!
+      );
+
+      return pluginReturns;
     },
   },
 };

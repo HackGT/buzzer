@@ -1,13 +1,13 @@
 import fetch from "node-fetch";
 
-import { PluginReturn, Plugin, Notifier } from "./Plugin";
+import { PluginSetup, Plugin, Status } from "./types";
 
 interface Config {
   header: string;
   id: string;
 }
 
-class FCM implements Notifier<Config> {
+export class FCMPlugin implements Plugin<Config> {
   private token: string;
 
   constructor() {
@@ -19,15 +19,12 @@ class FCM implements Notifier<Config> {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  public async check(configTest: any): Promise<Config> {
-    return {
-      header: configTest.header,
-      id: configTest.id,
-    };
+  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars
+  public async check(configTest: any): Promise<boolean> {
+    return true;
   }
 
-  public async sendMessage(message: string, config: Config): Promise<PluginReturn[]> {
+  public async sendMessage(message: string, config: Config): Promise<Status[]> {
     const response = await fetch("https://fcm.googleapis.com/fcm/send", {
       method: "POST",
       body: JSON.stringify({
@@ -56,12 +53,10 @@ class FCM implements Notifier<Config> {
   }
 }
 
-const FCMPlugin: Plugin<Config> = {
+export const FCMSetup: PluginSetup<Config> = {
   schema: () => `{
 		header: String,
 		id: String,
 	}`,
-  init: () => new FCM(),
+  init: () => new FCMPlugin(),
 };
-
-export default FCMPlugin;

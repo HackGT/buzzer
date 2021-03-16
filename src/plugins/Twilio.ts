@@ -1,7 +1,7 @@
 import Twilio from "twilio";
 import fetch from "node-fetch";
 
-import { PluginReturn, Plugin, Notifier } from "./Plugin";
+import { PluginSetup, Plugin, Status } from "./types";
 import { flatten } from "../util";
 
 interface Config {
@@ -23,7 +23,7 @@ query {
 /*
 	 Todo: fuzzy search
  */
-export class TwilioNotifier implements Notifier<Config> {
+export class TwilioPlugin implements Plugin<Config> {
   private client: Twilio.Twilio;
   private serviceSid: string;
   private registrationKey: string;
@@ -45,7 +45,7 @@ export class TwilioNotifier implements Notifier<Config> {
     }
   }
 
-  private async sendOneMessage(message: string, recipient: string): Promise<PluginReturn> {
+  private async sendOneMessage(message: string, recipient: string): Promise<Status> {
     try {
       const msg = await this.client.messages.create({
         body: message,
@@ -92,7 +92,7 @@ export class TwilioNotifier implements Notifier<Config> {
     }
   }
 
-  public async sendMessage(message: string, config: Config): Promise<PluginReturn[]> {
+  public async sendMessage(message: string, config: Config): Promise<Status[]> {
     let allNumbers = config.numbers;
 
     if (config.groups.length > 0) {
@@ -131,7 +131,7 @@ export class TwilioNotifier implements Notifier<Config> {
 
     return await Promise.all(
       allNumbers.map(number => {
-        const cleanedNumber = TwilioNotifier.cleanNumber(number);
+        const cleanedNumber = TwilioPlugin.cleanNumber(number);
         if (!cleanedNumber) {
           return Promise.resolve({
             error: true,
@@ -147,24 +147,18 @@ export class TwilioNotifier implements Notifier<Config> {
 
   // TODO: Check should verify target numbers are registered in HackGT registration/checkin - skipping this step for now.
   // eslint-disable-next-line class-methods-use-this
-  public async check(configTest: any): Promise<Config> {
-    const config: Config = {
-      numbers: [],
-      groups: [],
-    };
-
-    if (configTest.numbers) {
+  public async check(configTest: any): Promise<boolean> {
+    if (configTest.numbers.length > 0) {
       const phoneNumberTest = (phoneNumber: string) =>
         /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/.test(phoneNumber);
 
       if (!configTest.numbers.every(phoneNumberTest)) {
         throw new Error("Malformed phone number in config");
       }
-      config.numbers = configTest.numbers;
     }
 
     // TODO: replace legalTags with a query call to registration API
-    if (configTest.groups) {
+    if (configTest.groups.length > 0) {
       const legalTagString = process.env.REGISTRATION_LEGAL_TAGS; // Static method, this can't be a class attr.
       if (!legalTagString) {
         throw new Error("No registration tags provided");
@@ -177,10 +171,9 @@ export class TwilioNotifier implements Notifier<Config> {
       ) {
         throw new Error("Invalid group tag"); // TODO provide info about which tag is invalid
       }
-      config.groups = configTest.groups;
     }
 
-    return config;
+    return true;
   }
 
   // Naive cleanup - trim all non digit numbers, add a plus 1 if it doesn't exist
@@ -200,12 +193,10 @@ export class TwilioNotifier implements Notifier<Config> {
   }
 }
 
-const TwilioPlugin: Plugin<Config> = {
+export const TwilioSetup: PluginSetup<Config> = {
   schema: () => `{
-		numbers: [String!]
-    groups: [String!]
+		numbers: [String!]!
+    groups: [String!]!
 	}`,
-  init: () => new TwilioNotifier(),
+  init: () => new TwilioPlugin(),
 };
-
-export default TwilioPlugin;

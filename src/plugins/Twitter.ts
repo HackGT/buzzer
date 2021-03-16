@@ -1,7 +1,7 @@
 /* eslint-disable camelcase, @typescript-eslint/ban-types */
 import TwitterAPI from "twit";
 
-import { PluginReturn, Plugin, Notifier } from "./Plugin";
+import { PluginSetup, Plugin, Status } from "./types";
 
 type TwitterResponse = {
   data: {
@@ -12,7 +12,7 @@ type TwitterResponse = {
   };
 };
 
-class Twitter implements Notifier<{}> {
+class TwitterPlugin implements Plugin<{}> {
   private client: TwitterAPI;
 
   constructor() {
@@ -34,12 +34,12 @@ class Twitter implements Notifier<{}> {
     });
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  public async check(): Promise<{}> {
-    return {}; // No config currently
+  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars
+  public async check(configTest: any): Promise<boolean> {
+    return true;
   }
 
-  public async sendMessage(message: string): Promise<PluginReturn[]> {
+  public async sendMessage(message: string): Promise<Status[]> {
     const params = { status: message };
     try {
       const { data }: TwitterResponse = await this.client.post("statuses/update", params);
@@ -70,11 +70,9 @@ class Twitter implements Notifier<{}> {
   }
 }
 
-const TwitterPlugin: Plugin<{}> = {
+export const TwitterSetup: PluginSetup<{}> = {
   schema: () => `{
 		_: Boolean
 	}`,
-  init: () => new Twitter(),
+  init: () => new TwitterPlugin(),
 };
-
-export default TwitterPlugin;

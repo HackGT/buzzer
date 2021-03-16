@@ -1,55 +1,38 @@
-import Datastore from "nedb";
 import dotenv from "dotenv";
+import { Server } from "socket.io";
 
-import { Notifier, Plugin } from "./Plugin";
-import LiveSite from "./LiveSite";
-import Slack from "./Slack";
-import Twilio from "./Twilio";
-import Twitter from "./Twitter";
-import FCM from "./FCM";
-import MapGTPlugin from "./MapGT";
+import { PluginSetup, Plugin } from "./types";
+import { LiveSiteSetup } from "./LiveSite";
+import { SlackSetup } from "./Slack";
+import { TwilioSetup } from "./Twilio";
+import { TwitterSetup } from "./Twitter";
+import { FCMSetup } from "./FCM";
+import { MapGTPlugin, MapGTSetup } from "./MapGT";
 
 dotenv.config();
 
-export const mediaAPI: {
-  [key: string]: Plugin<any>;
+// Setup plugins
+export const pluginSetup: {
+  [key: string]: PluginSetup<any>;
 } = {
-  LiveSite,
-  Slack,
-  Twilio,
-  Twitter,
-  FCM,
+  liveSite: LiveSiteSetup,
+  slack: SlackSetup,
+  twilio: TwilioSetup,
+  twitter: TwitterSetup,
+  fcm: FCMSetup,
+  mapGT: MapGTSetup,
 };
 
-// Setup plugins
 export const plugins: {
-  [name: string]: Notifier<any>;
+  [key: string]: Plugin<any>;
 } = {};
 
-export function setupPlugins(socket: any) {
-  Object.keys(mediaAPI).forEach(pluginKey => {
-    plugins[pluginKey] = mediaAPI[pluginKey].init();
-  });
+export function setupPlugins(socket: Server) {
+  for (const [key, value] of Object.entries(pluginSetup)) {
+    plugins[key] = value.init();
+  }
 
-  plugins.mapgt = MapGTPlugin.init(socket);
+  if (plugins.mapGT instanceof MapGTPlugin) {
+    plugins.mapGT.setSocket(socket);
+  }
 }
-
-// Setup database logs
-export const logs: any = {};
-
-Object.keys(mediaAPI).forEach(key => {
-  const file = `./logs/${key.toLowerCase()}_log.db`;
-  logs[key] = new Datastore({
-    filename: file,
-    autoload: true,
-    timestampData: true,
-  });
-});
-
-// Hack for mapgt
-const fileMapgt = `./logs/mapgt_log.db`;
-logs.mapgt = new Datastore({
-  filename: fileMapgt,
-  autoload: true,
-  timestampData: true,
-});

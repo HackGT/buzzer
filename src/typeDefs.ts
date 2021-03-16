@@ -1,21 +1,16 @@
 import fs from "fs";
 import path from "path";
 
-import { mediaAPI } from "./plugins";
-import MapGTPlugin from "./plugins/MapGT";
-import { lowerSnake } from "./util";
+import { pluginSetup } from "./plugins";
+import { upperCamel } from "./util";
 
 export const SOCKETIO_KEY = "mapgt";
 const mainTypeDefs = fs.readFileSync(path.resolve(__dirname, "./api.graphql"), "utf8");
 
-const baseNames = Object.keys(mediaAPI);
+const baseNames = Object.keys(pluginSetup);
 
 // Generate PluginMaster body (See base api.graphql)
-const configStrArr = baseNames.map(name => {
-  const lowerSnaked = lowerSnake(name);
-  return `${lowerSnaked}: ${name}Config`;
-});
-configStrArr.push(`mapgt: mapgtConfig`);
+const configStrArr = baseNames.map(name => `${name}: ${upperCamel(name)}Config`);
 const pluginMasterBody = configStrArr.join("\n\t");
 const pluginMasterStr = `input PluginMaster {\n\t${pluginMasterBody}\n}`;
 
@@ -25,20 +20,16 @@ export const pluginTypeDefs: {
 export const configTypeDefs: {
   [key: string]: string;
 } = {};
-const processedPluginTypeDefs = Object.keys(mediaAPI).map(plugin => {
-  const schema = mediaAPI[plugin].schema();
-  const typeDef = `input ${plugin}Config ${schema}\n\ntype ${plugin}ConfigType ${schema}`;
-  pluginTypeDefs[plugin] = typeDef;
+
+const processedPluginTypeDefs = Object.entries(pluginSetup).map(([name, setup]) => {
+  const typeDef = `input ${upperCamel(name)}Config ${setup.schema()}`;
+  pluginTypeDefs[name] = typeDef;
   return typeDef;
 });
 
-const mapgtSchema = MapGTPlugin.schema();
-const mapgtTypeDef = `input mapgtConfig ${mapgtSchema}\n\ntype mapgtConfigType ${mapgtSchema}`;
-processedPluginTypeDefs.push(mapgtTypeDef); // Note we don't update pluginTypeDefs here
-
 let processedConfigKeys = "";
-Object.keys(mediaAPI).forEach(plugin => {
-  const schema = mediaAPI[plugin].schema();
+Object.values(pluginSetup).forEach(setup => {
+  const schema = setup.schema();
   processedConfigKeys = processedConfigKeys.concat(schema.slice(1, -1));
 });
 

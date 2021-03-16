@@ -1,16 +1,15 @@
-/* eslint-disable camelcase */
 import { WebClient } from "@slack/web-api";
 
-import { PluginReturn, Plugin, Notifier } from "./Plugin";
+import { PluginSetup, Plugin, Status } from "./types";
 
-interface Config {
+interface SlackConfig {
   channels: string[];
-  at_channel: boolean;
-  at_here: boolean;
-  user_token: string;
+  atChannel: boolean;
+  atHere: boolean;
+  userToken: string;
 }
 
-class Slack implements Notifier<Config> {
+export class SlackPlugin implements Plugin<SlackConfig> {
   private web: WebClient;
 
   constructor() {
@@ -37,7 +36,7 @@ class Slack implements Notifier<Config> {
     message: string,
     channel: string,
     userToken?: string
-  ): Promise<PluginReturn> {
+  ): Promise<Status> {
     try {
       const response = await this.getWeb(userToken).chat.postMessage({
         text: message,
@@ -58,31 +57,31 @@ class Slack implements Notifier<Config> {
     }
   }
 
-  public async sendMessage(message: string, config: Config): Promise<PluginReturn[]> {
+  public async sendMessage(message: string, config: SlackConfig): Promise<Status[]> {
     let processedMessage = message;
 
-    if (config.at_here) {
+    if (config.atHere) {
       processedMessage = `<!here> ${message}`;
-    } else if (config.at_channel) {
+    } else if (config.atChannel) {
       processedMessage = `<!channel> ${message}`;
     }
 
     return await Promise.all(
       config.channels.map(channel =>
-        this.sendOneMessage(processedMessage, channel, config.user_token)
+        this.sendOneMessage(processedMessage, channel, config.userToken)
       )
     );
   }
 
   // eslint-disable-next-line class-methods-use-this
-  public async check(configTest: any): Promise<Config> {
+  public async check(configTest: any): Promise<boolean> {
     if (configTest.channels.length === 0) {
       throw new Error("You must include at least one channel");
     }
 
     let response;
     try {
-      response = await this.getWeb(configTest.user_token).conversations.list({
+      response = await this.getWeb(configTest.userToken).conversations.list({
         exclude_archived: true,
         types: "public_channel,private_channel",
         limit: 300,
@@ -105,23 +104,16 @@ class Slack implements Notifier<Config> {
       throw new Error(`Invalid slack channels / groups: ${invalidChannels}`);
     }
 
-    return {
-      channels: configTest.channels,
-      at_channel: !!configTest.at_channel,
-      at_here: !!configTest.at_here,
-      user_token: configTest.user_token,
-    };
+    return true;
   }
 }
 
-const SlackPlugin: Plugin<Config> = {
+export const SlackSetup: PluginSetup<SlackConfig> = {
   schema: () => `{
 		channels: [String!]!
-		at_channel: Boolean!
-		at_here: Boolean!
-		user_token: String
+		atChannel: Boolean!
+		atHere: Boolean!
+		userToken: String
 	}`,
-  init: () => new Slack(),
+  init: () => new SlackPlugin(),
 };
-
-export default SlackPlugin;

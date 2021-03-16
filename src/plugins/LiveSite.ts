@@ -1,13 +1,13 @@
 import fetch from "node-fetch";
 
-import { PluginReturn, Plugin, Notifier } from "./Plugin";
+import { PluginSetup, Plugin, Status } from "./types";
 
-interface Config {
+interface LiveSiteConfig {
   title?: string;
   icon?: string;
 }
 
-class LiveSite implements Notifier<Config> {
+export class LiveSitePlugin implements Plugin<LiveSiteConfig> {
   private appId: string;
   private apiKey: string;
   private title: string | undefined;
@@ -24,15 +24,12 @@ class LiveSite implements Notifier<Config> {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  public async check(config: any): Promise<Config> {
-    return {
-      title: config.title,
-      icon: config.icon,
-    };
+  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars
+  public async check(configTest: any): Promise<boolean> {
+    return true;
   }
 
-  public async sendMessage(message: string, config: Config): Promise<PluginReturn[]> {
+  public async sendMessage(message: string, config: LiveSiteConfig): Promise<Status[]> {
     const response = await fetch("https://onesignal.com/api/v1/notifications", {
       method: "POST",
       body: JSON.stringify({
@@ -65,12 +62,10 @@ class LiveSite implements Notifier<Config> {
   }
 }
 
-const LiveSitePlugin: Plugin<Config> = {
+export const LiveSiteSetup: PluginSetup<LiveSiteConfig> = {
   schema: () => `{
 		title: String
 		icon: String
 	}`,
-  init: () => new LiveSite(),
+  init: () => new LiveSitePlugin(),
 };
-
-export default LiveSitePlugin;

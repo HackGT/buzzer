@@ -1,58 +1,63 @@
-import { PluginReturn, Notifier } from "./Plugin";
+import { Server } from "socket.io";
+
+import { PluginSetup, Plugin, Status } from "./types";
 
 // MapGT will only forward expected variables
-interface Config {
+export interface MapGTConfig {
   area: string;
-  title: string;
+  text: string;
   time: string;
 }
 
 const SOCKETIO_EVENT = "buzzer_message";
 
-export class MapGT implements Notifier<Config> {
-  private socket: any;
+export class MapGTPlugin implements Plugin<MapGTConfig> {
+  private socket?: Server;
 
-  constructor(socket: any) {
-    this.socket = socket;
-  }
+  public async sendMessage(message: string, config: MapGTConfig): Promise<Status[]> {
+    if (!this.socket) {
+      return [
+        {
+          error: true,
+          key: "default",
+          message: "Socket is not defined",
+        },
+      ];
+    }
 
-  public async sendMessage(message: string, config: Config): Promise<PluginReturn[]> {
     const messageJson: any = {
       message,
       area: config.area,
-      title: config.title,
+      text: config.text,
       time: config.time,
     };
 
     this.socket.emit(SOCKETIO_EVENT, messageJson);
-    return Promise.resolve([
+    return [
       {
         error: false,
         key: "default",
         message: "Socket emitted",
       },
-    ]);
+    ];
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  public async check(configTest: any): Promise<Config> {
-    return {
-      area: configTest.area,
-      title: configTest.title,
-      time: configTest.time,
-    };
+  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars
+  public async check(configTest: any): Promise<boolean> {
+    return true;
+  }
+
+  public setSocket(socket: Server) {
+    this.socket = socket;
   }
 }
 
 // Not a real plugin due to need for socket
-// TODO split schema and init
-const MapGTPlugin = {
+export const MapGTSetup: PluginSetup<MapGTConfig> = {
   schema: () => `{
 		area: String
-		title: String
+		text: String
 		time: String
 	}`,
-  init: (socket: any) => new MapGT(socket),
+  init: () => new MapGTPlugin(),
 };
-
-export default MapGTPlugin;

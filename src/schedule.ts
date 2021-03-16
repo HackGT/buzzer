@@ -5,7 +5,7 @@ import { DateTime } from "luxon";
 
 import { resolvers } from "./graphql";
 import { flatten } from "./util";
-import { PluginReturn } from "./plugins/Plugin";
+import { Status } from "./plugins/types";
 
 const CMS_EVENTS_QUERY = (startDate_gte: string, startDate_lte: string) => `{
 	allEvents(where: {
@@ -97,13 +97,13 @@ async function scheduleCMS() {
       },
     };
 
-    const pluginReturn = await resolvers.Query.send_message(null, {
+    const pluginReturn = await resolvers.Query.sendMessage(null, {
       plugins: pluginJson,
       message,
     });
 
-    const errors = flatten(pluginReturn.map(plugin => plugin.errors)) as PluginReturn[];
-    console.error(errors.filter(error => error.error)); // Log messages to console when error is true
+    const results = flatten(pluginReturn.map(plugin => plugin.results)) as Status[];
+    console.error(results.filter(result => result.error)); // Log messages to console when error is true
   });
 }
 

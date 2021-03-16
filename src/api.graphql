@@ -3,8 +3,8 @@ schema {
 }
 
 type Query {
-  send_message(message: String!, plugins: PluginMaster!): [PluginReturn!]!
-  get_messages(plugin: String!): [MessageReturn!]!
+  sendMessage(message: String!, plugins: PluginMaster!): [PluginReturn!]!
+  getMessages(plugin: String!): [Message!]!
 }
 
 type Status { # corresponding to APIReturn
@@ -21,13 +21,13 @@ type Status { # corresponding to APIReturn
 
 type PluginReturn {
   plugin: String!
-  errors: [Status!]!
+  results: [Status!]!
 }
 
-type MessageReturn {
-  _id: ID!
-  message: String
+type Message {
+  id: ID!
+  message: String!
   config: MetaDataType!
   createdAt: String!
-  errors: [Status!]!
+  results: [Status!]!
 }
