@@ -1,11 +1,10 @@
 /* eslint-disable camelcase */
-import * as schedule from "node-schedule";
 import fetch from "node-fetch";
 import { DateTime } from "luxon";
 
-import { resolvers } from "./graphql";
-import { flatten } from "./util";
-import { Status } from "./plugins/types";
+import { resolvers } from "../api/graphql";
+import { flatten } from "../util";
+import { Status } from "../plugins/types";
 
 const CMS_EVENTS_QUERY = (startDate_gte: string, startDate_lte: string) => `{
 	allEvents(where: {
@@ -48,7 +47,7 @@ type CMSEvent = {
 // Keep track of already sent notifications
 const sentNotifications: any = {};
 
-async function scheduleCMS() {
+export async function scheduleCMS() {
   const CMS_URL = process.env.SCHEDULE_CMS_URL || "https://keystone.dev.hack.gt/admin/api";
 
   const currentTime = DateTime.now();
@@ -104,14 +103,5 @@ async function scheduleCMS() {
 
     const results = flatten(pluginReturn.map(plugin => plugin.results)) as Status[];
     console.error(results.filter(result => result.error)); // Log messages to console when error is true
-  });
-}
-
-export async function scheduleAll() {
-  await scheduleCMS();
-
-  // Execute this job every minute
-  schedule.scheduleJob("*/1 * * * *", async () => {
-    await scheduleCMS();
   });
 }

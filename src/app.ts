@@ -9,10 +9,10 @@ import morgan from "morgan";
 import { Server } from "socket.io";
 
 import { setupPlugins } from "./plugins";
-import typeDefs from "./typeDefs";
-import { isAdmin } from "./middleware";
-import { resolvers } from "./graphql";
-import { scheduleAll } from "./schedule";
+import typeDefs from "./api/typeDefs";
+import { isAdmin } from "./api/middleware";
+import { resolvers } from "./api/graphql";
+import { scheduleJobs } from "./jobs";
 
 dotenv.config();
 
@@ -66,7 +66,7 @@ app.use(
 
 async function runSetup() {
   setupPlugins(io);
-  await scheduleAll();
+  await scheduleJobs();
 }
 
 runSetup()

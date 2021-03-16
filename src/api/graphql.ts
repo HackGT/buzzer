@@ -1,7 +1,7 @@
 import { SOCKETIO_KEY } from "./typeDefs";
-import { plugins } from "./plugins";
-import { IMessage, Message } from "./schema";
-import { Status } from "./plugins/types";
+import { plugins } from "../plugins";
+import { IMessage, Message } from "../schema";
+import { Status } from "../plugins/types";
 
 interface PluginReturn {
   plugin: string;
