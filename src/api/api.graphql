@@ -1,0 +1,33 @@
+schema {
+  query: Query
+}
+
+type Query {
+  sendMessage(message: String!, plugins: PluginMaster!): [PluginReturn!]!
+  getMessages(plugin: String!): [Message!]!
+}
+
+type Status { # corresponding to APIReturn
+  error: Boolean!
+  key: String!
+  message: String
+}
+
+# Note: input PluginMaster {} will be generated during the build process
+# Sample:
+# input PluginMaster {
+#   facebook: FacebookConfig
+# }
+
+type PluginReturn {
+  plugin: String!
+  results: [Status!]!
+}
+
+type Message {
+  id: ID!
+  message: String!
+  config: MetaDataType!
+  createdAt: String!
+  results: [Status!]!
+}
