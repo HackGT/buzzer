@@ -38,7 +38,7 @@ export class TwilioPlugin implements Plugin<Config> {
     this.registrationKey = Buffer.from(process.env.REGISTRATION_KEY || "").toString("base64");
     this.registrationUrl = process.env.REGISTRATION_GRAPHQL || "";
 
-    if (process.env.DEV_MODE !== "True") {
+    if (process.env.DEV_MODE !== "true") {
       if (!this.client || !this.serviceSid || !this.registrationKey || !this.registrationUrl) {
         throw new Error("Missing twilio env vars. exiting.");
       }

@@ -15,7 +15,7 @@ export class SlackPlugin implements Plugin<SlackConfig> {
   constructor() {
     const slackToken = process.env.SLACK_TOKEN || "";
 
-    if (process.env.DEV_MODE !== "True") {
+    if (process.env.DEV_MODE !== "true") {
       if (!slackToken) {
         throw new Error("Missing slack env vars. exiting.");
       }

@@ -17,7 +17,7 @@ export function isAdmin(
         error: "Incorrect auth token!",
       });
     }
-  } else if (process.env.DEV_MODE === "True") {
+  } else if (process.env.DEV_MODE === "true") {
     next();
   } else {
     response.status(401).json({

@@ -12,7 +12,7 @@ export class FCMPlugin implements Plugin<Config> {
 
   constructor() {
     this.token = process.env.FIREBASE_TOKEN || "";
-    if (process.env.DEV_MODE !== "True") {
+    if (process.env.DEV_MODE !== "true") {
       if (!this.token) {
         console.error("FIREBASE_TOKEN not specified");
       }

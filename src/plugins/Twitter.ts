@@ -20,7 +20,7 @@ class TwitterPlugin implements Plugin<{}> {
     const consumerSecret = process.env.TWITTER_CONSUMER_SECRET || " ";
     const accessToken = process.env.TWITTER_HACKGT_ACCESS_TOKEN || " ";
     const accessTokenSecret = process.env.TWITTER_HACKGT_ACCESS_TOKEN_SECRET || " ";
-    if (process.env.DEV_MODE !== "True") {
+    if (process.env.DEV_MODE !== "true") {
       if (!consumerKey || !consumerSecret || !accessToken || !accessTokenSecret) {
         throw new Error("Twitter env vars missing, aborting...");
       }

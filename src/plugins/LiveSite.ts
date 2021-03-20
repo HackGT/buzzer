@@ -17,7 +17,7 @@ export class LiveSitePlugin implements Plugin<LiveSiteConfig> {
     this.apiKey = process.env.ONESIGNAL_API_KEY || "";
     this.title = process.env.ONESIGNAL_DEFAULT_TITLE;
 
-    if (process.env.DEV_MODE !== "True") {
+    if (process.env.DEV_MODE !== "true") {
       if (!this.appId || !this.apiKey) {
         throw new Error("Some live site env vars not specified");
       }

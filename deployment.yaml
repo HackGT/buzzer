@@ -24,9 +24,12 @@ secrets:
   - REGISTRATION_KEY
 
 env:
+  DEV_MODE: false
+
   ONESIGNAL_DEFAULT_TITLE: HackGT Alert!
 
   REGISTRATION_GRAPHQL: https://registration.hack.gt/graphql
+  REGISTRATION_LEGAL_TAGS: "participant,mentor,volunteer"
 
   SCHEDULE_CMS_URL: https://cms.hack.gt/admin/api
   SCHEDULE_CMS_CURRENT_HACKATHON: HealthTech 2021
