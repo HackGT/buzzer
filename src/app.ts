@@ -58,12 +58,17 @@ app.use(
     schema,
   })
 );
+
 app.use(
   "/graphiql",
   graphiqlExpress({
     endpointURL: "/graphql",
   })
 );
+
+app.all("*", (req, res) => {
+  res.redirect("/graphql");
+});
 
 async function runSetup() {
   setupPlugins(io);
