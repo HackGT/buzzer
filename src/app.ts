@@ -1,3 +1,5 @@
+import "source-map-support/register";
+import * as Sentry from "@sentry/node";
 import express from "express";
 import compression from "compression";
 import dotenv from "dotenv";
@@ -7,7 +9,6 @@ import { makeExecutableSchema } from "graphql-tools";
 import cors from "cors";
 import morgan from "morgan";
 import { Server } from "socket.io";
-import "source-map-support/register";
 
 import { setupPlugins } from "./plugins";
 import mergedTypeDefs from "./api/typeDefs";
@@ -22,6 +23,13 @@ process.on("unhandledRejection", err => {
 });
 
 const app = express();
+
+// Sentry setup
+if (process.env.SENTRY_DSN) {
+  Sentry.init({ dsn: process.env.SENTRY_DSN });
+
+  app.use(Sentry.Handlers.requestHandler());
+}
 
 app.use(morgan("dev"));
 app.use(express.json());
@@ -69,6 +77,10 @@ app.use(
 app.all("*", (req, res) => {
   res.redirect("/graphql");
 });
+
+if (process.env.SENTRY_DSN) {
+  app.use(Sentry.Handlers.errorHandler());
+}
 
 async function runSetup() {
   setupPlugins(io);

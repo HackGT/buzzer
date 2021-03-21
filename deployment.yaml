@@ -29,6 +29,8 @@ secrets:
 env:
   DEV_MODE: false
 
+  SENTRY_DSN: https://2b0d80ee3f284033a7b8ab7d36780586@o429043.ingest.sentry.io/5686028
+
   ONESIGNAL_DEFAULT_TITLE: HackGT Alert!
 
   REGISTRATION_GRAPHQL: https://registration.hack.gt/graphql
