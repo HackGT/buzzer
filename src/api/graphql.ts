@@ -1,4 +1,3 @@
-import { SOCKETIO_KEY } from "./typeDefs";
 import { plugins } from "../plugins";
 import { IMessage, Message } from "../schema";
 import { Status } from "../plugins/types";
@@ -7,6 +6,8 @@ interface PluginReturn {
   plugin: string;
   results: Status[];
 }
+
+const SOCKETIO_KEY = "mapgt";
 
 export const resolvers = {
   Query: {

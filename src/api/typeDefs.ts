@@ -4,7 +4,6 @@ import path from "path";
 import { pluginSetup } from "../plugins";
 import { upperCamel } from "../util";
 
-export const SOCKETIO_KEY = "mapgt";
 const mainTypeDefs = fs.readFileSync(path.resolve(__dirname, "./api.graphql"), "utf8");
 
 const baseNames = Object.keys(pluginSetup);
@@ -43,8 +42,10 @@ ${processedStr} \n
 ${processedConfig}
 `;
 
-fs.writeFile("./src/api/merged.graphql", mergedTypeDefs, err => {
-  if (err) throw err;
-});
+if (process.env.DEV_MODE === "true") {
+  fs.writeFile("./src/api/merged.graphql", mergedTypeDefs, err => {
+    if (err) throw err;
+  });
+}
 
 export default mergedTypeDefs;

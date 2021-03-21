@@ -9,7 +9,7 @@ import morgan from "morgan";
 import { Server } from "socket.io";
 
 import { setupPlugins } from "./plugins";
-import typeDefs from "./api/typeDefs";
+import mergedTypeDefs from "./api/typeDefs";
 import { isAdmin } from "./api/middleware";
 import { resolvers } from "./api/graphql";
 import { scheduleJobs } from "./jobs";
@@ -45,7 +45,7 @@ const io = new Server(server, {
 });
 
 const schema = makeExecutableSchema({
-  typeDefs,
+  typeDefs: mergedTypeDefs,
   resolvers,
 });
 
