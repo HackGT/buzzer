@@ -53,19 +53,24 @@ export async function scheduleCMS() {
   const currentTime = DateTime.now();
   const currentTimeAhead = currentTime.plus({ minutes: 15 });
 
-  const response = await fetch(CMS_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": `application/json`,
-      "Accept": `application/json`,
-    },
-    body: JSON.stringify({
-      query: CMS_EVENTS_QUERY(currentTime.toISO(), currentTimeAhead.toISO()),
-    }),
-  });
+  let allEvents;
+  try {
+    const response = await fetch(CMS_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": `application/json`,
+        "Accept": `application/json`,
+      },
+      body: JSON.stringify({
+        query: CMS_EVENTS_QUERY(currentTime.toISO(), currentTimeAhead.toISO()),
+      }),
+    });
 
-  const json = await response.json();
-  const { allEvents } = json.data;
+    const json = await response.json();
+    allEvents = json.data.allEvents;
+  } catch (error) {
+    console.error(error);
+  }
 
   allEvents.forEach(async (event: CMSEvent) => {
     // Ensure notifications dont get sent out multiple times
