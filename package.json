@@ -5,7 +5,8 @@
   "description": "",
   "main": "src/app.ts",
   "scripts": {
-    "start": "ts-node src/app.ts",
+    "build": "gulp",
+    "start": "node dist/app.js",
     "dev": "nodemon --watch 'src/**/*' --exec 'ts-node' src/app.ts",
     "lint": "eslint ./ --fix; prettier ./ --write"
   },
@@ -57,7 +58,10 @@
     "@types/twit": "^2.2.28",
     "@types/whatwg-fetch": "0.0.33",
     "@types/zen-observable": "0.8.2",
+    "del": "^6.0.0",
     "eslint": "^7.22.0",
+    "gulp": "^4.0.2",
+    "gulp-typescript": "^6.0.0-alpha.1",
     "nodemon": "^2.0.7",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.3"
