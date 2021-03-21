@@ -7,6 +7,7 @@ import { makeExecutableSchema } from "graphql-tools";
 import cors from "cors";
 import morgan from "morgan";
 import { Server } from "socket.io";
+import "source-map-support/register";
 
 import { setupPlugins } from "./plugins";
 import mergedTypeDefs from "./api/typeDefs";
