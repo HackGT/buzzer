@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 import { PluginSetup, Plugin, Status } from "./types";
 import { flatten } from "../util";
 
-interface Config {
+interface TwilioConfig {
   numbers: string[]; // Well-formed phone numbers
   groups: string[]; // Groups to message - queried from registration - this will be based on participant type, until registration api clarifies
 }
@@ -23,7 +23,7 @@ query {
 /*
 	 Todo: fuzzy search
  */
-export class TwilioPlugin implements Plugin<Config> {
+export class TwilioPlugin implements Plugin<TwilioConfig> {
   private client: Twilio.Twilio;
   private serviceSid: string;
   private registrationKey: string;
@@ -92,7 +92,7 @@ export class TwilioPlugin implements Plugin<Config> {
     }
   }
 
-  public async sendMessage(message: string, config: Config): Promise<Status[]> {
+  public async sendMessage(message: string, config: TwilioConfig): Promise<Status[]> {
     let allNumbers = config.numbers;
 
     if (config.groups.length > 0) {
@@ -193,7 +193,7 @@ export class TwilioPlugin implements Plugin<Config> {
   }
 }
 
-export const TwilioSetup: PluginSetup<Config> = {
+export const TwilioSetup: PluginSetup<TwilioConfig> = {
   schema: () => `{
 		numbers: [String!]!
     groups: [String!]!

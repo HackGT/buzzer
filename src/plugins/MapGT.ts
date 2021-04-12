@@ -3,7 +3,7 @@ import { Server } from "socket.io";
 import { PluginSetup, Plugin, Status } from "./types";
 
 // MapGT will only forward expected variables
-export interface MapGTConfig {
+interface MapGTConfig {
   area: string;
   text: string;
   time: string;

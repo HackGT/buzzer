@@ -2,12 +2,12 @@ import fetch from "node-fetch";
 
 import { PluginSetup, Plugin, Status } from "./types";
 
-interface Config {
+interface FCMConfig {
   header: string;
   id: string;
 }
 
-export class FCMPlugin implements Plugin<Config> {
+export class FCMPlugin implements Plugin<FCMConfig> {
   private token: string;
 
   constructor() {
@@ -24,7 +24,7 @@ export class FCMPlugin implements Plugin<Config> {
     return true;
   }
 
-  public async sendMessage(message: string, config: Config): Promise<Status[]> {
+  public async sendMessage(message: string, config: FCMConfig): Promise<Status[]> {
     const response = await fetch("https://fcm.googleapis.com/fcm/send", {
       method: "POST",
       body: JSON.stringify({
@@ -53,7 +53,7 @@ export class FCMPlugin implements Plugin<Config> {
   }
 }
 
-export const FCMSetup: PluginSetup<Config> = {
+export const FCMSetup: PluginSetup<FCMConfig> = {
   schema: () => `{
 		header: String,
 		id: String,
