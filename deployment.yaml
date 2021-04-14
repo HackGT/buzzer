@@ -24,6 +24,8 @@ secrets:
 
   - SLACK_TOKEN
 
+  - SENDGRID_API_KEY
+
   - REGISTRATION_KEY
 
 env:
@@ -32,6 +34,12 @@ env:
   SENTRY_DSN: https://2b0d80ee3f284033a7b8ab7d36780586@o429043.ingest.sentry.io/5686028
 
   ONESIGNAL_DEFAULT_TITLE: HackGT Alert!
+
+  EMAIL_FROM: "HackGT Team <hello@hackgt.com>"
+  EMAIL_HEADER_IMAGE: "https://storage.googleapis.com/hackgt6-public/banner.png"
+  EMAIL_TWITTER_HANDLE: TheHackGT
+  EMAIL_FACEBOOK_HANDLE: thehackgt
+  EMAIL_CONTACT_ADDRESS: "hello@hack.gt"
 
   REGISTRATION_GRAPHQL: https://registration.hack.gt/graphql
   REGISTRATION_LEGAL_TAGS: "participant,mentor,volunteer"
