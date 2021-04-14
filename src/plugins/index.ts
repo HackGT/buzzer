@@ -8,6 +8,7 @@ import { TwilioSetup } from "./Twilio";
 import { TwitterSetup } from "./Twitter";
 import { FCMSetup } from "./FCM";
 import { MapGTPlugin, MapGTSetup } from "./MapGT";
+import { EmailSetup } from "./Email";
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ dotenv.config();
 export const pluginSetup: {
   [key: string]: PluginSetup<any>;
 } = {
+  email: EmailSetup,
   liveSite: LiveSiteSetup,
   slack: SlackSetup,
   twilio: TwilioSetup,

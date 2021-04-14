@@ -1,4 +1,8 @@
 export interface MetaDataType {
+  subject: string;
+  emails: string[];
+  headerImage?: string;
+
   title: string;
   icon: string;
 

@@ -34,6 +34,10 @@ const MessageSchema = new mongoose.Schema({
   },
   config: {
     type: {
+      subject: String,
+      emails: [String],
+      headerImage: String,
+
       title: String,
       icon: String,
 
