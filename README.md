@@ -3,6 +3,8 @@
 Buzzer is HackGT's notification system. It works on the basis of plugins, where each plugin represents a different platform that a notification can be sent on.
 
 ## Plugins
+- Email
+  - Send emails to recipients via SendGrid
 - FCM
   - Send push notifications to mobile devices
 - LiveSite
