@@ -1,3 +1,4 @@
+/* eslint-disable import/first, import/order */
 import "source-map-support/register";
 import * as Sentry from "@sentry/node";
 import express from "express";
@@ -12,7 +13,6 @@ import { Server } from "socket.io";
 
 import { setupPlugins } from "./plugins";
 import mergedTypeDefs from "./api/typeDefs";
-import { isAdmin } from "./api/middleware";
 import { resolvers } from "./api/graphql";
 import { scheduleJobs } from "./jobs";
 
@@ -22,7 +22,7 @@ process.on("unhandledRejection", err => {
   throw err;
 });
 
-const app = express();
+export const app = express();
 
 // Sentry setup
 if (process.env.SENTRY_DSN) {
@@ -52,6 +52,15 @@ const io = new Server(server, {
     credentials: true,
   },
 });
+
+import { isAdmin } from "./auth/auth";
+import { authRoutes } from "./routes/auth";
+
+app.get("/status", (req, res) => {
+  res.status(200).send("Success");
+});
+
+app.use("/auth", authRoutes);
 
 const schema = makeExecutableSchema({
   typeDefs: mergedTypeDefs,

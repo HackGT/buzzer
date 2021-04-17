@@ -80,3 +80,35 @@ const MessageSchema = new mongoose.Schema({
 });
 
 export const Message = mongoose.model<IMessage & mongoose.Document>("Message", MessageSchema);
+
+export interface IUser extends RootDocument {
+  uuid: string;
+  token: string;
+  name: string;
+  email: string;
+  admin: boolean;
+}
+
+const UserSchema = new mongoose.Schema(
+  {
+    uuid: {
+      type: String,
+      index: true,
+    },
+    token: String,
+    name: {
+      type: String,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    admin: Boolean,
+  },
+  {
+    usePushEach: true,
+  }
+);
+
+export const User = mongoose.model<IUser & mongoose.Document>("User", UserSchema);
