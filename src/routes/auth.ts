@@ -2,55 +2,45 @@ import express from "express";
 import fetch from "node-fetch";
 import passport from "passport";
 
-import { createLink, AuthenticateOptions } from "../auth/strategies";
-import { IUser } from "../schema";
-
 export const authRoutes = express.Router();
 
-authRoutes.route("/login").get((req, res, next) => {
-  const callbackURL = createLink(req, "auth/login/callback");
-  passport.authenticate("oauth2", { callbackURL } as AuthenticateOptions)(req, res, next);
-});
+authRoutes.get("/login", passport.authenticate("groundtruth"));
 
 authRoutes.route("/login/callback").get((req, res, next) => {
-  const callbackURL = createLink(req, "auth/login/callback");
-
   if (req.query.error === "access_denied") {
     res.redirect("/auth/login");
     return;
   }
 
-  passport.authenticate("oauth2", {
+  passport.authenticate("groundtruth", {
     failureRedirect: "/",
     successReturnToOrRedirect: "/",
-    callbackURL,
-  } as AuthenticateOptions)(req, res, next);
+  })(req, res, next);
 });
 
 authRoutes.route("/check").get((req, res) => {
   if (req.user) {
-    return res.status(200).json(req.user);
+    res.status(200).json(req.user);
+  } else {
+    res.status(400).json({ success: false });
   }
-  return res.status(400).json({ success: false });
 });
 
 authRoutes.route("/logout").all(async (req, res) => {
-  const user = req.user as IUser | undefined;
-
-  if (user) {
+  if (req.user) {
     try {
-      await fetch(`${process.env.GROUND_TRUTH_URL}/auth/logout`, {
+      await fetch(new URL("/api/user/logout", process.env.GROUND_TRUTH_URL).toString(), {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${req.user.token}`,
         },
       });
-      req.logout();
-      return res.redirect("/auth/login");
     } catch (err) {
-      return console.log(err);
+      console.error(err);
+    } finally {
+      req.logout();
     }
-  } else {
-    return res.redirect("/auth/login");
   }
+
+  res.redirect("/auth/login");
 });

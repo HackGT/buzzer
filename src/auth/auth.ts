@@ -4,9 +4,9 @@ import session from "express-session";
 import dotenv from "dotenv";
 import MongoStore from "connect-mongo";
 import mongoose from "mongoose";
+import { Strategy as GroundTruthStrategy } from "passport-ground-truth";
 
 import { app } from "../app";
-import { GroundTruthStrategy } from "./strategies";
 import { IUser, User } from "../schema";
 
 dotenv.config();
@@ -71,9 +71,36 @@ export function isAdmin(
   }
 }
 
-const groundTruthStrategy = new GroundTruthStrategy(String(process.env.GROUND_TRUTH_URL));
+passport.use(
+  new GroundTruthStrategy(
+    {
+      clientID: process.env.GROUND_TRUTH_CLIENT_ID,
+      clientSecret: process.env.GROUND_TRUTH_CLIENT_SECRET,
+      baseURL: process.env.GROUND_TRUTH_URL,
+      callbackURL: "/auth/login/callback",
+    },
+    async (req, accessToken, refreshToken, profile, done) => {
+      let user = await User.findOne({ email: profile.email });
 
-passport.use(groundTruthStrategy);
+      if (!user) {
+        user = new User({
+          uuid: profile.uuid,
+          token: profile.token,
+          name: profile.name,
+          email: profile.email,
+          admin: false,
+        });
+      } else {
+        user.token = accessToken;
+        user.uuid = profile.uuid;
+      }
+
+      await user.save();
+      done(null, user);
+    }
+  )
+);
+
 passport.serializeUser<string>((user, done) => {
   done(null, user.uuid);
 });
